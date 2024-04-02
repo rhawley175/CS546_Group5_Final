@@ -1,0 +1,1 @@
+Use this section to create all of your static pages.

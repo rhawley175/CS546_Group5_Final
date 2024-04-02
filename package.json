@@ -1,0 +1,26 @@
+{
+  "name": "cs546_group5_final",
+  "version": "1.0.0",
+  "description": "The final project for group 5 (Riley Hawley, Eddie Kuang, Jince Shi, Eric Tashji).",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rhawley175/CS546_Group5_Final.git"
+  },
+  "author": "Riley Hawley, Eddie Kuang, Jince Shi, Eric Tashji",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rhawley175/CS546_Group5_Final/issues"
+  },
+  "homepage": "https://github.com/rhawley175/CS546_Group5_Final#readme",
+  "dependencies": {
+    "express": "^4.19.2",
+    "express-handlebars": "^7.1.2",
+    "mongodb": "^6.5.0",
+    "path": "^0.12.7"
+  }
+}
