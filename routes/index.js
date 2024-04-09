@@ -1,5 +1,5 @@
 import userRoutes from './users.js';
-import journalRoutes from './routes.js';
+import journalRoutes from './journals.js';
 import sectionRoutes from './sections.js';
 import postRoutes from './posts.js';
 import commentRoutes from './comments.js';
