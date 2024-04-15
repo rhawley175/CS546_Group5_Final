@@ -1,0 +1,25 @@
+<head>
+        <title>{{username}}</title>
+        <link rel = "stylesheet" href="../../public/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>{{username}}</h1>
+    </header>
+    <main>
+        {{#if valid}}
+            {{#each journals}}
+                <h2>{{title}}</h2>
+            {{/each}}
+        {{/if}}
+        {{#each publicPosts}}
+            <h2>{{title}}</h2>
+            <p>{{time}}</p>
+            <p>{{content}}</p>
+        {{/each}}
+        {{#each comments}}
+            <p>{{comment}}</p>
+        {{/each}}
+    </main>
+    <script src="../../public/js/users.js"></script>
+</body>

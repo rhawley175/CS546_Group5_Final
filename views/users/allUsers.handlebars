@@ -1,0 +1,15 @@
+<head>
+        <title>All Users</title>
+        <link rel = "stylesheet" href="../../public/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>All Users</h1>
+    </header>
+    <main>
+        {{#each users}}
+        <a href="/users/get/{{username}}">{{username}}</a>
+        {{/each}}
+    </main>
+    <script src="../../public/js/users.js"></script>
+</body>
