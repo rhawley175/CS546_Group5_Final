@@ -256,5 +256,6 @@ router
         return res.status(500).json({error: "500: Cannot logout."});
     }
 });
+const router = Router();
 
 export default router;
