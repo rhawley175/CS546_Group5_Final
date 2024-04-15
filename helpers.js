@@ -1,0 +1,115 @@
+import {users} from './config/mongoCollections.js';
+import validator from 'email-validator';
+import {ObjectId} from 'mongodb';
+
+
+//General helpers
+function checkString(string, val) {
+    if (!string) throw "The " + val + " was not provided.";
+    if (typeof string !== 'string') throw "The " + val + " is not a string.";
+    string = string.trim();
+    if (string.length === 0) throw "The " + val + " consists only of spaces.";
+    return string;
+};
+
+function checkNum(num, val) {
+    if (!num) throw "The " + val + " was not provided.";
+    if (typeof num !== 'number') throw "The " + val + " is not a number.";
+    return num;
+};
+
+//Helpers for users
+function checkUsername(username) {
+    username = checkString(username, "username");
+    let chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*";
+    if (username.length < 8) throw "The username must consist of at least 8 characters.";
+    if (username.length > 25) throw "The username cannot have more than 25 characters.";
+    for (let i in username) {
+        if (!chars.includes(username[i])) throw "The username can only consist of letters, numbers, and the following special characters: !@#$%^&*. Spaces are not allowed.";
+    }
+    return username;
+};
+
+const checkNewUsername = async(username) => {
+    username = checkUsername(username);
+    const userCollection = await users();
+    const oldUser = await userCollection.findOne({username: username});
+    if (oldUser || username === "visitingUser" || username === "login") throw "This username has already been used.";
+    return username;
+};
+
+function checkPassword(password) {
+    password = checkString(password, "password");
+    if (password.length < 8) throw "The password must consist of at least 8 characters.";
+    if (password.length > 25) throw "The password cannot have more than 25 characters.";
+    let caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let letters = "abcdefghijklmnopqrstuvwxyz";
+    let numbers = "1234567890";
+    let specialChars = "!@#$%^&*";
+    let cap = false;
+    let number = false;
+    let specialChar = false;
+    for (let i in password) {
+        if (caps.includes(password[i])) cap = true;
+        else if (numbers.includes(password[i])) number = true;
+        else if (specialChars.includes(password[i])) specialChar = true;
+        else if (!letters.includes(password[i])) throw "The password can only consist of numbers, letters, and the following special characters: !@#$%^&*. Spaces are not allowed.";
+    }
+    if (!cap || !number || !specialChar) throw "The password must contain at least one uppercase letter, one number, and one of the following special characters: !@#$%^&*.";
+    return password;
+};
+
+function checkAge(age) {
+    age = checkNum(age, "age");
+    if (!Number.isInteger(age)) throw "The age is not a whole number.";
+    if (age < 0 || age > 100) throw "The age is invalid.";
+    if (age < 18) throw "We're sorry, but you're too young to access this application. Please contact a parent or guardian.";
+    return age;
+};
+
+function checkEmail(email) {
+    email = checkString(email, "email");
+    if (!validator.validate(email)) throw "The email is invalid.";
+    return email;
+};
+
+const checkNewEmail = async (email) => {
+    email = checkEmail(email);
+    const userCollection = await users();
+    const oldEmail = await userCollection.findOne({email: email});
+    if (oldEmail) throw "This email has already been used.";
+    return email;
+}
+
+function checkName(name, nameVal) {
+    name = checkString(name, nameVal);
+    if (name.length < 2 || name.length > 25) throw "The " + nameVal + " is invalid.";
+    let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYXabcdefghijklmnopqrstuvwxyz\'";
+    for (let i in name) {
+        if (!chars.includes(name[i])) throw "The " + nameVal + " is invalid.";
+    }
+    name = name[0].toUpperCase() + name.slice(1);
+    return name;
+};
+
+function checkLogin(login) {
+    login = checkString(login, "username or email");
+    if (login.includes(" ")) throw "The username or email is invalid.";
+    return login;
+};
+
+function checkRole(role) {
+    role = checkString(role, "role");
+    if (role !== "admin" && role !== "user") throw "The role is invalid.";
+    return role;
+};
+
+function checkObject(object) {
+    if (!object) throw "The update object was not provided.";
+    if (typeof object !== 'object') throw "The updateObject is not an object.";
+    if (Object.keys(object).length === 0) throw "The updateObject is empty.";
+    return object;
+}
+
+export { checkString, checkNewUsername, checkPassword, checkAge, checkNewEmail, checkName, checkEmail, checkUsername, checkLogin, 
+    checkRole, checkObject };

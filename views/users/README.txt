@@ -1,1 +1,0 @@
-Use this section to create views for your given collection.
