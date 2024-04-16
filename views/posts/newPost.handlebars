@@ -1,0 +1,31 @@
+<main>
+    <h1>New Journal Entry</h1>
+        <form id="entryForm" method="POST" action="newPost">
+            <div class="title">
+                <label for="titleInput">Title:
+                    <input id="titleInput" name="titleInput" placeholder="Enter Title">
+                </label>
+            </div>
+            <div class="text-label">
+                    <label for="entryText">Journal Entry Text:</label>
+            </div>
+            <div class="text-box">
+                    <textarea id="entryText" name="entryText" rows="10" cols="50" placeholder="Enter Text Here"></textarea>
+            </div>
+            <div class="public">
+                <label for="pub">Public?:
+                    <select name="pub" id="pub">
+                        <option value="public">Public</option>
+                        <option value="private">Private</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="button">
+                <button id="saveButton">Save Entry</button>
+            </div>
+            {{#if hasError}}
+                <p id="error" class="error">{{error}}</p>
+            {{/if}}
+        </form>
+</main>
