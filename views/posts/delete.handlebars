@@ -3,8 +3,9 @@
     <form id="deleteForm" method="POST" action="delete">
     <label for="deleteId">ID:
         <input id="deleteId" name="deleteId" placeHolder="Enter ID to Delete">
-        <button id="deleteButton">Delete Entry</button>
+        
     </label>
+    <button id="deleteButton">Delete Entry</button>
     <p>{{message}}</p>
     {{#if hasError}}
         <p id="error" class="error">{{error}}</p>
