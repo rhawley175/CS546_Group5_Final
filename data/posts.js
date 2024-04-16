@@ -136,3 +136,33 @@ return insertInfo.insertedId.toString();
 
 
 }
+
+
+export const getPost = async(postId) => {
+    if(postId===undefined){
+        throw 'Post ID is not provided.';
+    }
+
+    if(typeof postId !=='string'){
+        throw 'Input is not a string.';
+    }
+
+    postId=postId.trim();
+    
+    if(postId.length===0){
+        throw 'Input is empty string.';
+    }
+
+    if(!ObjectId.isValid(postId)){
+        throw 'Invalid object ID.';
+    }
+
+    const postCollection = await posts();
+    const post = await postCollection.findOne({_id: new ObjectId(postId)});
+
+    if(post===null){
+        throw 'No post with that ID.';
+    }
+
+    return post;
+}
