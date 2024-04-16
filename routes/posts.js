@@ -96,13 +96,13 @@ router
             
 
             let deletedPost = await deletePost(trimpostId);
-            console.log(deletedPost)
-            return res.status(200).render('posts/delete', {message: 'Deleted successfully.'});
+            
+            return res.status(200).render('posts/delete', {title: 'Delete Post', message: 'Deleted successfully.'});
 
         }
         
         catch(e){
-            return res.status(404).render('posts/delete', {hasError: true, error: e});
+            return res.status(404).render('posts/delete', {title: 'Delete Post', hasError: true, error: e});
         }
 
     })
