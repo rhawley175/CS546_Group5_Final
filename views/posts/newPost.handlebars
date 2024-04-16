@@ -20,7 +20,23 @@
                     </select>
                 </label>
             </div>
-
+            <label for="usernameInput">Usernames
+                <input id="usernameInput" name="usernameInput" placeholder="Enter Usernames to Share With">
+            </label>
+            <br>
+            <br>
+            <br>
+            <label for="sectionIdInput">Section ID
+                <input id="sectionIdInput" name="sectionIdInput" placeholder="Enter Section ID">
+            </label>
+            <br>
+            <br>
+            <br>
+            <div class="post-reply">
+                {{#if success}}
+                    <p id="postId">Posted Successfully. Your Post ID: {{postId}}</p>
+                {{/if}}
+            </div>
             <div class="button">
                 <button id="saveButton">Save Entry</button>
             </div>
