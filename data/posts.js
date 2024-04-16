@@ -166,3 +166,33 @@ export const getPost = async(postId) => {
 
     return post;
 }
+
+export const deletePost = async (postId) =>{
+    if(postId===undefined){
+        throw 'Post ID is not provided.';
+    }
+
+    if(typeof postId !=='string'){
+        throw 'Input is not a string.';
+    }
+
+    postId=postId.trim();
+    
+    if(postId.length===0){
+        throw 'Input is empty string.';
+    }
+
+    if(!ObjectId.isValid(postId)){
+        throw 'Invalid object ID.';
+    }
+
+    const postCollection = await posts();
+    
+    const deletionInfo = await postCollection.findOneAndDelete({_id:  new ObjectId(postId)});
+
+    if(!deletionInfo){
+        throw 'Could not delete post.';
+    }
+
+    return {"deleted": true};
+}
