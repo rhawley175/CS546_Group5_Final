@@ -67,3 +67,42 @@ router
             return res.status(404).render('posts/post', {hasError: true, error:e});
         }
     })
+
+
+router
+    .route('/delete')
+    .get(async(req, res) => {
+        res.render('posts/delete', {title: 'Delete Post'});
+
+    })
+    .post(async(req,res) => {
+        const data=req.body;
+        try{
+            
+            if(!data.deleteId){
+                throw 'Post ID is not provided.';
+            }
+        
+            if(typeof data.deleteId !=='string'){
+                throw 'Input is not a string.';
+            }
+        
+            const trimpostId=data.deleteId.trim();
+            
+            if(trimpostId.length===0){
+                throw 'Input is empty string.';
+            }
+        
+            
+
+            let deletedPost = await deletePost(trimpostId);
+            console.log(deletedPost)
+            return res.status(200).render('posts/delete', {message: 'Deleted successfully.'});
+
+        }
+        
+        catch(e){
+            return res.status(404).render('posts/delete', {hasError: true, error: e});
+        }
+
+    })
