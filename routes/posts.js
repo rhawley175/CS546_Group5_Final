@@ -29,3 +29,41 @@ router
         res.status(400).render('posts/newPost', {hasError: true, error: e, title: 'New Post'});
     }
 });
+
+
+router
+    .route('/post/:postId')
+    .get(async(req, res) => {
+        try{
+            
+            const postId=req.params.postId;
+            
+            if(!postId){
+                throw 'Post ID is not provided.';
+            }
+        
+            if(typeof postId !=='string'){
+                throw 'Input is not a string.';
+            }
+           
+            const trimpostId=postId.trim();
+            
+            if(trimpostId.length===0){
+                throw 'Input is empty string.';
+            }
+        
+            
+            const post = await getPost(trimpostId);
+            
+            if(post){
+                console.log("Success");
+                return res.status(200).render('posts/post', {title: post.title, content: post.content});
+            }
+            else{
+                res.status(500).render('posts/post', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
+            }
+        }
+        catch(e){
+            return res.status(404).render('posts/post', {hasError: true, error:e});
+        }
+    })
