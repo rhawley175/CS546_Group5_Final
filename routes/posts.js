@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {addPost, getPost, deletePost} from '../data/posts.js';
+import {addPost, getPost, deletePost, updatePost} from '../data/posts.js';
 
 const router = Router();
 
@@ -106,3 +106,51 @@ router
         }
 
     })
+
+router
+    .route('/update')
+    .get(async(req,res) => {
+        res.render('posts/update', {title: 'Update Post'});   //change handlebar to entry name.
+    })
+    .post(async(req,res) => {
+        const data=req.body;
+        
+        try{
+            const updates = {};
+
+
+            if (data.sectionIdInput.trim() !== '') {
+                updates.sectionId = data.sectionIdInput.trim();
+            }
+
+            if (data.titleInput.trim() !== '') {
+                updates.title = data.titleInput.trim();
+            }
+
+            if (data.entryText.trim() !== '') {
+                updates.content = data.entryText.trim();
+            }
+
+
+            if (data.pub !== '') {
+                updates.pub = data.pub;
+            }
+
+            if (data.usernameInput !== undefined) {
+                updates.usernames = data.usernameInput !== null && data.usernameInput.trim() !== '' ? data.usernameInput.trim() : null;
+            }
+
+            const entry = await updatePost(data.postIdInput, updates);
+            if(entry){
+                return res.render('posts/update', {title: 'Update Post', success: true, postId: entry});
+            }
+            else{
+                res.status(500).render('posts/update', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
+            }
+        }
+        catch(e){
+            res.status(400).render('posts/update', {hasError: true, error: e, title: 'Update Post'});
+        }
+    });
+
+export default router;
