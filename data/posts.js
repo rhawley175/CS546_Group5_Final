@@ -196,3 +196,109 @@ export const deletePost = async (postId) =>{
 
     return {"deleted": true};
 }
+
+export const updatePost = async (
+    postId,
+    updates
+) => {
+    let postCollection = await posts();
+
+    if (!postId || typeof postId !== 'string') {
+        throw 'Invalid postId.';
+    }
+
+    postId = new ObjectId(postId);
+
+    let existingPost = await postCollection.findOne({ _id: postId });
+    if (!existingPost) {
+        throw 'Post not found.';
+    }
+
+    
+    if (updates && typeof updates === 'object') {
+        for (let field in updates) {
+            
+            if (updates[field] !== null) {
+                switch (field) {
+                    case 'sectionId':
+                        if (typeof updates[field] !== 'string') {
+                            throw 'Section ID must be a string.';
+                        }
+                        existingPost.sectionId = updates[field].trim();
+                        break;
+                    case 'title':
+                        if (typeof updates[field] !== 'string') {
+                            throw 'Title must be a string.';
+                        }
+                        existingPost.title = updates[field].trim();
+                        break;
+                    case 'content':
+                        if (typeof updates[field] !== 'string') {
+                            throw 'Content must be a string.';
+                        }
+                        existingPost.content = updates[field].trim();
+                        break;
+                    case 'pub':
+                        if (typeof updates[field] !== 'string') {
+                            throw 'Pub must be a string.';
+                        }
+                        let pub = updates[field].toLowerCase().trim();
+                        if (pub !== 'public' && pub !== 'private') {
+                            throw 'Pub must be either "public" or "private".';
+                        }
+                        existingPost.pub = pub;
+                        break;
+                    case 'usernames':
+                        if (typeof updates[field] !== 'string') {
+                            throw 'Usernames must be a string.';
+                        }
+                        let usernamesArray = updates[field].split(',').map(username => username.trim());
+                        existingPost.usernames = usernamesArray.filter(username => username !== '');
+                        break;
+                    case 'image':
+                        if (typeof updates[field] !== 'string') {
+                            throw 'Image must be a string.';
+                        }
+                        existingPost.image = updates[field].trim();
+                        break;
+                    default:
+                        throw `Invalid field '${field}' for updating.`;
+                }
+            }
+        }
+    }
+
+    
+    if (Object.keys(updates || {}).length > 0) {
+        existingPost.time = new Date().toLocaleString();
+    }
+
+    let updateFields = {};
+    
+    if (existingPost.sectionId !== null && updates.sectionId !== null) {
+        updateFields.sectionId = existingPost.sectionId;
+    }
+    if (existingPost.title !== null && updates.title !== null) {
+        updateFields.title = existingPost.title;
+    }
+    if (existingPost.content !== null && updates.content !== null) {
+        updateFields.content = existingPost.content;
+    }
+    if (existingPost.pub !== null && updates.pub !== null) {
+        updateFields.pub = existingPost.pub;
+    }
+    if (existingPost.usernames !== null && updates.usernames !== null) {
+        updateFields.usernames = existingPost.usernames;
+    }
+    if (existingPost.image !== null && updates.image !== null) {
+        updateFields.image = existingPost.image;
+    }
+
+    let updateResult = await postCollection.updateOne({ _id: postId }, { $set: updateFields });
+
+    if (updateResult.modifiedCount === 0) {
+        throw 'Could not update the post.';
+    }
+
+    return { updated: true };
+}
