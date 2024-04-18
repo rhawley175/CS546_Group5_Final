@@ -1,14 +1,14 @@
 <main>
-    <h1>Search Journal Entry by Keyword</h1>
-    <form id="searchForm" method="POST" action="search">
+    <h1>Search Journal Entry</h1>
+    <form id="searchForm" method="POST" action="/posts/search">
         <div class="search">
             <label for="searchInput">Title:
                 <input id="searchInput" name="searchInput" placeholder="Enter Search">
             </label>
         </div>
-        
-        
-        
+        <div class="text-label">
+            
+        </div>
         <div class="button">
             <button type="submit" id="searchButton">Save Entry</button>
         </div>
@@ -16,7 +16,7 @@
         <p id="message">{{message}}</p>
         <ol class="ol" id="search">
             {{#each searchResults}}
-               
+                
                 <li><a href="/posts/{{this._id}}">{{this.title}}</a></li>
             {{/each}}
         </ol>
