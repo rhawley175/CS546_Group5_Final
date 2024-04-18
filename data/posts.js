@@ -167,6 +167,29 @@ export const getPost = async(postId) => {
     return post;
 }
 
+export const getPostsByKeyword = async (keyword) => {
+    if (typeof keyword !== 'string') {
+        throw 'Keyword is not a string.';
+    }
+
+    const trimmedKeyword = keyword.trim();
+
+    if (trimmedKeyword.length === 0) {
+        throw 'Keyword is empty string.';
+    }
+
+    const postCollection = await posts();
+    const matchingPosts = await postCollection.find({ 
+        title: { $regex: trimmedKeyword, $options: 'i' },
+        pub: 'public'}).toArray();
+
+    if (matchingPosts.length === 0) {
+        throw 'No posts found with title containing keyword: ' + trimmedKeyword;
+    }
+
+    return matchingPosts;
+};
+
 export const deletePost = async (postId) =>{
     if(postId===undefined){
         throw 'Post ID is not provided.';
