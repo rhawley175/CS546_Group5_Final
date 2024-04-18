@@ -108,7 +108,7 @@ router
                 return res.render('posts/update', {title: 'Update Post', success: true, postId: entry});
             }
             else{
-                res.status(500).render('posts/update', {hasError: true, error: 'Internal Server Error.', title: 'Update Post'});
+                res.status(500).render('posts/update', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
             }
         }
         catch(e){
@@ -134,13 +134,11 @@ router
         try {
             const searchResults = await getPostsByKeyword(searchInput);
             
-            if (searchResults.length === 0) {
-                return res.render('posts/search', { title: 'Search Post', message: 'No results found' });
-            }
+            
             
             return res.render('posts/search', {title: 'Search Post', searchResults });
         } catch (error) {
-            return res.render('posts/search', {title: 'Search Post',  error: error.message });
+            return res.render('posts/search', {title: 'Search Post',  error: error });
         }
     });
 
@@ -177,7 +175,7 @@ router
             }
         }
         catch(e){
-            return res.status(404).render('posts/post', {hasError: true, error:e});
+            return res.status(404).render('posts/post', {title: 'Error', hasError: true, error:e});
         }
     });
 
