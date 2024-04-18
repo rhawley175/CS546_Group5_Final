@@ -32,7 +32,7 @@ router
 
 
 router
-    .route('/post/:postId')
+    .route('/:postId')
     .get(async(req, res) => {
         try{
             
@@ -56,7 +56,7 @@ router
             const post = await getPost(trimpostId);
             
             if(post){
-                console.log("Success");
+                
                 return res.status(200).render('posts/post', {title: post.title, content: post.content});
             }
             else{
@@ -66,7 +66,7 @@ router
         catch(e){
             return res.status(404).render('posts/post', {hasError: true, error:e});
         }
-    })
+    });
 
 
 router
@@ -152,5 +152,29 @@ router
             res.status(400).render('posts/update', {hasError: true, error: e, title: 'Update Post'});
         }
     });
+router.route('/search')
+    .get(async (req, res) => {
+        res.render('posts/search', { title: 'Search Post' }); 
+    })
+    .post(async (req, res) => { 
+        const searchInput = req.body.searchInput.trim();
+
+        if (!searchInput) {
+            return res.render('posts/search', { error: 'Search input is empty' });
+        }
+
+        try {
+            const searchResults = await getPostsByKeyword(searchInput);
+            
+            if (searchResults.length === 0) {
+                return res.render('posts/search', { message: 'No results found' });
+            }
+            
+            return res.render('posts/search', { searchResults });
+        } catch (error) {
+            return res.render('posts/search', { error: error.message });
+        }
+    });
+
 
 export default router;
