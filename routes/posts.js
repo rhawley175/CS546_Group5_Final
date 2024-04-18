@@ -1,6 +1,6 @@
 import {Router} from 'express';
-import {addPost, getPost, deletePost, updatePost} from '../data/posts.js';
-
+import {addPost, getPost, deletePost, updatePost, getPostsByKeyword} from '../data/posts.js';
+ 
 const router = Router();
 
 
@@ -31,45 +31,8 @@ router
 });
 
 
-router
-    .route('/:postId')
-    .get(async(req, res) => {
-        try{
-            
-            const postId=req.params.postId;
-            
-            if(!postId){
-                throw 'Post ID is not provided.';
-            }
-        
-            if(typeof postId !=='string'){
-                throw 'Input is not a string.';
-            }
-           
-            const trimpostId=postId.trim();
-            
-            if(trimpostId.length===0){
-                throw 'Input is empty string.';
-            }
-        
-            
-            const post = await getPost(trimpostId);
-            
-            if(post){
-                
-                return res.status(200).render('posts/post', {title: post.title, content: post.content});
-            }
-            else{
-                res.status(500).render('posts/post', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
-            }
-        }
-        catch(e){
-            return res.status(404).render('posts/post', {hasError: true, error:e});
-        }
-    });
 
-
-router
+    router
     .route('/delete')
     .get(async(req, res) => {
         res.render('posts/delete', {title: 'Delete Post'});
@@ -107,7 +70,7 @@ router
 
     })
 
-router
+    router
     .route('/update')
     .get(async(req,res) => {
         res.render('posts/update', {title: 'Update Post'});   //change handlebar to entry name.
@@ -152,7 +115,12 @@ router
             res.status(400).render('posts/update', {hasError: true, error: e, title: 'Update Post'});
         }
     });
-router.route('/search')
+
+
+    
+
+
+    router.route('/search')
     .get(async (req, res) => {
         res.render('posts/search', { title: 'Search Post' }); 
     })
@@ -175,6 +143,45 @@ router.route('/search')
             return res.render('posts/search', { error: error.message });
         }
     });
+
+    router
+    .route('/:postId')
+    .get(async(req, res) => {
+        try{
+            
+            const postId=req.params.postId;
+            
+            if(!postId){
+                throw 'Post ID is not provided.';
+            }
+        
+            if(typeof postId !=='string'){
+                throw 'Input is not a string.';
+            }
+           
+            const trimpostId=postId.trim();
+            
+            if(trimpostId.length===0){
+                throw 'Input is empty string.';
+            }
+        
+            
+            const post = await getPost(trimpostId);
+            
+            if(post){
+                
+                return res.status(200).render('posts/post', {title: post.title, content: post.content});
+            }
+            else{
+                res.status(500).render('posts/post', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
+            }
+        }
+        catch(e){
+            return res.status(404).render('posts/post', {hasError: true, error:e});
+        }
+    });
+
+
 
 
 export default router;
