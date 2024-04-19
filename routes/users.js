@@ -8,11 +8,11 @@ router
 .get(async (req, res) => {
     try {
         if (!req.session.user) return res.redirect("/users/login");
-        if (req.session.user.role !== "admin") return res.status(400).json({error: "Access Denied"});
+        if (req.session.user.role !== "admin") return res.status(400).render("users/error", {error: "Access Denied"});
         const userList = await users.getAllUsers();
         res.status(200).render("users/allUsers", {users: userList});
     } catch(e) {
-        return res.status(500).json({error: e});
+        return res.status(500).render("users/error", {error: e});
     }
 });
 
@@ -21,15 +21,15 @@ router
 .get(async (req, res) => {
     try {
         if (!req.session.user) res.status(200).render("users/register");
-        else if (req.session.user) res.redirect("users/get/" + req.session.user.username);
+        else if (req.session.user) res.redirect("/users/get/" + req.session.user.username);
         else throw "Cannot render the register page.";
     } catch(e) {
-        return res.status(500).json({error: e});
+        return res.status(500).render("users/error", {error: e});
     }
 }).post(async (req, res) => {
     let newUserData = req.body;
     if (!newUserData || Object.keys(newUserData).length === 0) {
-        return res.status(400).json({error: "There are no fields in the request body."});
+        return res.status(400).render("users/error", {error: "There are no fields in the request body."});
     }
     try {
         newUserData.usernameInput = await helpers.checkUsername(newUserData.usernameInput);
@@ -40,7 +40,7 @@ router
         newUserData.firstNameInput = helpers.checkName(newUserData.firstNameInput, "first name");
         newUserData.lastNameInput = helpers.checkName(newUserData.lastNameInput, "last name");
     } catch(e) {
-        return res.status(400).json({error: e});
+        return res.status(400).render("users/error", {error: e});
     }
     try {
         const newUser = await users.createUser(
@@ -55,7 +55,7 @@ router
             return res.status(200).redirect("/users/login");
         }
     } catch(e) {
-        return res.status(500).json({error: e});
+        return res.status(500).render("users/error", {error: e});
     }
 });
 
@@ -65,18 +65,18 @@ router
     try {
         return res.status(200).render("users/login");
     } catch(e) {
-        return res.status(500).json({error: e});
+        return res.status(500).render("users/error", {error: e});
     }
 }).post(async (req, res) => {
     let newUserData = req.body;
     if (!newUserData || Object.keys(newUserData).length === 0) {
-        return res.status(400).json({error: "There are no fields in the request body."});
+        return res.status(400).render("users/error", {error: "There are no fields in the request body."});
     }
     try {
         newUserData.loginInput = helpers.checkString(newUserData.loginInput);
         newUserData.passwordInput = helpers.checkString(newUserData.passwordInput);
     } catch(e) {
-        return res.status(400).json({error: e});
+        return res.status(400).render("users/error", {error: e});
     }
     try {
         const loggedUser = await users.loginUser(
@@ -86,7 +86,7 @@ router
         if (loggedUser) req.session.user = loggedUser;
         return res.redirect("/users/get/" + loggedUser.username);
     } catch(e) {
-        return res.status(400).json({error: e});
+        return res.status(400).render("users/error", {error: e});
     }
 });
 
@@ -105,13 +105,13 @@ router
         if (req.session.user) userAccessing = helpers.checkString(userAccessing, "accessing user");
         if (req.session.user) role = helpers.checkRole(role);
     } catch(e) {
-        return res.status(400).json({error: e});
+        return res.status(400).render("users/error", {error: e});
     }
     try {
         const getUser = await users.getUser(username, userAccessing, role);
         let valid;
-        if (!getUser) return res.status(404).json({error: "User not found."});
-        if (getUser.role === "admin" && (!req.session.user || role !== "admin")) return res.status(403).json({error: "Access denied."});
+        if (!getUser) return res.status(404).render("users/error", {error: "User not found."});
+        if (getUser.role === "admin" && (!req.session.user || role !== "admin")) return res.status(403).render("users/error", {error: "Access denied."});
         if (!req.session.user || req.session.user.username !== username) {
             valid = false;
             return res.status(200).render("users/user", {
@@ -138,7 +138,7 @@ router
             });
         };
     } catch(e) {
-        return res.status(400).json({error: e});
+        return res.status(500).render("users/error", {error: e});
     }
 });
 
@@ -150,7 +150,7 @@ router
     try {
         username = helpers.checkString(username, "username");
         const user = await users.getUser(username, req.session.user.username, req.session.user.role);
-        if (!user) return res.status(404).json({error: "User not found."});
+        if (!user) return res.status(404).render("users/error", {error: "User not found."});
         if (req.session.user.username !== username && req.session.user.role !== "admin") return res.status(403).json({error: "Access denied."});
         return res.status(200).render("users/update", {
             username: user.username,
@@ -163,7 +163,7 @@ router
         return res.status(400).json({error: e});
     }
 })
-.put(async (req, res) => {
+.post(async (req, res) => {
     const requestBody = req.body;
     if (!requestBody || Object.keys(requestBody).length === 0) {
         return res.status(400).json({error: "There are no fields in the request body."});
@@ -200,8 +200,8 @@ router
             newUser
         );
         if (updatedUser === "Cannot update the user, as nothing is being changed.") return res.status(400).json({error: updatedUser});
-        req.session.user = await users.getUser(newUser.username, newUser.username, newUser.role);
-        return res.redirect("/users/get/" + username);
+        req.session.user = await users.getUser(newUser.username, newUser.username, req.session.user.role);
+        return res.redirect("/users/get/" + req.session.user.username);
     } catch(e) {
         return res.status(400).json({error: e});
     }
@@ -222,7 +222,7 @@ router
         return res.status(400).json({error: e});
     }
 })
-.delete(async (req, res) => {
+.post(async (req, res) => {
     let username = req.params.username;
     if (!req.session.user) return res.redirect("/users/login");
     try {
@@ -256,6 +256,5 @@ router
         return res.status(500).json({error: "500: Cannot logout."});
     }
 });
-const router = Router();
 
 export default router;

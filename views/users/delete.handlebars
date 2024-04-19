@@ -7,7 +7,7 @@
         <h1>Delete {{username}}</h1>
     </header>
     <main>
-        <form id="delete-form" method="DELETE" action="/users/delete/{{username}}">
+        <form id="delete-form" method="POST" action="/users/delete/{{username}}">
             <label for="deleteButton">Are you sure you want to delete {{username}}?</label>
             <button type="submit">Delete</button>
         </form>
