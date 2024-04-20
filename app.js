@@ -43,7 +43,7 @@ app.listen(3000, () => {
 // import * as connection from './config/mongoConnection.js';
 
 // try {
-//     console.log(await users.updateUser("egtashji", "egtashji", "user", {username: "EricTashji"}));
+//     console.log(await users.updateUser("ETashjiG", "ETashjiG", "user", {password: "P@ssw0rd"}));
 // } catch(e) {
 //     console.log(e);
 // }

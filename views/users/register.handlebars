@@ -1,11 +1,11 @@
 <head>
         <title>Register</title>
-        <link rel = "stylesheet" href="../../public/css/styles.css">
+        <link rel = "stylesheet" href="../../public/css/main.css">
 </head>
 <body>
     <header>
         <h1>Register</h1>
-
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     </header>
     <main>
         <form id="registration-form" method="POST" action="/users/register">
@@ -31,7 +31,9 @@
             <input type="text" name="lastNameInput" id="lastNameInput">
             <br>
             <button type="submit">Register</button>
+            <ul hidden id="errors"></ul>
         </form>
     </main>
     <script src="../../public/js/users.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 </body>
