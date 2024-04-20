@@ -160,13 +160,13 @@ router
             lastName: user.lastName
         });
     } catch(e) {
-        return res.status(400).json({error: e});
+        return res.status(500).render("users/error", {error: e});
     }
 })
 .post(async (req, res) => {
     const requestBody = req.body;
     if (!requestBody || Object.keys(requestBody).length === 0) {
-        return res.status(400).json({error: "There are no fields in the request body."});
+        return res.status(400).render({error: "There are no fields in the request body."});
     }
     if (!req.session.user) return res.redirect("/users/login");
     let username = req.params.username;
@@ -179,10 +179,10 @@ router
         if (requestBody.passwordInput !== "") requestBody.passwordInput = helpers.checkPassword(requestBody.passwordInput);
         if (requestBody.ageInput !== "") requestBody.ageInput = helpers.checkAge(requestBody.ageInput);
         if (requestBody.emailInput !== "") requestBody.emailInput = await helpers.checkNewEmail(requestBody.emailInput);
-        if (requestBody.firstNameInput !== "") requestBody.firstName = helpers.checkName(requestBody.firstNameInput, "first name");
+        if (requestBody.firstNameInput !== "") requestBody.firstNameInput = helpers.checkName(requestBody.firstNameInput, "first name");
         if (requestBody.lastNameInput !== "") requestBody.lastName = helpers.checkName(requestBody.lastNameInput, "last name");
     } catch(e) {
-        return res.status(400).json({error: e});
+        return res.status(400).render("users/error", {error: e});
     }
     try {
         const newUser = {
@@ -199,11 +199,11 @@ router
             req.session.user.role,
             newUser
         );
-        if (updatedUser === "Cannot update the user, as nothing is being changed.") return res.status(400).json({error: updatedUser});
-        req.session.user = await users.getUser(newUser.username, newUser.username, req.session.user.role);
+        if (updatedUser === "Cannot update the user, as nothing is being changed.") return res.status(400).render("users/error", {error: updatedUser});
+        req.session.user = await users.getUser(updatedUser.username, updatedUser.username, req.session.user.role);
         return res.redirect("/users/get/" + req.session.user.username);
     } catch(e) {
-        return res.status(400).json({error: e});
+        return res.status(500).render("users/error", {error: e});
     }
 });
 
@@ -215,11 +215,11 @@ router
     try {
         username = helpers.checkUsername(username);
         const user = await users.getUser(username, req.session.user.username, req.session.user.role);
-        if (!user) return res.status(404).json({error: "We're sorry, we could not find the user: " + username + "."});
-        if (req.session.user.username !== username && req.session.user.role !== "admin") return res.status(404).json({error: "Access Denied."});
+        if (!user) return res.status(404).render("users/error", {error: "We're sorry, we could not find the user: " + username + "."});
+        if (req.session.user.username !== username && req.session.user.role !== "admin") return res.status(403).render("users/error", {error: "Access Denied."});
         return res.status(200).render("users/delete", {username: username});
     } catch(e) {
-        return res.status(400).json({error: e});
+        return res.status(500).render("users/error", {error: e});
     }
 })
 .post(async (req, res) => {
@@ -228,18 +228,18 @@ router
     try {
         username = helpers.checkUsername(username);
         const user = await users.getUser(username, req.session.user.username, req.session.user.role);
-        if (!user) return res.status(404).json({error: "We're sorry, we could not find the user: " + username + "."});
-        if (req.session.user.username !== username && req.session.user.role !== "admin") return res.status(404).json({error: "Access Denied."});
+        if (!user) return res.status(404).render("users/error", {error: "We're sorry, we could not find the user: " + username + "."});
+        if (req.session.user.username !== username && req.session.user.role !== "admin") return res.status(403).render("users/error", {error: "Access Denied."});
     } catch(e) {
-        return res.status(400).json({error: e});
+        return res.status(400).render("users/error", {error: e});
     }
     try {
         const deletedUser = await users.deleteUser(username, req.session.user.username, req.session.user.role);
-        if (!deletedUser) return res.status(500).json({error: "Could not delete the user " + username + "."});
+        if (!deletedUser) return res.status(500).render("users/error", {error: "Could not delete the user " + username + "."});
         req.session.user = null;
-        if (deletedUser.deleted) return res.status(200).json(deletedUser);
+        if (deletedUser.deleted) return res.status(200).redirect("/users/logout");
     } catch(e) {
-        return res.status(400).json ({error: e});
+        return res.status(400).render("users/error", {error: e});
     }
 });
 
@@ -249,11 +249,11 @@ router
     try {
         if (req.session.user) {
             req.session.destroy();
-            return res.status(200).json("Logged out.");
+            return res.redirect("/users/login");
         }
         else return res.redirect("/users/login")
     } catch(e) {
-        return res.status(500).json({error: "500: Cannot logout."});
+        return res.status(500).render("users/error", {error: "Cannot logout."});
     }
 });
 

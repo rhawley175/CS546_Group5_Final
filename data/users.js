@@ -178,5 +178,5 @@ export const updateUser = async(username, userAccessing, role, updateObject) => 
     newUser.comments = oldUser.comments;
     const updateInfo = await userCollection.findOneAndReplace({username: username}, newUser, {returnDocument: 'after'});
     if (!updateInfo) throw "Sorry, but we could not update the user with username: " + username + ".";
-    return true;
+    return newUser;
 };
