@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Journal App</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+</head>
+<body>
+  <div class="journal-page">
+    <header>
+      <h1>Welcome to Your Journal</h1>
+      <p>Capture and share life's moments.</p>
+    </header>
+
+    <nav>
+      <button id="createJournalBtn">Create New Journal</button>
+      <button id="viewJournalsBtn">View My Journals</button>
+    </nav>
+
+    <section id="searchJournal">
+      <h2>Search Journal by User ID</h2>
+      <input type="text" id="userIdInput" placeholder="Enter User ID">
+      <button id="searchJournalBtn">Search</button>
+    </section>
+
+    <section id="journalList">
+      <h2>My Journals</h2>
+      <ul id="journalListItems">
+        <!-- Journal list items will be dynamically populated here -->
+      </ul>
+    </section>
+
+    <footer>
+      <p>2024: The Journal App by Group 5.</p>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('createJournalBtn').addEventListener('click', function() {
+      window.location.href = '/journals/create';
+    });
+
+    document.getElementById('viewJournalsBtn').addEventListener('click', function() {
+      window.location.href = '/journals';
+    });
+
+    document.getElementById('searchJournalBtn').addEventListener('click', function() {
+      const userId = document.getElementById('userIdInput').value;
+      window.location.href = `/journals/user/${userId}`;
+    });
+  </script>
+</body>
+</html>
