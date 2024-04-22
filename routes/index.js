@@ -15,6 +15,13 @@ const constructorMethod = (app) => {
     app.get('/', (req, res) => {
         res.sendFile(path.resolve('static/landing.html'));
     });
+    app.get('/journal.html', (req, res) => {
+        if (!req.session.user) {
+          return res.redirect('/users/login'); // Redirect to login if user is not authenticated
+        }
+        res.sendFile(path.resolve('static/journal.html'));
+      });
+
     app.use('/public', staticDir('public'));
     app.use("*", (req, res) => {
         res.status(404).json({error: 'Route Not Found'});
