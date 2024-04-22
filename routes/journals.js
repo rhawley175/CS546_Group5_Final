@@ -7,7 +7,7 @@ import {
   getJournalsByUser,
   updateJournal,
   deleteJournal,
-} from '../data/journal.js';
+} from '../data/journals.js';
 
 router.get('/', async (req, res) => {
   try {
