@@ -1,5 +1,4 @@
-<h1>Create New Journal</h1>
-
+<h2>Create New Journal</h2>
 <form action="/journals" method="POST">
   <div>
     <label for="title">Title:</label>
@@ -7,8 +6,7 @@
   </div>
   <div>
     <label for="sections">Sections:</label>
-    <input type="text" id="sections" name="sections" required>
-    <small>Enter section IDs separated by commas</small>
+    <textarea id="sections" name="sections" required></textarea>
   </div>
   <button type="submit">Create Journal</button>
 </form>
