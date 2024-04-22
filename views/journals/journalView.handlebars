@@ -1,14 +1,7 @@
-<h1>{{journal.title}}</h1>
-
+<h2>{{journal.title}}</h2>
+<p>Sections:</p>
 <ul>
   {{#each journal.sections}}
-    <li>
-      <a href="/sections/{{this}}">Section {{@index}}</a>
-    </li>
+    <li>{{this}}</li>
   {{/each}}
 </ul>
-
-<a href="/journals/{{journal._id}}/edit">Edit Journal</a>
-<form action="/journals/{{journal._id}}?_method=DELETE" method="POST">
-  <button type="submit">Delete Journal</button>
-</form>
