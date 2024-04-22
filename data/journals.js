@@ -42,7 +42,6 @@ export const getJournalById = async (journalId) => {
 };
 
 export const getJournalsByUser = async (userId) => {
-  userId = helpers.checkString(userId, "User ID");
   const journalCollection = await journals();
   return await journalCollection.find({ user_id: userId }).toArray();
 };
