@@ -1,0 +1,15 @@
+<h1>My Journals</h1>
+
+{{#if journals.length}}
+  <ul>
+    {{#each journals}}
+      <li>
+        <a href="/journals/{{_id}}">{{title}}</a>
+      </li>
+    {{/each}}
+  </ul>
+{{else}}
+  <p>No journals found.</p>
+{{/if}}
+
+<a href="/journals/new">Create New Journal</a>
