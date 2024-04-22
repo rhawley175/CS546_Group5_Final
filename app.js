@@ -4,7 +4,7 @@ import configRoutes from './routes/index.js';
 import exphbs from 'express-handlebars';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
-import journalRoutes from './routes/journal.js';
+import journalRoutes from './routes/journals.js';
 
 const rewriteUnsupportedBrowserMethods = (req, res, next) => {
     if (req.body && req.body._method) {
