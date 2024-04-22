@@ -182,6 +182,7 @@ export const updateUser = async(username, userAccessing, role, updateObject) => 
 };
 
 
+
 export const addJournalToUser = async (userId, journalId) => {
     userId = helpers.checkString(userId, "User ID");
     journalId = helpers.checkString(journalId, "Journal ID");
