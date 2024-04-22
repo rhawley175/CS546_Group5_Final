@@ -19,6 +19,14 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/create', async (req, res) => {
+  try {
+    res.render('journals/createJournal');
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 router.get('/:id', async (req, res) => {
   try {
     const journalId = req.params.id;
@@ -29,12 +37,13 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+
 router.post('/', async (req, res) => {
   try {
     const userId = req.session.user._id;
     const { title, sections } = req.body;
     const newJournal = await createJournal(userId, title, sections);
-    res.json(newJournal);
+    res.redirect(`/journals/${newJournal._id}`);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
