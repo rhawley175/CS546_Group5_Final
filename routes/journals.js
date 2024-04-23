@@ -70,12 +70,13 @@ router.put('/:id', async (req, res) => {
   try {
     const journalId = req.params.id;
     const updatedJournal = req.body;
-    const journal = await updateJournal(journalId, updatedJournal);
+    await updateJournal(journalId, updatedJournal);
     res.redirect(`/journals/${journalId}`);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 router.get('/:id/delete', async (req, res) => {
   try {
