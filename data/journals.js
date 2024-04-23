@@ -46,19 +46,18 @@ export const updateJournal = async (journalId, updatedJournal) => {
   if (updatedJournal.title) {
     updatedJournalData.title = helpers.checkString(updatedJournal.title, "Title");
   }
-  if (updatedJournal.sections) {
-    updatedJournalData.sections = helpers.checkArray(updatedJournal.sections, "Sections");
-  }
 
   const updateInfo = await journalCollection.updateOne(
     { _id: new ObjectId(journalId) },
     { $set: updatedJournalData }
   );
+
   if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
     throw 'Update failed';
 
   return await getJournalById(journalId);
 };
+
 
 export const deleteJournal = async (journalId) => {
   journalId = helpers.checkString(journalId, "Journal ID");
