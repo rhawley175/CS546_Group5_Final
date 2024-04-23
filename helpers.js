@@ -106,10 +106,53 @@ function checkRole(role) {
 
 function checkObject(object) {
     if (!object) throw "The update object was not provided.";
-    if (typeof object !== 'object') throw "The updateObject is not an object.";
-    if (Object.keys(object).length === 0) throw "The updateObject is empty.";
+    if (typeof object !== 'object' || Array.isArray(object)) throw "The update object is not an actual object.";
+    if (Object.keys(object).length === 0) throw "The update object is empty.";
     return object;
-}
+};
+
+function checkId(id, name) {
+    id = checkString(id, name);
+    if (!ObjectId.isValid(id)) throw "The id is not a valid object ID.";
+    return id;
+};
+
+function checkContent(content) {
+    content = checkString(content, "content");
+    if(content.length < 10 || content.length > 1000) throw 'Journal entry must be at least 10 characters and no more than 1000.';
+    return content;
+};
+
+function checkBool(boolean, name) {
+    if (boolean === undefined) throw "The " + name + " was not provided.";
+    if (typeof boolean !== 'boolean') throw "The " + boolean + " was not a boolean.";
+    return boolean;
+};
+
+function checkDate(date) {
+    date = checkString(date, "date");
+    if (date.length !== 10 || date[2] !== '/' || date[5] !== '/') throw 'The date released must be in the format \'mm/dd/yyyy.\' (excluding quotations).';
+    let monthString = date.substr(0, 2);
+    let dayString = date.substr(3, 2);
+    let yearString = date.substr(6, 4);
+    if (isNaN(monthString) || isNaN(dayString) || isNaN(yearString)) throw "The date released is not a valid date.";
+    let month = Number(monthString);
+    let day = Number(dayString);
+    let year = Number(yearString);
+    let currDate = new Date();
+    let currMonth = currDate.getMonth() + 1;
+    let currDay = currDate.getDate();
+    let currYear = currDate.getFullYear();
+    if (month < 1 || day < 1 || year < 1 || month > 12) throw "The date released is not a valid date.";
+    if (year > currYear) throw "The date released is not a valid date.";
+    if (year === currYear && month > currMonth) throw "Error: The date released is not a valid date.";
+    if (year === currYear && month === currMonth && day > currDay) throw "The date released is not a valid date.";
+    if (month === 2 && day > 28) throw "The date released is not a valid date.";
+    let longMonths = [1, 3, 5, 7, 8, 10, 12]
+    if (longMonths.includes(month) && day > 31) throw "The date released is not a valid date.";
+    if (!longMonths.includes(month) && day > 30) throw "The date released is not a valid date.";
+    return date;
+};
 
 export { checkString, checkNewUsername, checkPassword, checkAge, checkNewEmail, checkName, checkEmail, checkUsername, checkLogin, 
-    checkRole, checkObject };
+    checkRole, checkObject, checkId, checkContent, checkBool, checkDate };

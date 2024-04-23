@@ -1,5 +1,4 @@
 import {users} from '../config/mongoCollections.js';
-import {ObjectId} from 'mongodb';
 import * as helpers from '../helpers.js';
 import bcrypt from 'bcrypt';
 
@@ -159,13 +158,13 @@ export const updateUser = async(username, userAccessing, role, updateObject) => 
     }
     else newUser.email = oldUser.email;
     if (updateObject.firstName) {
-        updateObject.firstName = helpers.checkName(firstName, "lirst name");
+        updateObject.firstName = helpers.checkName(updateObject.firstName, "first name");
         if (updateObject.firstName !== oldUser.firstName) updated = true;
         newUser.firstName = updateObject.firstName;
     }
     else newUser.firstName = oldUser.firstName;
     if (updateObject.lastName) {
-        updateObject.lastName = helpers.checkName(lastName, "last name");
+        updateObject.lastName = helpers.checkName(updateObject.lastName, "last name");
         if (updateObject.lastName !== oldUser.lastName) updated = true;
         newUser.lastName = updateObject.lastName;
     }
