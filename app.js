@@ -38,4 +38,3 @@ const rewriteUnsupportedBrowserMethods = (req, res, next) => {
  });
 
 // If you need to do work other than run the server, comment out the above code, and write your new code below:
-

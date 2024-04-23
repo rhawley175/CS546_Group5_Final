@@ -38,6 +38,7 @@ export const getJournalById = async (journalId, userAccessing, role) => {
   const journal = await journalCollection.findOne({ _id: new ObjectId(journalId) });
   if (!journal) throw 'Journal not found';
   if (journal.author !== userAccessing && role !== "admin") throw "Access denied.";
+  journal._id = journal._id.toString();
   return journal;
 };
 
