@@ -1,10 +1,13 @@
 <h2>My Journals</h2>
+
 {{#if journals.length}}
-  <ul>
-    {{#each journals}}
-      <li><a href="/journals/{{this._id}}">{{this.title}}</a></li>
-    {{/each}}
-  </ul>
+<ul>
+  {{#each journals}}
+  <li><a href="/journals/{{this._id}}">{{this.title}}</a></li>
+  {{/each}}
+</ul>
 {{else}}
-  <p>No journals found.</p>
+<p>No journals found.</p>
 {{/if}}
+
+<a href="/journal.html" class="btn">Return to Journal Main Menu</a>
