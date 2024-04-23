@@ -27,16 +27,18 @@ router.get('/create', async (req, res) => {
   }
 });
 
+
 router.post('/create', async (req, res) => {
   try {
     if (!req.session.user) {
       return res.redirect('/users/login'); 
     }
+
     const userId = req.session.user._id; 
     const username = req.session.user.username; 
-    console.log('userId:', userId);
-    const { title, sectionTitle, sectionContent } = req.body;
-    const newJournal = await createJournal(userId, username, title, sectionTitle, sectionContent);
+    console.log('userId:', userId); 
+    const { title } = req.body;
+    const newJournal = await createJournal(userId, username, title);
     res.redirect(`/journals/${newJournal._id}`);
   } catch (error) {
     console.error('Error in POST /journals/create:', error);
