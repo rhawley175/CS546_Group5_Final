@@ -83,11 +83,18 @@ router
             newUserData.loginInput,
             newUserData.passwordInput
         );
-        if (loggedUser) req.session.user = {
-            _id: loggedUser._id,
-            username: loggedUser.username,
-          }; 
-        return res.redirect("/journal.html");
+        if (loggedUser) {
+            const user = await users.getUserByUsername(loggedUser.username);
+            if (user) {
+              req.session.user = {
+                _id: user._id,
+                username: loggedUser.username,
+              };
+              return res.redirect("/journal.html");
+            } else {
+              throw "User not found";
+            }
+          }
     } catch(e) {
         return res.status(400).render("users/error", {error: e});
     }

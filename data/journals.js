@@ -2,6 +2,7 @@ import { journals, users } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
 import * as helpers from '../helpers.js';
 
+
 export const createJournal = async (username, title, userAccessing, role) => {
     const userCollection = await users();
     username = helpers.checkString(username, "username");
@@ -17,7 +18,7 @@ export const createJournal = async (username, title, userAccessing, role) => {
     const newJournal = {
       author: username,
       title: title,
-      sections: []
+      sections: [],
     };
     const insertInfo = await journalCollection.insertOne(newJournal);
     if (!insertInfo.acknowledged || !insertInfo.insertedId) throw 'Could not add journal';

@@ -195,3 +195,4 @@ export const updateUser = async(username, userAccessing, role, updateObject) => 
     if (!updateInfo) throw "Sorry, but we could not update the user with username: " + username + ".";
     return newUser;
 };
+
