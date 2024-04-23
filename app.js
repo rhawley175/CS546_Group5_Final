@@ -38,14 +38,3 @@ app.listen(3000, () => {
 });
 
 // If you need to do work other than run the server, comment out the above code, and write your new code below:
-
-// import * as users from './data/users.js';
-// import * as connection from './config/mongoConnection.js';
-
-// try {
-//     console.log(await users.updateUser("ETashjiG", "ETashjiG", "user", {password: "P@ssw0rd"}));
-// } catch(e) {
-//     console.log(e);
-// }
-
-// await connection.closeConnection();
