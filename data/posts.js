@@ -1,8 +1,10 @@
 
-import {posts, users} from '../config/mongoCollections.js';
+import {posts, users, sections, journals} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 import * as helpers from '../helpers.js';
 import * as userMethods from './users.js';
+import * as journalMethods from './journals.js';
+import * as sectionMethods from './sections.js';
 
 export const addPost = async (
     sectionId,
@@ -13,16 +15,19 @@ export const addPost = async (
     userAccessing,
     role
 ) => {
+    const sectionCollection = await sections();
     sectionId = helpers.checkId(sectionId, "section id");
+    const section = await sectionCollection.findOne({_id: new ObjectId(sectionId)});
+    if (!section) throw "We cannot find the section where this post is to be stored.";
     title = helpers.checkString(title, "title");
     content = helpers.checkContent(content);
     pub = helpers.checkBool(pub, "public or private indicator");
-    username = helpers.checkString(username);
     const userCollection = await users();
+    username = helpers.checkString(username);
     const foundUser = await userCollection.findOne({username: username});
     if (!foundUser) throw "Sorry, but we could not find a user with username: " + username + ".";
     userAccessing = helpers.checkString(userAccessing);
-    const foundUserAccessing = await userMethods.getUser(userAccessing, userAccessing, role);
+    const foundUserAccessing = await userCollection.findOne({username: userAccessing});
     if (!foundUserAccessing) throw "Sorry, but we could not find the accessing user.";
     role = helpers.checkRole(role);
     if (userAccessing !== username && role !== 'admin') throw "Access denied.";
@@ -37,8 +42,8 @@ export const addPost = async (
         content:content,
         pub:pub
     }
-    let postCollection = await posts();
-    let insertInfo = await postCollection.insertOne(newEntry);
+    const postCollection = await posts();
+    const insertInfo = await postCollection.insertOne(newEntry);
     if(!insertInfo.insertedCount===0) throw 'Could not add new journal entry.';
     insertInfo.insertedId = insertInfo.insertedId.toString();
     if (pub === true) {
@@ -46,8 +51,10 @@ export const addPost = async (
         const userCollection = await users();
         const replacedUser = await userCollection.findOneAndReplace({username: username}, foundUser);
         if (!replacedUser) throw "We could not make the post public.";
-    } 
-    //TODO: Add to section
+    }
+    section.posts.push(insertInfo.insertedId);
+    const updatedSection = await sectionCollection.findOneAndReplace({_id: new ObjectId(sectionId)}, section);
+    if (!updatedSection) throw "We could not update the section with the new post.";
     return insertInfo.insertedId;
 };
 
@@ -72,7 +79,7 @@ export const getPost = async(postId, userAccessing, role) => {
     return post;
 };
 
-export const getAllPosts = async(username, userAccessing, role) => {
+export const getAllUserPosts = async(username, userAccessing, role) => {
     const userCollection = await users();
     if (!role) role = "user";
     else role = helpers.checkRole(role);
@@ -107,7 +114,7 @@ export const getAllPosts = async(username, userAccessing, role) => {
             currPost = await getPost(currUser.publicPosts[i]);
             publicPosts.push(currPost);
         }
-        if (publicPosts.length == 0 && sharedPosts.length === 0) return username + " does not have any posts that you can view.";
+        if (publicPosts.length == 0) return username + " does not have any posts that you can view.";
         else  {
             publicPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
             return publicPosts;
@@ -145,8 +152,10 @@ export const getAllPosts = async(username, userAccessing, role) => {
         if (!currUser) throw "User: " + username + " not found.";
         let publicPosts = [];
         let sharedPosts = [];
-        //TODO: Add posts from journals and sections.
+        let privatePosts = [];
         let currPost;
+        let journal;
+        let section;
         for (let i in currUser.publicPosts) {
             currPost = await getPost(currUser.publicPosts[i], userAccessing, role);
             publicPosts.push(currPost);
@@ -155,20 +164,83 @@ export const getAllPosts = async(username, userAccessing, role) => {
             currPost = await getPost(currUser.sharedPosts[i], userAccessing, role);
             sharedPosts.push(currPost);
         }
+        for (let i in currUser.journals) {
+            journal = await journalMethods.getJournalById(currUser.journals[i], userAccessing, role);
+            for (let j in journal.sections) {
+                section = await sectionMethods.getSection(journal.sections[j], userAccessing, role);
+                for (let k in section.posts) {
+                    if (!publicPosts.includes(section.posts[k]) && !sharedPosts.includes(section.posts[k])) {
+                        currPost = await getPost(section.posts[k], userAccessing, role);
+                        privatePosts.push(currPost);
+                    }
+                }
+            }
+        }
         let postObject = {
             publicPosts: publicPosts,
-            sharedPosts: sharedPosts
+            sharedPosts: sharedPosts,
+            privatePosts: privatePosts
         }
-        if (postObject.publicPosts.length === 0 && postObject.sharedPosts.length === 0) return "You have no posts to view.";
+        if (postObject.publicPosts.length === 0 && postObject.sharedPosts.length === 0 && postObject.privatePosts.length === 0) return "You have no posts to view.";
         else  {
             postObject.publicPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
             postObject.sharedPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+            postObject.privatePosts.sort((a, b) => newDate(a.time).getTime() - new Date(b.time).getTime());
             return postObject;
         }
     }
 };
 
-export const getPostsByKeyword = async (keyword, username, userAccessing, role) => {
+export const getAllJournalPosts = async(journalId, userAccessing, role) => {
+    const journalCollection = await journals();
+    journalId = helpers.checkId(journalId, "journal id");
+    const journal = await journalCollection.findOne({_id: new ObjectId(journalId)});
+    if (!journal) throw "We could not find the journal with id: " + journalId + ".";
+    const userCollection = await users();
+    userAccessing = helpers.checkString(userAccessing, "accessing user");
+    const accessingUser = await userCollection.findOne({username: userAccessing});
+    if (!accessingUser) throw "We could not find the accessing user.";
+    role = helpers.checkRole(role);
+    if (journal.author !== userAccessing && role !== "admin") throw "Access denied.";
+    let section;
+    let post;
+    let posts = [];
+    for (let i in journal.sections) {
+        section = await sectionMethods.getSection(journal.sections[i], userAccessing, role);
+        for (let j in section.posts) {
+            post = await getPost(section.posts[j], userAccessing, role);
+            posts.push(post);
+        }
+    }
+    if (posts.length === 0) return "You do not have any posts in this journal.";
+    return posts;
+}
+
+export const getAllSectionPosts = async(sectionId, userAccessing, role) => {
+    const sectionCollection = await sections();
+    sectionId = helpers.checkId(sectionId, "section id");
+    const section = await sectionCollection.findOne({_id: new ObjectId(sectionId)});
+    if (!section) throw "We could not find the section with id: " + sectionId + ".";
+    const userCollection = await users();
+    userAccessing = helpers.checkString(userAccessing);
+    const accessingUser = await userCollection.findOne({username: userAccessing});
+    if (!accessingUser) throw "We could not find the accessing user.";
+    role = helpers.checkRole(role);
+    const journalCollection = await journals();
+    const journal = await journalCollection.findOne({_id: new ObjectId(section.journalId)});
+    if (!journal) throw "We could not find the journal this section belongs to.";
+    if (journal.author !== userAccessing && role !== "admin") throw "Access denied.";
+    let posts = [];
+    let post;
+    for (let i in section.posts) {
+        post = await getPost(section.posts[i], userAccessing, role);
+        posts.push(post);
+    }
+    if (posts.length === 0) return "We could not find any posts in this section.";
+    return posts;
+}
+
+export const getUserPostsByKeyword = async (keyword, username, userAccessing, role) => {
     keyword = helpers.checkString(keyword);
     if (!role) role = "user";
     else role = helpers.checkRole(role);
@@ -178,7 +250,7 @@ export const getPostsByKeyword = async (keyword, username, userAccessing, role) 
         const accessingUser = await userMethods.getUser(userAccessing, userAccessing, role);
         if (!accessingUser) throw "Sorry, but we could not find the accessing user.";
     }
-    let allPosts = await getAllPosts(username, userAccessing, role);
+    let allPosts = await getAllUserPosts(username, userAccessing, role);
     if (!username || userAccessing === "visitingUser") {
         let publicPosts = []
         for (let i in allPosts) {
@@ -213,26 +285,32 @@ export const getPostsByKeyword = async (keyword, username, userAccessing, role) 
         //TODO: Add in search for journals/sections.
         let publicPosts = [];
         let sharedPosts = [];
+        let privatePosts = [];
         for (let i in allPosts.publicPosts) {
             if (allPosts.publicPosts[i].title.includes(keyword) || allPosts.publicPosts[i].content.includes(keyword)) publicPosts.push(allPosts.publicPosts[i]);
         }
         for (let i in allPosts.sharedPosts) {
             if (allPosts.sharedPosts[i].title.includes(keyword) || allPosts.sharedPosts[i].content.includes(keyword)) sharedPosts.push(allPosts.sharedPosts[i]);
         }
+        for (let i in allPosts.privatePosts) {
+            if (allPosts.privatePosts[i].title.includes(keyword) || allPosts.privatePosts[i].content.includes(keyword)) privatePosts.push(allPosts.privatePosts[i]);
+        }
         let postObject = {
             publicPosts: publicPosts,
-            sharedPosts: sharedPosts
+            sharedPosts: sharedPosts,
+            privatePosts: privatePosts
         }
-        if (postObject.publicPosts.length === 0 && postObject.sharedPosts.length === 0) return "We could not find any posts containing the search keyword: " + keyword + ".";
+        if (postObject.publicPosts.length === 0 && postObject.sharedPosts.length === 0 && postObject.privatePosts.length === 0) return "We could not find any posts containing the search keyword: " + keyword + ".";
         else  {
             postObject.publicPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
             postObject.sharedPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+            postObject.privatePosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
             return postObject;
         }
     }
 };
 
-export const getPostsByDate = async (firstDate, secondDate, username, userAccessing, role) => {
+export const getUserPostsByDate = async (firstDate, secondDate, username, userAccessing, role) => {
     firstDate = helpers.checkDate(firstDate);
     let earlyDate = Date.parse(firstDate);
     secondDate = helpers.checkDate(secondDate);
@@ -246,7 +324,7 @@ export const getPostsByDate = async (firstDate, secondDate, username, userAccess
         const accessingUser = await userMethods.getUser(userAccessing, userAccessing, role);
         if (!accessingUser) throw "Sorry, but we could not find the accessing user.";
     }
-    let allPosts = await getAllPosts(username, userAccessing, role);
+    let allPosts = await getAllUserPosts(username, userAccessing, role);
     let date;
     if (!username || userAccessing === "visitingUser") {
         let publicPosts = [];
@@ -288,9 +366,9 @@ export const getPostsByDate = async (firstDate, secondDate, username, userAccess
         }
     }
     else {
-        //TODO: Add in search for journals/sections.
         let publicPosts = [];
         let sharedPosts = [];
+        let privatePosts = [];
         for (let i in allPosts.publicPosts) {
             date = new Date(allPosts.publicPosts[i].time);
             date = date.toLocaleDateString();
@@ -303,17 +381,135 @@ export const getPostsByDate = async (firstDate, secondDate, username, userAccess
             date = Date.parse(date);
             if (date >= earlyDate && date <= lateDate) sharedPosts.push(allPosts.sharedPosts[i]);
         }
+        for (let i in allPosts.privatePosts) {
+            date = new Date(allPosts.privatePosts[i].time);
+            date = date.toLocaleDateString();
+            date = Date.parse(date);
+            if (date >= earlyDate && date <= lateDate) privatePosts.push(allPosts.privatePosts[i]);
+        }
         let postObject = {
             publicPosts: publicPosts,
-            sharedPosts: sharedPosts
+            sharedPosts: sharedPosts,
+            privatePosts: privatePosts
         }
-        if (postObject.publicPosts.length === 0 && postObject.sharedPosts.length === 0) return "We could not find any posts containing the search keyword: " + keyword + ".";
+  
+        if (postObject.publicPosts.length === 0 && postObject.sharedPosts.length === 0 && postObject.privatePosts.length === 0) return "We could not find any posts between the dates " + firstDate + " and " + secondDate + ".";
         else  {
             postObject.publicPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
             postObject.sharedPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+            postObject.privatePosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
             return postObject;
         }
     }
+};
+
+export const getJournalPostsbyKeyword = async(keyword, journalId, userAccessing, role) => {
+    keyword = helpers.checkString(keyword, "search term");
+    const journalCollection = await journals();
+    journalId = helpers.checkId(journalId, "journal id");
+    const journal = await journalCollection.findOne({_id: new ObjectId(journalId)});
+    if (!journal) throw "We could not find the journal with id: " + journalId + ".";
+    const userCollection = await users();
+    userAccessing = helpers.checkString(userAccessing, "accessing user");
+    const accessingUser = await userCollection.findOne({username: userAccessing});
+    if (!accessingUser) throw "We could not find the accessing user.";
+    role = helpers.checkRole(role);
+    if (journal.author !== userAccessing && role !== "admin") throw "Access denied.";
+    const allPosts = await getAllJournalPosts(journalId, userAccessing, role);
+    if (!allPosts || typeof allPosts === 'string') throw "We could not find any posts in the journal.";
+    let posts = [];
+    for (let i in allPosts) {
+        if (allPosts[i].title.includes(keyword)) posts.push(allPosts[i]);
+    }
+    if (posts.length === 0) return "We could not find any posts with the keyword: " + keyword + ".";
+    return posts;
+};
+
+export const getJournalPostsbyDate = async(date1, date2, journalId, userAccessing, role) => {
+    date1 = helpers.checkDate(date1);
+    date1 = Date.parse(date1);
+    date2 = helpers.checkDate(date2);
+    date2 = Date.parse(date2);
+    if (date1 > date2) throw "The start date is after the end date.";
+    const journalCollection = await journals();
+    journalId = helpers.checkId(journalId, "journal id");
+    const journal = await journalCollection.findOne({_id: new ObjectId(journalId)});
+    if (!journal) throw "We could not find the journal with id: " + journalId + ".";
+    const userCollection = await users();
+    userAccessing = helpers.checkString(userAccessing, "accessing user");
+    const accessingUser = await userCollection.findOne({username: userAccessing});
+    if (!accessingUser) throw "We could not find the accessing user.";
+    role = helpers.checkRole(role);
+    if (journal.author !== userAccessing && role !== "admin") throw "Access denied.";
+    const allPosts = await getAllJournalPosts(journalId, userAccessing, role);
+    if (!allPosts || typeof allPosts === 'string') throw "We could not find any posts in the journal.";
+    let posts = [];
+    let date;
+    for (let i in allPosts) {
+            date = new Date(allPosts[i].time);
+            date = date.toLocaleDateString();
+            date = Date.parse(date);
+            if (date >= date1 && date <= date2) posts.push(allPosts[i]);
+    }
+    if (posts.length === 0) return "We could not find any posts between the given dates.";
+    return posts;
+};
+
+export const getSectionPostsByKeyword = async(keyword, sectionId, userAccessing, role) => {
+    keyword = helpers.checkString(keyword, "search term");
+    const sectionCollection = await sections();
+    sectionId = helpers.checkId(sectionId, "section id");
+    const section = await sectionCollection.findOne({_id: new ObjectId(sectionId)});
+    if (!section) throw "We could not find the section with id: " + sectionId + ".";
+    const userCollection = await users();
+    userAccessing = helpers.checkString(userAccessing);
+    const accessingUser = await userCollection.findOne({username: userAccessing});
+    if (!accessingUser) throw "We could not find the accessing user.";
+    role = helpers.checkRole(role);
+    const journalCollection = await journals();
+    const journal = await journalCollection.findOne({_id: new ObjectId(section.journalId)});
+    if (!journal) throw "We could not find the journal this section belongs to.";
+    if (journal.author !== userAccessing && role !== "admin") throw "Access denied.";
+    const allPosts = await getAllSectionPosts(sectionId, userAccessing, role);
+    if (!allPosts || typeof allPosts === 'string') throw "We could not find any posts in the section.";
+    let posts = [];
+    for (let i in allPosts) {
+        if (allPosts[i].title.includes(keyword)) posts.push(allPosts[i]);
+    }
+    if (posts.length === 0) return "We could not find any posts with the keyword: " + keyword + ".";
+    return posts;
+};
+
+export const getSectionPostsByDate = async(date1, date2, sectionId, userAccessing, role) => {
+    date1 = helpers.checkDate(date1);
+    date1 = Date.parse(date1);
+    date2 = helpers.checkDate(date2);
+    date2 = Date.parse(date2);
+    const sectionCollection = await sections();
+    sectionId = helpers.checkId(sectionId, "section id");
+    const section = await sectionCollection.findOne({_id: new ObjectId(sectionId)});
+    if (!section) throw "We could not find the section with id: " + sectionId + ".";
+    const userCollection = await users();
+    userAccessing = helpers.checkString(userAccessing);
+    const accessingUser = await userCollection.findOne({username: userAccessing});
+    if (!accessingUser) throw "We could not find the accessing user.";
+    role = helpers.checkRole(role);
+    const journalCollection = await journals();
+    const journal = await journalCollection.findOne({_id: new ObjectId(section.journalId)});
+    if (!journal) throw "We could not find the journal this section belongs to.";
+    if (journal.author !== userAccessing && role !== "admin") throw "Access denied.";
+    const allPosts = await getAllSectionPosts(sectionId, userAccessing, role);
+    if (!allPosts || typeof allPosts === 'string') throw "We could not find any posts in the section.";
+    let posts = [];
+    let date;
+    for (let i in allPosts) {
+        date = new Date(allPosts[i].time);
+        date = date.toLocaleDateString();
+        date = Date.parse(date);
+        if (date >= date1 && date <= date2) posts.push(allPosts[i]);
+    }
+    if (posts.length === 0) return "We could not find any posts between the given dates.";
+    return posts;
 };
 
 export const deletePost = async (postId, userAccessing, role) =>{
@@ -347,7 +543,17 @@ export const deletePost = async (postId, userAccessing, role) =>{
             const updatedUser = await userCollection.findOneAndReplace({username: userAccessing}, accessingUser);
             if (!updatedUser) throw "Sorry, but we could not delete the post with id: " + postId + ".";
         }
-        //TODO: Remove the post from its section.
+        const sectionCollection = await sections();
+        const section = await sectionCollection.findOne({_id: new ObjectId(post.sectionId)});
+        if (!section) throw "We could not find the section this post belongs to.";
+        for (let i in section.posts) {
+            if (section.posts[i] === postId) {
+                section.posts[i] = section.posts[section.posts.length - 1];
+                section.posts.pop();
+            }
+        }
+        const updatedSection = await sectionCollection.findOneAndReplace({_id: new ObjectId(post.sectionId)}, section);
+        if (!updatedSection) throw "We could not update the section.";
         const postCollection = await posts();
         const deletedPost = await postCollection.findOneAndDelete({_id: new ObjectId(postId)});
         if (!deletedPost) throw "Sorry, but we could not delete the post with id: " + postId + ".";
