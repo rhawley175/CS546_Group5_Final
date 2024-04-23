@@ -1,68 +1,114 @@
-import { journals } from '../config/mongoCollections.js';
+import { journals, users } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
 import * as helpers from '../helpers.js';
 
-export const createJournal = async (userId, username, title) => {
-  try {
-    username = helpers.checkString(username, "Username");
-    title = helpers.checkString(title, "Title");
 
+export const createJournal = async (username, title, userAccessing, role) => {
+    const userCollection = await users();
+    username = helpers.checkString(username, "username");
+    const addingUser = await userCollection.findOne({username: username});
+    if (!addingUser) throw "We could not find a user with the username: " + username;
+    userAccessing = helpers.checkString(userAccessing, "accessing user");
+    const accessingUser = await userCollection.findOne({username: userAccessing});
+    if (!accessingUser) throw "We could not find the accessing user.";
+    role = helpers.checkRole(role);
+    title = helpers.checkString(title, "Title");
+    if (userAccessing !== username && role !== "admin") throw "Access denied.";
     const journalCollection = await journals();
     const newJournal = {
-      user_id: [userId],
-      author: [username],
+      author: username,
       title: title,
       sections: [],
     };
-
     const insertInfo = await journalCollection.insertOne(newJournal);
-    if (!insertInfo.acknowledged || !insertInfo.insertedId)
-      throw 'Could not add journal';
-
-    return await getJournalById(insertInfo.insertedId);
-  } catch (error) {
-    console.error('Error in createJournal:', error);
-    throw error;
-  }
+    if (!insertInfo.acknowledged || !insertInfo.insertedId) throw 'Could not add journal';
+    addingUser.journals.push(insertInfo.insertedId.toString());
+    const journalAdded = await userCollection.findOneAndReplace({username: username}, addingUser);
+    if (!journalAdded) throw "Could not add the journal.";
+    return await getJournalById(insertInfo.insertedId.toString(), userAccessing, role);
 };
 
-export const getJournalById = async (journalId) => {
+export const getJournalById = async (journalId, userAccessing, role) => {
+  const userCollection = await users();
+  userAccessing = helpers.checkString(userAccessing, "accessing user");
+  const accessingUser = await userCollection.findOne({username: userAccessing});
+  if (!accessingUser) throw "We could not find the accessing user.";
+  role = helpers.checkRole(role);
+  journalId = helpers.checkId(journalId, "journal id");
   const journalCollection = await journals();
   const journal = await journalCollection.findOne({ _id: new ObjectId(journalId) });
   if (!journal) throw 'Journal not found';
+  if (journal.author !== userAccessing && role !== "admin") throw "Access denied.";
+  journal._id = journal._id.toString();
   return journal;
 };
 
-export const getJournalsByUser = async (userId) => {
+export const getJournalsByUser = async (username, userAccessing, role) => {
+  const userCollection = await users();
+  userAccessing = helpers.checkString(userAccessing, "accessing user");
+  const accessingUser = await userCollection.findOne({username: userAccessing});
+  if (!accessingUser) throw "We could not find the accessing user.";
+  role = helpers.checkRole(role);
+  username = helpers.checkString(username, "username");
+  const foundUser = await userCollection.findOne({username: username});
+  if (!foundUser) throw "We could not find the user with username: " + username + ".";
+  if (userAccessing !== username && role !== "admin") throw "Access denied.";
   const journalCollection = await journals();
-  return await journalCollection.find({ user_id: userId }).toArray();
+  let journal;
+  let journalArray = [];
+  for (let i in foundUser.journals) {
+    journal = await journalCollection.findOne({_id: new ObjectId(foundUser.journals[i])});
+    journalArray.push(journal);
+  }
+  return journalArray;
 };
 
-export const updateJournal = async (journalId, updatedJournal) => {
-  journalId = helpers.checkString(journalId, "Journal ID");
+export const updateJournal = async (journalId, title, userAccessing, role) => {
+  const userCollection = await users();
+  userAccessing = helpers.checkString(userAccessing, "accessing user");
+  const accessingUser = await userCollection.findOne({username: userAccessing});
+  if (!accessingUser) throw "We could not find the accessing user.";
+  role = helpers.checkRole(role);
+  journalId = helpers.checkId(journalId, "journal id");
   const journalCollection = await journals();
-  const updatedJournalData = {};
-
-  if (updatedJournal.title) {
-    updatedJournalData.title = helpers.checkString(updatedJournal.title, "Title");
-  }
-  if (updatedJournal.sections) {
-    updatedJournalData.sections = helpers.checkArray(updatedJournal.sections, "Sections");
-  }
-
-  const updateInfo = await journalCollection.updateOne(
+  const oldJournal = await journalCollection.findOne({_id: new ObjectId(journalId)});
+  if (oldJournal.author !== userAccessing && role !== "admin") throw "Access denied.";
+  if (!title) throw "Could not update journal with id of: " + journalId + ". Nothing is being changed.";
+  title = helpers.checkString(title, "title");
+  const newJournal = new Object();
+  newJournal._id = oldJournal._id;
+  newJournal.author = oldJournal.author;
+  newJournal.title = title;
+  newJournal.sections = oldJournal.sections;
+  const updateInfo = await journalCollection.findOneAndReplace(
     { _id: new ObjectId(journalId) },
-    { $set: updatedJournalData }
+    newJournal
   );
-  if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
-    throw 'Update failed';
-
-  return await getJournalById(journalId);
+  if (!updateInfo) throw 'Update failed';
+  return await getJournalById(journalId.toString(), userAccessing, role);
 };
 
-export const deleteJournal = async (journalId) => {
-  journalId = helpers.checkString(journalId, "Journal ID");
+export const deleteJournal = async (journalId, userAccessing, role) => {
+  const userCollection = await users();
+  userAccessing = helpers.checkString(userAccessing, "accessing user");
+  const accessingUser = await userCollection.findOne({username: userAccessing});
+  if (!accessingUser) throw "We could not find the accessing user.";
+  role = helpers.checkRole(role);
+  journalId = helpers.checkId(journalId, "journal id");
   const journalCollection = await journals();
+  const journal = await journalCollection.findOne({_id: new ObjectId(journalId)});
+  if (!journal) throw "We could not find the journal with id: " + journalId + ".";
+  if (journal.author !== userAccessing && role !== "admin") throw "Access denied.";
+  const foundUser = await userCollection.findOne({username: journal.author});
+  if (!foundUser) throw "We could not find the user this journal belongs to.";
+  for (let i in foundUser.journals) {
+    if (foundUser.journals[i] === journalId) {
+      foundUser.journals[i] = foundUser.journals[foundUser.journals.length - 1];
+      foundUser.journals.pop();
+    }
+  }
+  const updatedUser = await userCollection.findOneAndReplace({username: foundUser.username}, foundUser);
+  if (!updatedUser) throw "Could not update the journal with id: " + id + ".";
   const deleteInfo = await journalCollection.deleteOne({ _id: new ObjectId(journalId) });
   if (deleteInfo.deletedCount === 0) {
     throw `Could not delete journal with id ${journalId}`;
