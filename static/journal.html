@@ -15,7 +15,9 @@
     <nav>
       <button id="createJournalBtn">Create New Journal</button>
       <button id="viewJournalsBtn">View All Journals</button>
-      <button id="editJournalBtn">Edit Journal</button>
+      <button id="updateJournalBtn">Update Journal</button>
+      <button id="viewJournalBtn">View Journal</button>
+      <button id="deleteJournalBtn">Delete Journal</button>
     </nav>
     <section id="searchJournal">
       <h2>Search Journal by Username</h2>
@@ -41,10 +43,24 @@
       window.location.href = '/journals';
     });
 
-    document.getElementById('editJournalBtn').addEventListener('click', function() {
-      const journalId = prompt('Enter the journal ID to edit:');
+    document.getElementById('updateJournalBtn').addEventListener('click', function() {
+      const journalId = prompt('Enter the journal ID to update:');
       if (journalId) {
         window.location.href = `/journals/${journalId}/edit`;
+      }
+    });
+
+    document.getElementById('viewJournalBtn').addEventListener('click', function() {
+      const journalId = prompt('Enter the journal ID to view:');
+      if (journalId) {
+        window.location.href = `/journals/${journalId}`;
+      }
+    });
+
+    document.getElementById('deleteJournalBtn').addEventListener('click', function() {
+      const journalId = prompt('Enter the journal ID to delete:');
+      if (journalId) {
+        window.location.href = `/journals/${journalId}/delete`;
       }
     });
 
