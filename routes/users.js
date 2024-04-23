@@ -83,8 +83,11 @@ router
             newUserData.loginInput,
             newUserData.passwordInput
         );
-        if (loggedUser) req.session.user = loggedUser;
-        return res.redirect("/users/get/" + loggedUser.username);
+        if (loggedUser) req.session.user = {
+            _id: loggedUser._id,
+            username: loggedUser.username,
+          }; 
+        return res.redirect("/journal.html");
     } catch(e) {
         return res.status(400).render("users/error", {error: e});
     }

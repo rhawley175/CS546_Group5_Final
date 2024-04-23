@@ -1,0 +1,9 @@
+<h2>{{journal.title}}</h2>
+<p>Author: {{journal.author}}</p>
+
+<h3>Sections:</h3>
+<ul>
+  {{#each journal.sections}}
+    <li>{{this.title}}</li>
+  {{/each}}
+</ul>

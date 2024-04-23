@@ -179,3 +179,37 @@ export const updateUser = async(username, userAccessing, role, updateObject) => 
     if (!updateInfo) throw "Sorry, but we could not update the user with username: " + username + ".";
     return newUser;
 };
+
+
+
+export const addJournalToUser = async (userId, journalId) => {
+    userId = helpers.checkString(userId, "User ID");
+    journalId = helpers.checkString(journalId, "Journal ID");
+  
+    const userCollection = await users();
+    const updateInfo = await userCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $push: { journals: new ObjectId(journalId) } }
+    );
+  
+    if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+      throw 'Update failed';
+  
+    return await getUser(userId);
+  };
+  
+  export const removeJournalFromUser = async (userId, journalId) => {
+    userId = helpers.checkString(userId, "User ID");
+    journalId = helpers.checkString(journalId, "Journal ID");
+  
+    const userCollection = await users();
+    const updateInfo = await userCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $pull: { journals: new ObjectId(journalId) } }
+    );
+  
+    if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+      throw 'Update failed';
+  
+    return await getUser(userId);
+  };
