@@ -1,12 +1,20 @@
 <h2>Create New Journal</h2>
-<form action="/journals" method="POST">
+
+<form action="/journals/create" method="POST">
   <div>
-    <label for="title">Title:</label>
+    <label for="title">Journal Title:</label>
     <input type="text" id="title" name="title" required>
   </div>
+
   <div>
-    <label for="sections">Sections:</label>
-    <textarea id="sections" name="sections" required></textarea>
+    <label for="sectionTitle">Section Title:</label>
+    <input type="text" id="sectionTitle" name="sectionTitle" required>
   </div>
+
+  <div>
+    <label for="sectionContent">Section Content:</label>
+    <textarea id="sectionContent" name="sectionContent" required></textarea>
+  </div>
+
   <button type="submit">Create Journal</button>
 </form>
