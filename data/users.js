@@ -214,3 +214,12 @@ export const addJournalToUser = async (userId, journalId) => {
   
     return await getUser(userId);
   };
+
+
+  export const getUserByUsername = async (username) => {
+    username = helpers.checkString(username, "username");
+    const userCollection = await users();
+    const user = await userCollection.findOne({ username: username });
+    return user;
+  };
+
