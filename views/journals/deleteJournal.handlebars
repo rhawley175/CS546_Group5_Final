@@ -1,5 +1,6 @@
 <h1>Delete Journal</h1>
 <p>Are you sure you want to delete the journal "{{journal.title}}"?</p>
-<form action="/journals/{{journal._id}}?_method=DELETE" method="POST">
+<form action="/journals/{{journal._id}}" method="POST">
+  <input type="hidden" name="_method" value="DELETE">
   <button type="submit">Delete Journal</button>
 </form>
