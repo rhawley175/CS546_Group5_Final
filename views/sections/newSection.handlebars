@@ -7,7 +7,7 @@
     {{#if success}}
         <p>Section created successfully! ID: {{sectionId}}</p>
     {{else}}
-        <form action="/sections/newSection" method="post">
+        <form id="new-section-form" action="/sections/newSection" method="post">
             <label for="journalId">Journal ID:</label>
             <input type="text" id="journalId" name="journalId">
             <label for="title">Title:</label>
