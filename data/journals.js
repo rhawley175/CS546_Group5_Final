@@ -2,25 +2,17 @@ import { journals } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
 import * as helpers from '../helpers.js';
 
-export const createJournal = async (userId, username, title, sectionTitle, sectionContent) => {
+export const createJournal = async (userId, username, title) => {
   try {
     username = helpers.checkString(username, "Username");
     title = helpers.checkString(title, "Title");
-    sectionTitle = helpers.checkString(sectionTitle, "Section Title");
-    sectionContent = helpers.checkString(sectionContent, "Section Content");
 
     const journalCollection = await journals();
     const newJournal = {
       user_id: [userId],
       author: [username],
       title: title,
-      sections: [
-        {
-          title: sectionTitle,
-          content: sectionContent,
-          posts: [],
-        },
-      ],
+      sections: [],
     };
 
     const insertInfo = await journalCollection.insertOne(newJournal);
