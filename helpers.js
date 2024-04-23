@@ -109,7 +109,13 @@ function checkObject(object) {
     if (typeof object !== 'object') throw "The updateObject is not an object.";
     if (Object.keys(object).length === 0) throw "The updateObject is empty.";
     return object;
-}
+};
+
+function checkId(id, name) {
+    id = checkString(id, name);
+    if (!ObjectId.isValid(id)) throw "The id is not a valid object ID.";
+    return id;
+};
 
 export { checkString, checkNewUsername, checkPassword, checkAge, checkNewEmail, checkName, checkEmail, checkUsername, checkLogin, 
-    checkRole, checkObject };
+    checkRole, checkObject, checkId };
