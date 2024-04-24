@@ -1,6 +1,8 @@
 import {Router} from 'express';
 import * as users from '../data/users.js';
 import * as helpers from '../helpers.js';
+import * as posts from '../data/posts.js';
+import * as journals from '../data/journals.js';
 const router = Router();
 
 router
@@ -20,7 +22,7 @@ router
 .route("/register")
 .get(async (req, res) => {
     try {
-        if (!req.session.user) res.status(200).render("users/register");
+        if (req.session.user) res.render("users/register");
         else if (req.session.user) res.redirect("/users/get/" + req.session.user.username);
         else throw "Cannot render the register page.";
     } catch(e) {
@@ -73,8 +75,8 @@ router
         return res.status(400).render("users/error", {error: "There are no fields in the request body."});
     }
     try {
-        newUserData.loginInput = helpers.checkString(newUserData.loginInput);
-        newUserData.passwordInput = helpers.checkString(newUserData.passwordInput);
+        newUserData.loginInput = helpers.checkString(newUserData.loginInput, "login");
+        newUserData.passwordInput = helpers.checkString(newUserData.passwordInput, "password");
     } catch(e) {
         return res.status(400).render("users/error", {error: e});
     }
@@ -84,13 +86,12 @@ router
             newUserData.passwordInput
         );
         if (loggedUser) {
-            const user = await users.getUserByUsername(loggedUser.username);
-            if (user) {
+            if (loggedUser) {
               req.session.user = {
-                _id: user._id,
                 username: loggedUser.username,
+                role: loggedUser.role
               };
-              return res.redirect("/journal.html");
+              return res.redirect("/users/get/" + loggedUser.username);
             } else {
               throw "User not found";
             }
@@ -120,31 +121,25 @@ router
     try {
         const getUser = await users.getUser(username, userAccessing, role);
         let valid;
+        let allPosts = await posts.getAllUserPosts(username, userAccessing, role);
         if (!getUser) return res.status(404).render("users/error", {error: "User not found."});
         if (getUser.role === "admin" && (!req.session.user || role !== "admin")) return res.status(403).render("users/error", {error: "Access denied."});
-        if (!req.session.user || req.session.user.username !== username) {
+        if (!req.session.user || (req.session.user.username !== username && req.session.user.role !== "admin")) {
             valid = false;
             return res.status(200).render("users/user", {
                 valid: valid,
                 username: getUser.username,
-                publicPosts: getUser.publicPosts,
-                comments: getUser.comments
+                posts: allPosts
             });
         };
         if (username === userAccessing || role === "admin") {
             valid = true;
+            let allJournals = await journals.getJournalsByUser(username, userAccessing, role);
             return res.status(200).render("users/user", {
                 valid: valid,
                 username: getUser.username,
-                age: getUser.age,
-                email: getUser.email,
-                firstName: getUser.firstName,
-                lastName: getUser.lastName,
-                role: getUser.role,
-                publicPosts: getUser.publicPosts,
-                sharedPosts: getUser.sharedPosts,
-                journals: getUser.journals,
-                comments: getUser.comments
+                posts: allPosts,
+                journals: allJournals
             });
         };
     } catch(e) {
@@ -183,6 +178,7 @@ router
     try {
         username = helpers.checkString(username, "username");
         const getUser = await users.getUser(username, req.session.user.username, req.session.user.role);
+        
         if (!getUser) return res.status(404).json({error: "User not found."});
         if (req.session.user.username !== username && req.session.user.role !== "admin") return res.status(403).json({error: "Access Denied."});
         if (requestBody.usernameInput !== "") requestBody.usernameInput = await helpers.checkNewUsername(requestBody.usernameInput);
@@ -265,6 +261,62 @@ router
     } catch(e) {
         return res.status(500).render("users/error", {error: "Cannot logout."});
     }
+});
+
+router
+.route("/search/:username")
+.get(async (req, res) => {
+    let username = req.params.username;
+    let keyword = req.body.keywordInput;
+    let date1 = req.body.date1Input;
+    let date2 = req.body.date2Input;
+    let wordSearch;
+    let userAccessing;
+    let role;
+    try {
+        if (keyword !== "")  {
+            keyword = helpers.checkString(keyword, "search term");
+            wordSearch = true;
+        }
+        else if (date1 !== "" && date2 !== "") {
+            date1 = helpers.checkDate(date1);
+            date2 = helpers.checkDate(date2);
+            let newDate1 = Date.parse(date1);
+            let newDate2 = Date.parse(date2);
+            if (newDate1 > newDate2) throw "The first date is later than the second.";
+            wordSearch = false;
+        }
+        else throw "No search data was entered.";
+        if (req.session.user) {
+            userAccessing = helpers.checkString(req.session.user.username, "accessing user");
+            role = helpers.checkRole(req.session.user.role);
+            const accessingUser = await users.getUser(userAccessing, userAccessing, role);
+            if (!accessingUser) throw "We could not find the accessing user.";
+        }
+        else {
+            userAccessing = "visitingUser";
+            role = "user";
+        }
+        const user = await users.getUser(username, userAccessing, role);
+        if (!user) throw "We could not find that user.";
+    } catch(e) {
+        return res.status(400).render("users/error", {error: e});
+    }
+    try {
+        var allPosts;
+        if (wordSearch) {
+            allPosts = await posts.getUserPostsByKeyword(keyword, username, userAccessing, role);
+        }
+        if (!wordSearch) {
+            allPosts = await posts.getUserPostsByDate(date1, date2, username, userAccessing, role);
+        }
+        let valid = true;
+        if (typeof posts === 'string') valid = false;
+        return res.status(200).render("users/search", {valid: valid, posts: allPosts});
+    } catch(e) {
+        return res.status(500).render("users/error", {error: e});
+    }
+
 });
 
 export default router;

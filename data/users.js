@@ -122,15 +122,7 @@ export const deleteUser = async(username, userAccessing, role) => {
     let journal;
     let section;
     for (let i in userToDelete.journals) {
-        journal = await journals.getJournalById(userToDelete.journals[i], userAccessing, role);
-        for (let j in journal.sections) {
-            section = await sections.getSection(journal.sections[j], userAccessing, role);
-            for (let k in section.posts) {
-                await posts.deletePost(section.posts[k], userAccessing, role);
-            }
-            await sections.deleteSection(journal.sections[j], userAccessing, role);
-        }
-        await journals.deleteJournal(userToDelete.journals[i], userAccessing, role);
+        journal = await journals.deleteJournal(userToDelete.journals[i], userAccessing, role);
     }
     const deletedUser = await userCollection.findOneAndDelete({username: username});
     if (!deletedUser) throw "Sorry, but we could not delete the user with username " + username + ".";

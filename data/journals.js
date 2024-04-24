@@ -1,6 +1,8 @@
 import { journals, users } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
 import * as helpers from '../helpers.js';
+import * as sections from './sections.js';
+import * as posts from './posts.js';
 
 
 export const createJournal = async (username, title, userAccessing, role) => {
@@ -60,6 +62,7 @@ export const getJournalsByUser = async (username, userAccessing, role) => {
     journal = await journalCollection.findOne({_id: new ObjectId(foundUser.journals[i])});
     journalArray.push(journal);
   }
+  if (journalArray.length === 0) return "You have no journals to view.";
   return journalArray;
 };
 
@@ -99,6 +102,10 @@ export const deleteJournal = async (journalId, userAccessing, role) => {
   const journal = await journalCollection.findOne({_id: new ObjectId(journalId)});
   if (!journal) throw "We could not find the journal with id: " + journalId + ".";
   if (journal.author !== userAccessing && role !== "admin") throw "Access denied.";
+  let section;
+  for (let i in journal.sections) {
+    section = await sections.deleteSection(journal.sections[i], userAccessing, role);
+  }
   const foundUser = await userCollection.findOne({username: journal.author});
   if (!foundUser) throw "We could not find the user this journal belongs to.";
   for (let i in foundUser.journals) {

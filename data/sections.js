@@ -1,7 +1,7 @@
 import {sections, users, journals} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 import * as helpers from '../helpers.js';
-//import * as helpers from '../helpers.js';
+import * as posts from './posts.js';
 
 
 export const createSection = async (journalId, title, userAccessing, role) => {
@@ -106,6 +106,10 @@ export const deleteSection = async (sectionId, userAccessing, role) => {
     const journal = await journalCollection.findOne({_id: new ObjectId(section.journalId)});
     if (!journal) throw "We could not find the journal this section belongs to.";
     if (journal.author !== userAccessing && role !== "admin") throw "Access denied.";
+    let deletedPost;
+    for (let i in section.posts) {
+        deletedPost = await posts.deletePost(section.posts[i], userAccessing, role);
+    }
     for (let i in journal.sections) {
         if (journal.sections[i] === sectionId) {
             journal.sections[i] = journal.sections[journal.sections.length - 1];

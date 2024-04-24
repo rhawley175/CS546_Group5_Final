@@ -1,185 +1,335 @@
 import {Router} from 'express';
 const router = Router();
 
-import {addPost, getPost, deletePost, updatePost, getPostsByKeyword} from '../data/posts.js';
+import * as posts from '../data/posts.js';
+import * as sections from '../data/sections.js';
+import * as journals from '../data/journals.js';
+import * as helpers from '../helpers.js';
+import * as users from '../data/users.js';
 
 
 router
-.route('/newPost')
+.route('/newPost/:sectionId')
 .get(async(req,res) => {
-    res.render('posts/newPost', {title: 'New Post'});   //change handlebar to entry name.
+    if (!req.session.user) return res.redirect("/users/login");
+    let sectionId = req.params.sectionId;
+    let userAccessing = req.session.user.username;
+    let role = req.session.user.role;
+    try {
+        userAccessing = helpers.checkString(userAccessing, "accessing user");
+        role = helpers.checkRole(role);
+        const accessingUser = await users.getUser(userAccessing, userAccessing, role);
+        if (!accessingUser) throw "We could not find the accessing user.";
+        sectionId = helpers.checkId(sectionId, "section id");
+        const section = await sections.getSection(sectionId, userAccessing, role);
+        if (!section) return res.status(404).render("posts/error", {error: "Section not found."});
+        const journal = await journals.getJournalById(section.journalId, userAccessing, role);
+        if (!journal) return res.status(404).render("posts/error", {error: "Journal not found."});
+        if (journal.author !== userAccessing && role !== "admin") return res.status(403).render("posts/error", {error: "Access denied."});
+        return res.status(200).render('posts/newPost', {title: 'New Post'});   //change handlebar to entry name.
+    } catch(e) {
+        return res.status(500).render('posts/error', {error: e});
+    }
 })
 .post(async(req,res) => {
-    const data=req.body;
-    
-    
-    
-    
-    try{
-        const entry = await addPost(data.sectionIdInput, data.titleInput, data.entryText, data.pub, data.usernameInput);
-
-        if(entry){
-            return res.render('posts/newPost', {title: 'New Post', success: true, postId: entry});
-        }
-        else{
-            res.status(500).render('posts/newPost', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
-        }
+    if (!req.session.user) return res.redirect("/users/login");
+    let sectionId = req.params.sectionId;
+    let userAccessing = req.session.user.username;
+    let role = req.session.user.role;
+    let title = req.body.title;
+    let content = req.body.content;
+    let pub = req.body.pub;
+    let username;
+    try {
+        userAccessing = helpers.checkString(userAccessing, "accessing user");
+        role = helpers.checkRole(role);
+        const accessingUser = await users.getUser(userAccessing, userAccessing, role);
+        if (!accessingUser) throw "We could not find the accessing user.";
+        sectionId = helpers.checkId(sectionId, "section id");
+        const section = await sections.getSection(sectionId, userAccessing, role);
+        if (!section) return res.status(404).render("posts/error", {error: "Section not found."});
+        const journal = await journals.getJournalById(section.journalId, userAccessing, role);
+        if (!journal) return res.status(404).render("posts/error", {error: "Journal not found."});
+        if (journal.author !== userAccessing && role !== "admin") return res.status(403).render("posts/error", {error: "Access denied."});
+        username = journal.author;
+        title = helpers.checkString(title, "title");
+        content = helpers.checkContent(content);
+        if (pub === "public") pub = true;
+        else pub = false;
+        pub = helpers.checkBool(pub, "public or private indicator");
+    } catch(e) {
+        return res.status(400).render('posts/error', {error: e});
     }
-    catch(e){
-        res.status(400).render('posts/newPost', {hasError: true, error: e, title: 'New Post'});
+    try {
+        const post = await posts.addPost(sectionId, title, content, pub, username, userAccessing, role);
+        let newPost = await posts.getPost(post, userAccessing, role);
+        return res.status(200).json(newPost);
+    } catch(e) {
+        return res.status(500).render('posts/error', {error: e});
     }
 });
 
 
 
-    router
-    .route('/delete')
-    .get(async(req, res) => {
-        res.render('posts/delete', {title: 'Delete Post'});
+router
+.route('/delete/:postId')
+.get(async(req, res) => {
+    if (!req.session.user) return res.redirect("/users/login");
+    let userAccessing = req.session.user.username;
+    let role = req.session.user.role;
+    let postId = req.params.postId;
+    try {
+        userAccessing = helpers.checkString(userAccessing, "accessing user");
+        role = helpers.checkRole(role);
+        const accessingUser = await users.getUser(userAccessing, userAccessing, role);
+        if (!accessingUser) throw "We could not find the accessing user.";
+        postId = helpers.checkId(postId, "post id");
+        const post = await posts.getPost(postId, userAccessing, role);
+        if (!post) return res.status(404).render("posts/error", {error: "Post not found."});
+        const section = await sections.getSection(post.sectionId, userAccessing, role);
+        if (!section) return res.status(404).render("posts/error", {error: "Section not found."});
+        const journal = await journals.getJournalById(section.journalId, userAccessing, role);
+        if (!journal) return res.status(404).render("posts/error", {error: "Journal not found."});
+        if (!post.usernames.includes(userAccessing) && role !== "admin") return res.status(403).render("posts/error", {error: "Access denied."});
+        return res.render('posts/delete', {title: 'Delete Post'});
+    } catch(e) {
+        return res.status(500).render('posts/error', {error: e});
+    }
+})
+.post(async(req,res) => {
+    if (!req.session.user) return res.redirect("/users/login");
+    let userAccessing = req.session.user.username;
+    let role = req.session.user.role;
+    let postId = req.params.postId;
+    try {
+        userAccessing = helpers.checkString(userAccessing, "accessing user");
+        role = helpers.checkRole(role);
+        const accessingUser = await users.getUser(userAccessing, userAccessing, role);
+        if (!accessingUser) throw "We could not find the accessing user.";
+        postId = helpers.checkId(postId, "post id");
+        const post = await posts.getPost(postId, userAccessing, role);
+        if (!post) return res.status(404).render("posts/error", {error: "Post not found."});
+        const section = await sections.getSection(post.sectionId, userAccessing, role);
+        if (!section) return res.status(404).render("posts/error", {error: "Section not found."});
+        const journal = await journals.getJournalById(section.journalId, userAccessing, role);
+        if (!journal) return res.status(404).render("posts/error", {error: "Journal not found."});
+        if (journal.author !== userAccessing && role !== "admin") return res.status(403).render("posts/error", {error: "Access denied."});
+    } catch(e) {
+        return res.status(400).json({error: e});
+    }
+    try {
+        const deletedPost = await posts.deletePost(postId, userAccessing, role);
+        return res.status(200).render('posts/delete', {title: 'Delete Post', message: 'Deleted successfully.'});
+    } catch(e) {
+        return res.status(500).render('posts/error', {error: e});
+    }
+});
 
-    })
-    .post(async(req,res) => {
-        const data=req.body;
-        try{
-            
-            if(!data.deleteId){
-                throw 'Post ID is not provided.';
+router
+.route('/update/:postId')
+.get(async(req,res) => {
+    if (!req.session.user) return res.redirect("/users/login");
+    let userAccessing = req.session.user.username;
+    let role = req.session.user.role;
+    let postId = req.params.postId;
+    try {
+        userAccessing = helpers.checkString(userAccessing, "accessing user");
+        role = helpers.checkRole(role);
+        const accessingUser = await users.getUser(userAccessing, userAccessing, role);
+        if (!accessingUser) throw "We could not find the accessing user.";
+        postId = helpers.checkId(postId, "section id");
+        const post = await posts.getPost(postId, userAccessing, role);
+        if (!post) return res.status(404).render("posts/error", {error: "Post not found."}); 
+        const section = await sections.getSection(post.sectionId, userAccessing, role);
+        if (!section) return res.status(404).render("posts/error", {error: "Section not found."});
+        const journal = await journals.getJournalById(section.journalId, userAccessing, role);
+        if (!journal) return res.status(404).render("posts/error", {error: "Journal not found."});
+        if (journal.author !== userAccessing && role !== "admin") return res.status(403).render("posts/error", {error: "Access denied."});
+        let postTitle = post.title;
+        let content = post.content;
+        let pub = post.pub;
+        return res.status(200).render("posts/update", {title: 'Update Post', postTitle: postTitle, content: content, pub: pub});
+    } catch(e) {
+        return res.status(400).render('posts/error', {error: e});
+    }   //change handlebar to entry name.
+})
+.post(async(req,res) => {
+    if (!req.session.user) return res.redirect("/users/login");
+    let userAccessing = req.session.user.username;
+    let role = req.session.user.role;
+    let postId = req.params.postId;
+    let title = req.body.title;
+    let content = req.body.content;
+    let pub = req.body.pub;
+    let username;
+    let postObject = new Object();
+    try {
+        userAccessing = helpers.checkString(userAccessing, "accessing user");
+        role = helpers.checkRole(role);
+        const accessingUser = await users.getUser(userAccessing, userAccessing, role);
+        if (!accessingUser) throw "We could not find the accessing user.";
+        postId = helpers.checkId(postId, "section id");
+        const post = await posts.getPost(postId, userAccessing, role);
+        if (!post) return res.status(404).render("posts/error", {error: "Post not found."}); 
+        const section = await sections.getSection(post.sectionId, userAccessing, role);
+        if (!section) return res.status(404).render("posts/error", {error: "Section not found."});
+        const journal = await journals.getJournalById(section.journalId, userAccessing, role);
+        if (!journal) return res.status(404).render("posts/error", {error: "Journal not found."});
+        if (journal.author !== userAccessing && role !== "admin") return res.status(403).render("posts/error", {error: "Access denied."});
+        username = journal.author;
+        let valid = false;
+        if (title !== "" && title !== undefined) {
+            title = helpers.checkString(title, "title");
+            if (title !== post.title) {
+                valid = true;
+                postObject.title = title;
             }
-        
-            if(typeof data.deleteId !=='string'){
-                throw 'Input is not a string.';
-            }
-        
-            const trimpostId=data.deleteId.trim();
-            
-            if(trimpostId.length===0){
-                throw 'Input is empty string.';
-            }
-        
-            
-
-            let deletedPost = await deletePost(trimpostId);
-            
-            return res.status(200).render('posts/delete', {title: 'Delete Post', message: 'Deleted successfully.'});
-
         }
-        
-        catch(e){
-            return res.status(404).render('posts/delete', {title: 'Delete Post', hasError: true, error: e});
-        }
-
-    })
-
-    router
-    .route('/update')
-    .get(async(req,res) => {
-        res.render('posts/update', {title: 'Update Post'});   //change handlebar to entry name.
-    })
-    .post(async(req,res) => {
-        const data=req.body;
-        
-        try{
-            const updates = {};
-
-
-            if (data.sectionIdInput.trim() !== '') {
-                updates.sectionId = data.sectionIdInput.trim();
-            }
-
-            if (data.titleInput.trim() !== '') {
-                updates.title = data.titleInput.trim();
-            }
-
-            if (data.entryText.trim() !== '') {
-                updates.content = data.entryText.trim();
-            }
-
-
-            if (data.pub !== '') {
-                updates.pub = data.pub;
-            }
-
-            if (data.usernameInput !== undefined) {
-                updates.usernames = data.usernameInput !== null && data.usernameInput.trim() !== '' ? data.usernameInput.trim() : null;
-            }
-
-            const entry = await updatePost(data.postIdInput, updates);
-            if(entry){
-                return res.render('posts/update', {title: 'Update Post', success: true, postId: entry});
-            }
-            else{
-                res.status(500).render('posts/update', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
+        else postObject.title = post.title;
+        if (content !== "" && content !== undefined) {
+            content = helpers.checkContent(content);
+            if (content !== post.content) {
+                valid = true;
+                postObject.content = content;
             }
         }
-        catch(e){
-            res.status(400).render('posts/update', {hasError: true, error: e, title: 'Update Post'});
+        else postObject.content = post.content;
+        if (pub !== "" && content !== undefined) {
+            if (pub === "public") pub = true;
+            else pub = false;
+            pub = helpers.checkBool(pub, "public or private indicator");
+            if (pub !== post.pub) {
+                valid = true;
+                postObject.pub = pub;
+            }
         }
-    });
+        else postObject.pub = post.pub;
+        if (valid === false) throw "Nothing is being updated.";
+    } catch(e) {
+        return res.status(400).render('posts/error', {error: e});
+    }
+    try {
+        const updatedPost = await posts.updatePost(postId, userAccessing, role, postObject);
+        return res.status(200).render('posts/update', {title: 'Update Post', success: true, postId: postId});
+    } catch(e) {
+        return res.status(500).json({error: e});
+    }
+});
 
 
     
 
+    //unnecessary: Cannot search through all posts.
+    // router.route('/search')
+    // .get(async (req, res) => {
+    //     res.render('posts/search', { title: 'Search Post' }); 
+    // })
+    // .post(async (req, res) => { 
+    //     const searchInput = req.body.searchInput.trim();
 
-    router.route('/search')
-    .get(async (req, res) => {
-        res.render('posts/search', { title: 'Search Post' }); 
-    })
-    .post(async (req, res) => { 
-        const searchInput = req.body.searchInput.trim();
+    //     if (!searchInput) {
+    //         return res.render('posts/search', { title: 'Search Post', error: 'Search input is empty' });
+    //     }
 
-        if (!searchInput) {
-            return res.render('posts/search', { title: 'Search Post', error: 'Search input is empty' });
+    //     try {
+    //         const searchResults = await getPostsByKeyword(searchInput);
+            
+            
+            
+    //         return res.render('posts/search', {title: 'Search Post', searchResults });
+    //     } catch (error) {
+    //         return res.render('posts/search', {title: 'Search Post',  error: error });
+    //     }
+    // });
+
+router
+.route('/:postId')
+.get(async(req, res) => {
+    let userAccessing;
+    let role;
+    let postId = req.params.postId;
+    try {
+        if (!req.session.user)  {
+            userAccessing = "visitingUser";
+            role = "user";
         }
-
-        try {
-            const searchResults = await getPostsByKeyword(searchInput);
-            
-            
-            
-            return res.render('posts/search', {title: 'Search Post', searchResults });
-        } catch (error) {
-            return res.render('posts/search', {title: 'Search Post',  error: error });
+        else {
+            userAccessing = helpers.checkString(userAccessing, "accessing user");
+            role = helpers.checkRole(role);
+            const accessingUser = await users.getUser(userAccessing, userAccessing, role);
+            if (!accessingUser) throw "We could not find the accessing user.";
         }
-    });
+        postId = helpers.checkId(postId, "section id");
+        const post = await posts.getPost(postId, userAccessing, role);
+        if (!post) return res.status(404).render("posts/error", {error: "Post not found."}); 
+        if (post.pub === false && !post.usernames.includes(userAccessing) && role !== "admin") return res.status(403).render("posts/error", {error: "Access denied."});
+        return res.status(200).render('posts/post', {title: post.title, content: post.content});
+    } catch(e) {
+        return res.status(500).render("posts/error", {error: e});
+    }
+});
 
-    router
-    .route('/:postId')
-    .get(async(req, res) => {
-        try{
-            
-            const postId=req.params.postId;
-            
-            if(!postId){
-                throw 'Post ID is not provided.';
-            }
-        
-            if(typeof postId !=='string'){
-                throw 'Input is not a string.';
-            }
-           
-            const trimpostId=postId.trim();
-            
-            if(trimpostId.length===0){
-                throw 'Input is empty string.';
-            }
-        
-            
-            const post = await getPost(trimpostId);
-            
-            if(post){
-                
-                return res.status(200).render('posts/post', {title: post.title, content: post.content});
-            }
-            else{
-                res.status(500).render('posts/post', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
-            }
-        }
-        catch(e){
-            return res.status(404).render('posts/post', {title: 'Error', hasError: true, error:e});
-        }
-    });
-
-
+router
+.route('/share/:postId')
+.get(async (req, res) => {
+    if (!req.session.user) return res.redirect("/users/login");
+    let userAccessing = req.session.user.username;
+    let role = req.session.user.role;
+    let postId = req.params.postId;
+    try {
+        userAccessing = helpers.checkString(userAccessing, "accessing user");
+        role = helpers.checkRole(role);
+        const accessingUser = await users.getUser(userAccessing, userAccessing, role);
+        if (!accessingUser) throw "We could not find the accessing user.";
+        postId = helpers.checkId(postId, "post id");
+        const post = await posts.getPost(postId, userAccessing, role);
+        if (!post) return res.status(404).render("posts/error", {error: "Post not found."});
+        const section = await sections.getSection(post.sectionId, userAccessing, role);
+        if (!section) return res.status(404).render("posts/error", {error: "Section not found."});
+        const journal = await journals.getJournalById(section.journalId, userAccessing, role);
+        if (!journal) return res.status(404).render("posts/error", {error: "Journal not found."});
+        if (journal.author !== userAccessing && role !== "admin") return res.status(403).render("posts/error", {error: "Access denied."});
+        return res.status(200).json("posts/share");
+    } catch(e) {
+        return res.status(500).render("posts/error", {error: e});
+    }
+}).post(async(req, res) => {
+    if (!req.session.user) return res.redirect("/users/login");
+    let userAccessing = req.session.user.username;
+    let role = req.session.user.role;
+    let postId = req.params.postId;
+    let fromUser = userAccessing;
+    let toUser = req.body.username;
+    try {
+        userAccessing = helpers.checkString(userAccessing, "accessing user");
+        role = helpers.checkRole(role);
+        const accessingUser = await users.getUser(userAccessing, userAccessing, role);
+        if (!accessingUser) throw "We could not find the accessing user.";
+        postId = helpers.checkId(postId, "post id");
+        const post = await posts.getPost(postId, userAccessing, role);
+        if (!post) return res.status(404).render("posts/error", {error: "Post not found."});
+        const section = await sections.getSection(post.sectionId, userAccessing, role);
+        if (!section) return res.status(404).render("posts/error", {error: "Section not found."});
+        const journal = await journals.getJournalById(section.journalId, userAccessing, role);
+        if (!journal) return res.status(404).render("posts/error", {error: "Journal not found."});
+        if (journal.author !== userAccessing && role !== "admin") return res.status(403).render("posts/error", {error: "Access denied."});
+        fromUser = helpers.checkString(fromUser);
+        const foundFromUser = await users.getUser(fromUser, userAccessing, role);
+        if (!foundFromUser) return res.status(404).render("posts/error", {error: "From user not found."});
+        toUser = helpers.checkString(toUser);
+        const foundToUser = await users.getUser(toUser, userAccessing, role);
+        if (!foundToUser) return res.status(404).render("posts/error", {error: "From user not found."});
+        if (post.usernames.includes(toUser)) throw "This user already has the post shared with them.";
+    } catch(e) {
+        return res.status(400).json({error: e});
+    }
+    try {
+        const sharedPost = await posts.sharePost(postId, fromUser, toUser, userAccessing, role);
+        return res.json(sharedPost);
+    } catch(e) {
+        return res.status(500).render("posts/error", {error: e});
+    }
+})
 
 
 export default router;

@@ -185,7 +185,7 @@ export const getAllUserPosts = async(username, userAccessing, role) => {
         else  {
             postObject.publicPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
             postObject.sharedPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
-            postObject.privatePosts.sort((a, b) => newDate(a.time).getTime() - new Date(b.time).getTime());
+            postObject.privatePosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
             return postObject;
         }
     }
@@ -242,6 +242,7 @@ export const getAllSectionPosts = async(sectionId, userAccessing, role) => {
 
 export const getUserPostsByKeyword = async (keyword, username, userAccessing, role) => {
     keyword = helpers.checkString(keyword);
+    keyword = keyword.toLowerCase();
     if (!role) role = "user";
     else role = helpers.checkRole(role);
     if (!userAccessing) userAccessing = "visitingUser";
@@ -266,10 +267,10 @@ export const getUserPostsByKeyword = async (keyword, username, userAccessing, ro
         let publicPosts = [];
         let sharedPosts = [];
         for (let i in allPosts.publicPosts) {
-            if (allPosts.publicPosts[i].title.includes(keyword) || allPosts.publicPosts[i].content.includes(keyword)) publicPosts.push(allPosts.publicPosts[i]);
+            if (allPosts.publicPosts[i].title.toLowerCase().includes(keyword) || allPosts.publicPosts[i].content.toLowerCase().includes(keyword)) publicPosts.push(allPosts.publicPosts[i]);
         }
         for (let i in allPosts.sharedPosts) {
-            if (allPosts.sharedPosts[i].title.includes(keyword) || allPosts.sharedPosts[i].content.includes(keyword)) sharedPosts.push(allPosts.sharedPosts[i]);
+            if (allPosts.sharedPosts[i].title.toLowerCase().includes(keyword) || allPosts.sharedPosts[i].content.toLowerCase().includes(keyword)) sharedPosts.push(allPosts.sharedPosts[i]);
         }
         let postObject = {
             publicPosts: publicPosts,
@@ -287,13 +288,13 @@ export const getUserPostsByKeyword = async (keyword, username, userAccessing, ro
         let sharedPosts = [];
         let privatePosts = [];
         for (let i in allPosts.publicPosts) {
-            if (allPosts.publicPosts[i].title.includes(keyword) || allPosts.publicPosts[i].content.includes(keyword)) publicPosts.push(allPosts.publicPosts[i]);
+            if (allPosts.publicPosts[i].title.toLowerCase().includes(keyword) || allPosts.publicPosts[i].content.toLowerCase().includes(keyword)) publicPosts.push(allPosts.publicPosts[i]);
         }
         for (let i in allPosts.sharedPosts) {
-            if (allPosts.sharedPosts[i].title.includes(keyword) || allPosts.sharedPosts[i].content.includes(keyword)) sharedPosts.push(allPosts.sharedPosts[i]);
+            if (allPosts.sharedPosts[i].title.toLowerCase().includes(keyword) || allPosts.sharedPosts[i].content.toLowerCase().includes(keyword)) sharedPosts.push(allPosts.sharedPosts[i]);
         }
         for (let i in allPosts.privatePosts) {
-            if (allPosts.privatePosts[i].title.includes(keyword) || allPosts.privatePosts[i].content.includes(keyword)) privatePosts.push(allPosts.privatePosts[i]);
+            if (allPosts.privatePosts[i].title.toLowerCase().includes(keyword) || allPosts.privatePosts[i].content.toLowerCase().includes(keyword)) privatePosts.push(allPosts.privatePosts[i]);
         }
         let postObject = {
             publicPosts: publicPosts,
@@ -405,6 +406,7 @@ export const getUserPostsByDate = async (firstDate, secondDate, username, userAc
 
 export const getJournalPostsbyKeyword = async(keyword, journalId, userAccessing, role) => {
     keyword = helpers.checkString(keyword, "search term");
+    keyword = keyword.toLowerCase();
     const journalCollection = await journals();
     journalId = helpers.checkId(journalId, "journal id");
     const journal = await journalCollection.findOne({_id: new ObjectId(journalId)});
@@ -419,7 +421,7 @@ export const getJournalPostsbyKeyword = async(keyword, journalId, userAccessing,
     if (!allPosts || typeof allPosts === 'string') throw "We could not find any posts in the journal.";
     let posts = [];
     for (let i in allPosts) {
-        if (allPosts[i].title.includes(keyword)) posts.push(allPosts[i]);
+        if (allPosts[i].title.toLowerCase().includes(keyword) || allPosts[i].content.toLowerCase().includes(keyword)) posts.push(allPosts[i]);
     }
     if (posts.length === 0) return "We could not find any posts with the keyword: " + keyword + ".";
     return posts;
@@ -457,6 +459,7 @@ export const getJournalPostsbyDate = async(date1, date2, journalId, userAccessin
 
 export const getSectionPostsByKeyword = async(keyword, sectionId, userAccessing, role) => {
     keyword = helpers.checkString(keyword, "search term");
+    keyword = keyword.toLowerCase();
     const sectionCollection = await sections();
     sectionId = helpers.checkId(sectionId, "section id");
     const section = await sectionCollection.findOne({_id: new ObjectId(sectionId)});
@@ -474,7 +477,7 @@ export const getSectionPostsByKeyword = async(keyword, sectionId, userAccessing,
     if (!allPosts || typeof allPosts === 'string') throw "We could not find any posts in the section.";
     let posts = [];
     for (let i in allPosts) {
-        if (allPosts[i].title.includes(keyword)) posts.push(allPosts[i]);
+        if (allPosts[i].title.toLowerCase().includes(keyword) || allPosts[i].content.toLowerCase().includes(keyword)) posts.push(allPosts[i]);
     }
     if (posts.length === 0) return "We could not find any posts with the keyword: " + keyword + ".";
     return posts;
