@@ -1,3 +1,4 @@
+
 import express from 'express';
 const app = express();
 import configRoutes from './routes/index.js';
@@ -40,11 +41,15 @@ app.listen(3000, () => {
 
 // If you need to do work other than run the server, comment out the above code, and write your new code below:
 
-// import * as users from './data/users.js';
+// import * as journals from './data/journals.js';
 // import * as connection from './config/mongoConnection.js';
+// import * as sections from './data/sections.js';
+// import * as posts from './data/posts.js';
+// import * as users from './data/users.js';
+
 
 // try {
-//     console.log(await users.updateUser("ETashjiG", "ETashjiG", "user", {password: "P@ssw0rd"}));
+//     console.log(await posts.updatePost("662889056e09d9c3dec062a5", ));
 // } catch(e) {
 //     console.log(e);
 // }

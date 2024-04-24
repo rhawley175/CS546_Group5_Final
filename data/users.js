@@ -1,5 +1,7 @@
 import {users} from '../config/mongoCollections.js';
-import {ObjectId} from 'mongodb';
+import * as journals from './journals.js';
+import * as sections from './sections.js';
+import * as posts from './posts.js';
 import * as helpers from '../helpers.js';
 import bcrypt from 'bcrypt';
 
@@ -117,6 +119,11 @@ export const deleteUser = async(username, userAccessing, role) => {
     if (userAccessing !== username && role !== "admin") throw "You do not have permission to do that.";
     if (!userToDelete) throw "Sorry, but we could not delete the user with username " + username + ".";
     if (userToDelete.role === "admin" && role !== "admin") throw "You do not have permission to do that.";
+    let journal;
+    let section;
+    for (let i in userToDelete.journals) {
+        journal = await journals.deleteJournal(userToDelete.journals[i], userAccessing, role);
+    }
     const deletedUser = await userCollection.findOneAndDelete({username: username});
     if (!deletedUser) throw "Sorry, but we could not delete the user with username " + username + ".";
     return {username: username, deleted: true};
@@ -159,13 +166,13 @@ export const updateUser = async(username, userAccessing, role, updateObject) => 
     }
     else newUser.email = oldUser.email;
     if (updateObject.firstName) {
-        updateObject.firstName = helpers.checkName(firstName, "lirst name");
+        updateObject.firstName = helpers.checkName(updateObject.firstName, "first name");
         if (updateObject.firstName !== oldUser.firstName) updated = true;
         newUser.firstName = updateObject.firstName;
     }
     else newUser.firstName = oldUser.firstName;
     if (updateObject.lastName) {
-        updateObject.lastName = helpers.checkName(lastName, "last name");
+        updateObject.lastName = helpers.checkName(updateObject.lastName, "last name");
         if (updateObject.lastName !== oldUser.lastName) updated = true;
         newUser.lastName = updateObject.lastName;
     }
@@ -180,46 +187,4 @@ export const updateUser = async(username, userAccessing, role, updateObject) => 
     if (!updateInfo) throw "Sorry, but we could not update the user with username: " + username + ".";
     return newUser;
 };
-
-
-
-export const addJournalToUser = async (userId, journalId) => {
-    userId = helpers.checkString(userId, "User ID");
-    journalId = helpers.checkString(journalId, "Journal ID");
-  
-    const userCollection = await users();
-    const updateInfo = await userCollection.updateOne(
-      { _id: new ObjectId(userId) },
-      { $push: { journals: new ObjectId(journalId) } }
-    );
-  
-    if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
-      throw 'Update failed';
-  
-    return await getUser(userId);
-  };
-  
-  export const removeJournalFromUser = async (userId, journalId) => {
-    userId = helpers.checkString(userId, "User ID");
-    journalId = helpers.checkString(journalId, "Journal ID");
-  
-    const userCollection = await users();
-    const updateInfo = await userCollection.updateOne(
-      { _id: new ObjectId(userId) },
-      { $pull: { journals: new ObjectId(journalId) } }
-    );
-  
-    if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
-      throw 'Update failed';
-  
-    return await getUser(userId);
-  };
-
-
-  export const getUserByUsername = async (username) => {
-    username = helpers.checkString(username, "username");
-    const userCollection = await users();
-    const user = await userCollection.findOne({ username: username });
-    return user;
-  };
 
