@@ -1,10 +1,36 @@
-<head>
+{{!-- <head>
     <title>{{title}}</title>
     <link rel="stylesheet" href="../../public/css/main.css">
 </head>
 <body>
-    <h1>{{title}}</h1>
+    <h2>{{title}}</h2>
     <p>Section ID: {{section._id}}</p>
     <p>Title: {{section.title}}</p>
+    <script src="../../public/js/sections.js"></script>
+</body> --}}
+
+
+<head>
+    <title>{{section.title}}</title>
+    <link rel="stylesheet" href="../../public/css/main.css">
+</head>
+<body>
+    <h2>{{section.title}}</h2>
+    <p>Section ID: {{section._id}}</p>
+    <a href="/posts/newPost?sectionId={{section._id}}">Create a new entry</a>
+    <a href="/journals/{{section.journalId}}">Back to Journal</a>
+    <a href="/sections/delete/{{section._id}}">Delete This Section</a>
+
+    <h3>Posts:</h3>
+    {{#if section.posts.length}}
+    <ul>
+        {{#each section.posts}}
+        <li>{{this.title}} - <a href="/posts/{{this._id}}">View Post</a></li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p>No posts yet.</p>
+    {{/if}}
+
     <script src="../../public/js/sections.js"></script>
 </body>

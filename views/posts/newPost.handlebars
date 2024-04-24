@@ -1,4 +1,4 @@
-<main>
+{{!-- <main>
     <h1>New Journal Entry</h1>
         <form id="entryForm" method="POST" action="newPost">
             <div class="title">
@@ -45,3 +45,65 @@
             {{/if}}
         </form>
 </main>
+ --}}
+
+<head>
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="../../public/css/main.css">
+</head>
+<body>
+<main>
+    <h1>New Journal Entry</h1>
+    <form id="entryForm" method="POST" action="/posts/newPost">
+        <div class="title">
+            <label for="titleInput">Title:
+                <input id="titleInput" name="titleInput" placeholder="Enter Title">
+            </label>
+        </div>
+        <div class="text-label">
+            <label for="entryText">Journal Entry Text:</label>
+        </div>
+        <div class="text-box">
+            <textarea id="entryText" name="entryText" rows="10" cols="50" placeholder="Enter Text Here"></textarea>
+        </div>
+        <div class="public">
+            <label for="pub">Public?:
+                <select name="pub" id="pub">
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                </select>
+            </label>
+        </div>
+        <label for="usernameInput">Usernames
+            <input id="usernameInput" name="usernameInput" placeholder="Enter Usernames to Share With">
+        </label>
+        <br><br>
+        {{#if sectionId}}
+        <input type="hidden" name="sectionId" value="{{sectionId}}">
+        {{else}}
+        <label for="sectionId">Select Section:
+            <select name="sectionId" id="sectionId">
+                {{#each sections}}
+                <option value="{{this._id}}">{{this.title}}</option>
+                {{/each}}
+            </select>
+        </label>
+        {{/if}}
+        <br><br>
+        <div class="button">
+            <button id="saveButton">Save Entry</button>
+        </div>
+        {{#if success}}
+            <p id="postId">Posted Successfully. Your Post ID: {{postId}}</p>
+        {{/if}}
+        {{#if hasError}}
+            <p id="error" class="error">{{error}}</p>
+        {{/if}}
+    </form>
+</main>
+</body>
+
+
+
+
+

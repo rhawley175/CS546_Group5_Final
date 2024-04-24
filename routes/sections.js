@@ -22,23 +22,12 @@ router
         if (!ObjectId.isValid(journalId)) throw 'Invalid journal ID provided';
 
         const section = await sections.createSection(journalId.trim(), title.trim());
+        
         res.render('sections/newSection', { title: 'Create New Section', success: true, sectionId: section._id });
     } catch (e) {
         res.status(400).render('sections/error', { error: e });
     }
-});
-/*     try {
-        const { title, journalId } = req.body;
-        const section = await sections.createSection(title, journalId);
-        res.redirect(`/journals/${journalId}`); // Redirect back to the journal view
-    } catch (error) {
-        console.error('Error creating section:', error);
-        res.status(500).json({ error: 'Failed to create section' });
-    }
-    }); */
-
-
-
+}); 
 
 router
 .route('/:sectionId')

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const router = Router();
-import { getSectionsByJournal } from '../data/sections.js';
+import * as sectionData from '../data/sections.js';
 
 import {
   createJournal,
@@ -50,15 +50,15 @@ router.post('/create', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-  try {
-    const journalId = req.params.id;
-    const journal = await getJournalById(journalId);
-    //const sections = await getSectionsByJournal(journalId);
-   // journal.sections = sections;
-    res.render('journals/journalView', { journal });
-  } catch (error) {
-    res.status(404).json({ error: 'Journal not found' });
-  }
+try {
+  const journalId = req.params.id;
+  const journal = await getJournalById(journalId);
+  const sections = await sectionData.getSectionsByJournalId(journalId);
+  journal.sections = sections;
+  res.render('journals/journalView', { journal });
+} catch (error) {
+  res.status(404).json({ error: 'Journal not found.' });
+}
 });
 
 router.get('/:id/edit', async (req, res) => {

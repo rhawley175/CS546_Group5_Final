@@ -1,13 +1,19 @@
-<h2>All Journals</h2>
+<head>
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="../../public/css/main.css">
+</head>
+<body>
+  <h2>All Journals</h2>
 
-{{#if journals.length}}
-<ul>
-  {{#each journals}}
-  <li><a href="/journals/{{this._id}}">{{this.title}}</a></li>
-  {{/each}}
-</ul>
-{{else}}
-<p>No journals found.</p>
-{{/if}}
+  {{#if journals.length}}
+  <ul>
+    {{#each journals}}
+    <li><a href="/journals/{{this._id}}">{{this.title}}</a></li>
+    {{/each}}
+  </ul>
+  {{else}}
+  <p>No journals found.</p>
+  {{/if}}
 
-<a href="/journal.html" class="btn">Return to Journal Main Menu</a>
+  <a href="/journal.html" class="btn">Return to Journal Main Menu</a>
+</body>

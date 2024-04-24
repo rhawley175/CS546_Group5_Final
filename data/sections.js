@@ -47,15 +47,14 @@ export const getSection = async (sectionId) => {
     return section;
 };
 
-export const getSectionsByJournal = async (journalId) => {
-    if (!journalId) throw ('Journal ID must be provided.');
-    if (!ObjectId.isValid(journalId)) throw ('Invalid journal ID format.');
+export const getSectionsByJournalId = async (journalId) => {
     const sectionsCollection = await sections();
-    const sectionsList = await sectionsCollection.find({ journalId: new ObjectId(journalId) }).toArray();
-    
-    if (!sectionsList.length) throw ('No sections found for the given journal ID.');
+    if (!ObjectId.isValid(journalId)) {
+        throw new Error('Invalid journal ID format.');
+    }
 
-    return sectionsList;
+    const sectionsList = await sectionsCollection.find({ journalId: new ObjectId(journalId) }).toArray();
+    return sectionsList; 
 };
 
 export const addPostToSection = async (sectionId, postId) => {
@@ -71,6 +70,18 @@ export const addPostToSection = async (sectionId, postId) => {
     return await getSection(sectionId);
 };
 
+export const linkPostToSection = async (postId, sectionId) => {
+    if (!ObjectId.isValid(postId) || !ObjectId.isValid(sectionId)) throw ("Invalid postId or sectionId format.");
+    const sectionsCollection = await sections();
+    const updateResult = await sectionsCollection.updateOne(
+        { _id: new ObjectId(sectionId) },
+        { $push: { posts: new ObjectId(postId) } }
+    );
+    if (!updateResult.matchedCount || !updateResult.modifiedCount) throw ("Failed to link the post to the section.");
+    return true;
+};
+
+
 export const deleteSection = async (sectionId) => {
     if (!sectionId) throw ('Section ID must be provided.');
     if (!ObjectId.isValid(sectionId)) throw ('Invalid section ID format.');
@@ -81,3 +92,4 @@ export const deleteSection = async (sectionId) => {
     
     return deletionInfo;
 };
+
