@@ -100,6 +100,32 @@
       const username = document.getElementById('usernameInput').value;
       window.location.href = `/journals/user/${username}`;
     });
+
+    fetch('/journals')
+    .then(response => {
+      if (response.ok) {
+        return response.text();
+      } else {
+        throw new Error('Failed to fetch user journals');
+      }
+    })
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const journalList = doc.querySelector('ul');
+
+      const journalListItems = document.getElementById('journalListItems');
+      journalListItems.innerHTML = '';
+
+      if (journalList) {
+        journalListItems.innerHTML = journalList.innerHTML;
+      } else {
+        journalListItems.innerHTML = '<li>No journals found.</li>';
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching user journals:', error);
+    });
   </script>
 </body>
 </html>
