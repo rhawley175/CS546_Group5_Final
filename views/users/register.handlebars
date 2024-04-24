@@ -4,36 +4,41 @@
 </head>
 <body>
     <header>
-        <h1>Register</h1>
+        <div class="register-title">
+            <h1>Register</h1>
+        </div>
         <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     </header>
-    <main>
-        <form id="registration-form" method="POST" action="/users/register">
-            <label for="usernameInput">Username:</label>
-            <input type="text" name="usernameInput" id="usernameInput">
-            <br>
-            <label for="passwordInput">Password:</label>
-            <input type="password" name="passwordInput" id="passwordInput">
-            <br>
-            <label for="confirmPasswordInput">Confirm Password:</label>
-            <input type="password" name="confirmPasswordInput" id="confirmPasswordInput">
-            <br>
-            <label for="ageInput">Age:</label>
-            <input type="number" name="ageInput" id="ageInput">
-            <br>
-            <label for="emailInput">Email:</label>
-            <input type="email" name="emailInput" id="emailInput">
-            <br>
-            <label for="firstNameInput">First Name:</label>
-            <input type="text" name="firstNameInput" id="firstNameInput">
-            <br>
-            <label for="lastNameInput">Last Name:</label>
-            <input type="text" name="lastNameInput" id="lastNameInput">
-            <br>
-            <button type="submit">Register</button>
-            <ul hidden id="errors"></ul>
-        </form>
-        <a href="/users/login">Click Here to Login</a>
+    
+        <main>
+            <div class="container">
+                <form id="registration-form" class="register-form" method="POST" action="/users/register">
+                    <label for="usernameInput">Username:</label>
+                    <input type="text" name="usernameInput" id="usernameInput">
+                    <br>
+                    <label for="passwordInput">Password:</label>
+                    <input type="password" name="passwordInput" id="passwordInput">
+                    <br>
+                    <label for="confirmPasswordInput">Confirm Password:</label>
+                    <input type="password" name="confirmPasswordInput" id="confirmPasswordInput">
+                    <br>
+                    <label for="ageInput">Age:</label>
+                    <input type="number" name="ageInput" id="ageInput">
+                    <br>
+                    <label for="emailInput">Email:</label>
+                    <input type="email" name="emailInput" id="emailInput">
+                    <br>
+                    <label for="firstNameInput">First Name:</label>
+                    <input type="text" name="firstNameInput" id="firstNameInput">
+                    <br>
+                    <label for="lastNameInput">Last Name:</label>
+                    <input type="text" name="lastNameInput" id="lastNameInput">
+                    <br>
+                    <button type="submit">Register</button>
+                    <ul hidden id="errors"></ul>
+                </form>
+            </div>
+            <a href="/users/login" class="login-links">Click Here to Login</a>
     </main>
     <script src="../../public/js/users.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
