@@ -1,16 +1,26 @@
+<head>
+        <title>Delete</title>
+        <link rel = "stylesheet" href="../../public/css/main.css">
+       
+</head>
 <main>
-    <h1>Delete a Post</h1>
-    <form id="deleteForm" method="POST" action="delete">
-    <label for="deleteId">ID:
-        <input id="deleteId" name="deleteId" placeHolder="Enter ID to Delete">
-        
-    </label>
-    <button id="deleteButton">Delete Entry</button>
-    <p>{{message}}</p>
-    {{#if hasError}}
-        <p id="error" class="error">{{error}}</p>
-    {{/if}}
+    <div class="delete-container">
+        <div class="delete-title">
+            <h1>Delete a Post</h1>
+        </div>
 
-    </form>
-    <a href="/posts/newPost">Back to New Entry</a>
+        <div class="delete">
+            <form id="deleteForm" method="POST" action="delete">
+                <label for="deleteId">ID:
+                    <input id="deleteId" name="deleteId" placeHolder="Enter ID to Delete">
+                </label>
+                <button id="deleteButton">Delete Entry</button>
+                <p>{{message}}</p>
+                {{#if hasError}}
+                    <p id="error" class="error">{{error}}</p>
+                {{/if}}
+            </form>
+            <a href="/posts/newPost">Back to New Entry</a>
+        </div>
+    </div>
 </main>
