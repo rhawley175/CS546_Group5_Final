@@ -51,3 +51,104 @@
     padding: 20px 10%;
     margin-top: 20px;
 }
+
+
+/* Journal Page Styles */
+.journal-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .journal-page header {
+    background-color: #007bff;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .journal-page h1 {
+    margin: 0;
+    font-size: 28px;
+  }
+  
+  .journal-page p {
+    margin: 10px 0 0;
+  }
+  
+  .journal-page nav {
+    background-color: #f8f9fa;
+    padding: 10px;
+    text-align: center;
+    border-radius: 0 0 8px 8px;
+  }
+  
+  .journal-page nav button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .journal-page nav button:hover {
+    background-color: #0056b3;
+  }
+  
+  .journal-page section {
+    background-color: #fff;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 8px;
+  }
+  
+  .journal-page section h2 {
+    margin-top: 0;
+    font-size: 24px;
+    color: #007bff;
+  }
+  
+  .journal-page input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 70%;
+  }
+  
+  .journal-page button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin-left: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .journal-page button:hover {
+    background-color: #0056b3;
+  }
+  
+  .journal-page ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .journal-page li {
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+  
+  .journal-page footer {
+    background-color: #f8f9fa;
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px;
+    border-radius: 8px;
+  }
