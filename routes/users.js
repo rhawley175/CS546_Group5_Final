@@ -120,23 +120,33 @@ router
     }
     try {
         const getUser = await users.getUser(username, userAccessing, role);
-        let valid;
+        let owned;
+        let shared;
+        let publicPosts;
         let allPosts = await posts.getAllUserPosts(username, userAccessing, role);
         if (!getUser) return res.status(404).render("users/error", {error: "User not found."});
         if (getUser.role === "admin" && (!req.session.user || role !== "admin")) return res.status(403).render("users/error", {error: "Access denied."});
+        if (allPosts.sharedPosts && allPosts.sharedPosts.length > 0) shared = true;
+        else shared = false;
+        if (allPosts.publicPosts && allPosts.publicPosts.length > 0) publicPosts = true;
+        else publicPosts = false;
         if (!req.session.user || (req.session.user.username !== username && req.session.user.role !== "admin")) {
-            valid = false;
+            owned = false;
             return res.status(200).render("users/user", {
-                valid: valid,
+                owned: owned,
+                publicPosts: publicPosts,
+                shared: shared,
                 username: getUser.username,
                 posts: allPosts
             });
         };
         if (username === userAccessing || role === "admin") {
-            valid = true;
+            owned = true;
             let allJournals = await journals.getJournalsByUser(username, userAccessing, role);
             return res.status(200).render("users/user", {
-                valid: valid,
+                owned: owned,
+                publicPosts: publicPosts,
+                shared: shared,
                 username: getUser.username,
                 posts: allPosts,
                 journals: allJournals

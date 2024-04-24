@@ -102,8 +102,11 @@ export const getAllUserPosts = async(username, userAccessing, role) => {
         if (publicPosts.length === 0) return "There are no public posts for you to view.";
         else  {
             publicPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
-            return publicPosts;
         }
+        let postObject = {
+            publicPosts: publicPosts
+        }
+        return postObject;
     }
     else if (username && userAccessing === "visitingUser") {
         const currUser = await userMethods.getUser(username, userAccessing, role);
@@ -117,8 +120,11 @@ export const getAllUserPosts = async(username, userAccessing, role) => {
         if (publicPosts.length == 0) return username + " does not have any posts that you can view.";
         else  {
             publicPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
-            return publicPosts;
         }
+        let postObject = {
+            publicPosts: publicPosts
+        }
+        return postObject;
     }
     else if (username && userAccessing !== username && role !== "admin") {
         const currUser = await userMethods.getUser(username, userAccessing, role);
