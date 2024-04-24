@@ -112,15 +112,23 @@
     .then(html => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
-      const journalList = doc.querySelector('ul');
+      const journalListItems = doc.querySelectorAll('ul li');
 
-      const journalListItems = document.getElementById('journalListItems');
-      journalListItems.innerHTML = '';
+      const journalList = document.getElementById('journalListItems');
+      journalList.innerHTML = '';
 
-      if (journalList) {
-        journalListItems.innerHTML = journalList.innerHTML;
+      if (journalListItems.length > 0) {
+        journalListItems.forEach(item => {
+          const link = item.querySelector('a');
+          const journalId = link.getAttribute('href').split('/').pop();
+          const journalTitle = link.textContent;
+
+          const listItem = document.createElement('li');
+          listItem.innerHTML = `<a href="${link.getAttribute('href')}">${journalTitle} (ID: ${journalId})</a>`;
+          journalList.appendChild(listItem);
+        });
       } else {
-        journalListItems.innerHTML = '<li>No journals found.</li>';
+        journalList.innerHTML = '<li>No journals found.</li>';
       }
     })
     .catch(error => {
