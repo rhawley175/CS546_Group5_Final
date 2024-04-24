@@ -68,3 +68,10 @@ export const deleteJournal = async (journalId) => {
   }
   return true;
 };
+
+
+export const getJournalsByUsername = async (username) => {
+  const journalCollection = await journals();
+  return await journalCollection.find({ author: username }).toArray();
+};
+
