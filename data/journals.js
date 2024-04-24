@@ -99,8 +99,6 @@ export const deleteJournal = async (journalId, userAccessing, role) => {
   if (!accessingUser) throw "We could not find the accessing user.";
   role = helpers.checkRole(role);
   journalId = helpers.checkId(journalId, "journal id");
-
-
   const journalCollection = await journals();
   const journal = await journalCollection.findOne({_id: new ObjectId(journalId)});
   if (!journal) throw "We could not find the journal with id: " + journalId + ".";
