@@ -1,5 +1,6 @@
 import {Router} from 'express';
 import * as sections from '../data/sections.js';
+import { ObjectId } from 'mongodb';
 const router = Router();
 
 
@@ -7,7 +8,11 @@ router
 .route('/newSection')
 .get((req, res) => {
     if (!req.session.user) return res.redirect("/login");
-    res.render('sections/newSection', { title: 'Create New Section' });
+    const journalId = req.query.journalId;
+    if (!journalId) {
+        return res.status(400).render('sections/error', { error: 'Journal ID is required' });
+    }
+    res.render('sections/newSection', { title: 'Create New Section', journalId: journalId });
 })
 .post(async (req, res) => {
     try {
@@ -22,6 +27,18 @@ router
         res.status(400).render('sections/error', { error: e });
     }
 });
+/*     try {
+        const { title, journalId } = req.body;
+        const section = await sections.createSection(title, journalId);
+        res.redirect(`/journals/${journalId}`); // Redirect back to the journal view
+    } catch (error) {
+        console.error('Error creating section:', error);
+        res.status(500).json({ error: 'Failed to create section' });
+    }
+    }); */
+
+
+
 
 router
 .route('/:sectionId')

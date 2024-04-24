@@ -1,5 +1,6 @@
 import { Router } from 'express';
 const router = Router();
+import { getSectionsByJournal } from '../data/sections.js';
 
 import {
   createJournal,
@@ -52,6 +53,8 @@ router.get('/:id', async (req, res) => {
   try {
     const journalId = req.params.id;
     const journal = await getJournalById(journalId);
+    //const sections = await getSectionsByJournal(journalId);
+   // journal.sections = sections;
     res.render('journals/journalView', { journal });
   } catch (error) {
     res.status(404).json({ error: 'Journal not found' });
