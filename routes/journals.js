@@ -98,4 +98,16 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+
+router.get('/user/:username', async (req, res) => {
+  try {
+    const username = req.params.username;
+    const journals = await getJournalsByUsername(username);
+    res.render('journals/journalList', { journals });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 export default router;
