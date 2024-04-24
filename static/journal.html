@@ -30,11 +30,27 @@
         <!-- Journal list items will be dynamically populated here -->
       </ul>
     </section>
+    <section id="errorMessage" style="display: none; color: red;"></section>
     <footer>
       <p>2024: The Journal App by Group 5.</p>
     </footer>
   </div>
+
   <script>
+    function displayErrorMessage(message) {
+      const errorSection = document.getElementById('errorMessage');
+      errorSection.textContent = message;
+      errorSection.style.display = 'block';
+    }
+
+    function handleForbiddenError(error) {
+      if (error.status === 403) {
+        displayErrorMessage('You are not authorized to perform this action.');
+      } else {
+        displayErrorMessage('An error occurred. Please try again later.');
+      }
+    }
+
     document.getElementById('createJournalBtn').addEventListener('click', function() {
       window.location.href = '/journals/create';
     });
@@ -46,7 +62,15 @@
     document.getElementById('updateJournalBtn').addEventListener('click', function() {
       const journalId = prompt('Enter the journal ID to update:');
       if (journalId) {
-        window.location.href = `/journals/${journalId}/edit`;
+        fetch(`/journals/${journalId}/edit`)
+          .then(response => {
+            if (response.ok) {
+              window.location.href = `/journals/${journalId}/edit`;
+            } else {
+              throw response;
+            }
+          })
+          .catch(handleForbiddenError);
       }
     });
 
@@ -60,7 +84,15 @@
     document.getElementById('deleteJournalBtn').addEventListener('click', function() {
       const journalId = prompt('Enter the journal ID to delete:');
       if (journalId) {
-        window.location.href = `/journals/${journalId}/delete`;
+        fetch(`/journals/${journalId}/delete`)
+          .then(response => {
+            if (response.ok) {
+              window.location.href = `/journals/${journalId}/delete`;
+            } else {
+              throw response;
+            }
+          })
+          .catch(handleForbiddenError);
       }
     });
 
