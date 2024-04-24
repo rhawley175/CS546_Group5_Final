@@ -152,3 +152,42 @@
     margin-top: 20px;
     border-radius: 8px;
   }
+
+/* For delete post */
+
+.delete-container {
+  background-color: #f5deb3;
+  padding: 50px; 
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center; 
+  height: 100vh;
+}
+
+.delete-title {
+  margin-bottom: 125px;
+  text-align: center; 
+}
+
+.delete form {
+  text-align: center;
+}
+
+.delete label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.delete input[type="text"],
+.delete button {
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.delete a {
+  display: block;
+  margin-top: 20px;
+}
+
+
