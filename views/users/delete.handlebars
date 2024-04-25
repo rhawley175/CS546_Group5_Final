@@ -4,13 +4,15 @@
 </head>
 <body>
     <header>
-        <h1>Delete {{username}}</h1>
+        <h1 class="delete-title">Delete {{username}}</h1>
     </header>
     <main>
-        <form id="delete-form" method="POST" action="/users/delete/{{username}}">
-            <label for="deleteButton">Are you sure you want to delete {{username}}?</label>
-            <button type="submit">Delete</button>
-        </form>
+        <div class="container">
+            <form class="delete" id="delete-form" method="POST" action="/users/delete/{{username}}">
+                <label for="deleteButton">Are you sure you want to delete {{username}}?</label>
+                <button type="submit">Delete</button>
+            </form>
+        </div>
     </main>
     <script src="../../public/js/users.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>

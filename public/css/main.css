@@ -193,10 +193,10 @@
 /* For register and login */
 
 .user-title{
-    position: absolute;
-    top: 5%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  position: absolute;
+  top: 1%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .register-title{
@@ -205,7 +205,6 @@
     left: 50%;
     transform: translate(-50%, -50%);
 }
-
 
 .log-form {
     width: 300px; 
@@ -225,6 +224,8 @@
   
   .log-form input[type="text"],
   .log-form input[type="password"],
+  .log-form input[type="email"],
+  .log-form input[type="number"]
   .log-form button {
     width: 100%;
     padding: 10px;
@@ -281,6 +282,7 @@
     align-items: center;
     height: 100vh;
   }
+
 .register-links{
     position: absolute;
     top: 25%;
@@ -295,4 +297,99 @@
     transform: translate(-50%, -50%);
 } 
 
+.search-form {
+  width: 300px; 
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
+.search-form h2 {
+  text-align: center;
+}
+
+.search-form input[type="text"],
+.search-form input[type="password"],
+.search-form button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.search-form button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.user-journals {
+  width: 300px; 
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.user-journals h2 {
+  text-align: center;
+}
+
+.user-options {
+  width: 300px; 
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.user-options p {
+  text-align: center;
+}
+
+.user-public {
+  width: 300px; 
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.user-public h2 {
+  text-align: center;
+}
+
+.user-shared {
+  width: 300px; 
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.user-shared h2 {
+  text-align: center;
+}

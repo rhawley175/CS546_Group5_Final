@@ -68,6 +68,7 @@ router
 .route("/login")
 .get(async (req, res) => {
     try {
+        if (req.session.user) return res.redirect("/users/get/" + req.session.user.username);
         return res.status(200).render("users/login");
     } catch(e) {
         return res.status(500).render("users/error", {error: e});
