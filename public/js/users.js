@@ -3,7 +3,8 @@
     let loginForm = $("#login-form"),
     errorList = $("#errors"),
     updateForm = $("#update-form"),
-    registrationForm = $("#registration-form");
+    registrationForm = $("#registration-form"),
+    searchForm = $("#search-form");
 
     $(loginForm).submit(function(event) {
         let errors = [];
@@ -156,6 +157,40 @@
         }
     });
 
+    $(searchForm).submit(function(event) {
+        let errors = [],
+        keyword = $("#keywordInput").val(),
+        date1 = $("#date1Input").val(),
+        date2 = $("#date2Input").val();
+        if (keyword) {
+            try {
+                keyword = checkString(keyword, "search term");
+            } catch(e) {
+                errors.push(e);
+            }
+        }
+        else if (date1 && date2) {
+            try {
+                date1 = checkDate(date1);
+                date2 = checkDate(date2);
+                let newDate1 = Date.parse(date1);
+                let newDate2 = Date.parse(date2);
+                if (newDate1 > newDate2) throw "The earlier date is later than the later date.";
+            } catch(e) {
+                errors.push(e);
+            }
+        }
+        else errors.push("You must enter a keyword or two dates.");
+        if (errors.length > 0) {
+            event.preventDefault();
+            errorList.empty();
+            for (let i in errors) {
+                errorList.append("<li>" + errors[i] + "</li>");
+            }
+            errorList.show();
+        }
+    });
+
 })(window.jQuery);
 
 function checkString(string, val) {
@@ -221,4 +256,29 @@ function checkName(name, nameVal) {
     }
     name = name[0].toUpperCase() + name.slice(1);
     return name;
+};
+
+function checkDate(date) {
+    date = checkString(date, "date");
+    if (date.length !== 10 || date[2] !== '/' || date[5] !== '/') throw 'The date released must be in the format \'mm/dd/yyyy.\' (excluding quotations).';
+    let monthString = date.substr(0, 2);
+    let dayString = date.substr(3, 2);
+    let yearString = date.substr(6, 4);
+    if (isNaN(monthString) || isNaN(dayString) || isNaN(yearString)) throw "The date released is not a valid date.";
+    let month = Number(monthString);
+    let day = Number(dayString);
+    let year = Number(yearString);
+    let currDate = new Date();
+    let currMonth = currDate.getMonth() + 1;
+    let currDay = currDate.getDate();
+    let currYear = currDate.getFullYear();
+    if (month < 1 || day < 1 || year < 1 || month > 12) throw "The date released is not a valid date.";
+    if (year > currYear) throw "The date released is not a valid date.";
+    if (year === currYear && month > currMonth) throw "Error: The date released is not a valid date.";
+    if (year === currYear && month === currMonth && day > currDay) throw "The date released is not a valid date.";
+    if (month === 2 && day > 28) throw "The date released is not a valid date.";
+    let longMonths = [1, 3, 5, 7, 8, 10, 12]
+    if (longMonths.includes(month) && day > 31) throw "The date released is not a valid date.";
+    if (!longMonths.includes(month) && day > 30) throw "The date released is not a valid date.";
+    return date;
 };

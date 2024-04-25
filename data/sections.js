@@ -1,4 +1,4 @@
-import {sections, journals, posts } from '../config/mongoCollections.js';
+import {sections, journals, posts, users } from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 //import * as helpers from '../helpers.js';
 
@@ -15,7 +15,7 @@ export const createSection = async (journalId, title) => {
 
     const sectionsCollection = await sections();
     const journalCollection = await journals();
-
+    
     const newSection = {
         journalId: new ObjectId(journalId),
         title: title,

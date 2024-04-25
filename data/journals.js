@@ -14,11 +14,15 @@ export const createJournal = async (userId, username, title) => {
       title: title,
       sections: [],
     };
-
+    const userCollection = await users();
+    const addingUser = await userCollection.findOne({username: username});
+    if (!addingUser) throw "We could not find a user with the username: " + username;
     const insertInfo = await journalCollection.insertOne(newJournal);
     if (!insertInfo.acknowledged || !insertInfo.insertedId)
       throw 'Could not add journal';
-
+    addingUser.journals.push(insertInfo.insertedId.toString());
+    const journalAdded = await userCollection.findOneAndReplace({username: username}, addingUser);
+    if (!journalAdded) throw "Could not add the journal.";
     return await getJournalById(insertInfo.insertedId);
   } catch (error) {
     console.error('Error in createJournal:', error);

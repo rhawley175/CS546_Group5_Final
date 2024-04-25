@@ -191,7 +191,7 @@ router
     router
     .route('/:postId')
     .get(async(req, res) => {
-        /*
+        
         if(!req.session.user){
             return res.redirect("/users/login");
         }
@@ -213,7 +213,6 @@ router
             if(trimpostId.length===0){
                 throw 'Input is empty string.';
             }
-        
             
             const post = await getOtherPost(trimpostId);
             
@@ -228,7 +227,6 @@ router
         catch(e){
             return res.status(404).render('error', { error: 'Error fetching post' });
         }
-    }); */
       
     if(!req.session.user){
             return res.redirect("/users/login");

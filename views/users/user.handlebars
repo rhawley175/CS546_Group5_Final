@@ -1,6 +1,7 @@
 <head>
         <title>{{username}}</title>
         <link rel = "stylesheet" href="../../public/css/main.css">
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 </head>
 <body>
     <header>
@@ -12,12 +13,13 @@
             <input type="text" name="keywordInput" id="keywordInput">
             <br>
             <label for="date1Input">Search by Date, Early Date:</label>
-            <input type="text" name="date1Iinput" id="date1Input">
+            <input type="text" name="date1Input" id="date1Input">
             <br>
             <label for="date2Input">Search by Date, Later Date:</label>
             <input type="text" name="date2Input" id="date2Input">
             <br>
             <button type="submit">Search</button>
+            <ul hidden id="errors"></ul>
         </form> 
         {{#if publicPosts}}
         <div class="user-public">
@@ -44,7 +46,7 @@
             <a href = "/journal.html">View All Journals</a>
             <p>Your Journals:</p>
             {{#each journals}}
-                <a href="/journals/{{_d}}">{{title}}</a>
+                <a href="/journals/{{_id}}">{{title}}</a>
                 <br>
             {{/each}}
         </div>
@@ -60,5 +62,5 @@
         {{/if}}
     </main>
     <script src="../../public/js/users.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 </body>
