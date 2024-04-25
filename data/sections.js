@@ -1,10 +1,9 @@
-import {sections, journals, posts } from '../config/mongoCollections.js';
+import {sections, journals, posts, users } from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
-//import * as helpers from '../helpers.js';
 
 
-export const createSection = async (journalId, title) => {
-    if (!journalId || !title) throw ('Journal ID and title must be provided.');
+export const createSection = async (journalId, title, userId) => {
+    if (!journalId || !title || !userId) throw ('Journal ID, title, and user ID must be provided.');
     if (typeof journalId !== 'string' || typeof title !== 'string') throw ('Journal ID and title must be strings.');
 
     journalId = journalId.trim();
@@ -19,6 +18,7 @@ export const createSection = async (journalId, title) => {
     const newSection = {
         journalId: new ObjectId(journalId),
         title: title,
+        userId: new ObjectId(userId),
         posts: []
     };
     const insertInfo = await sectionsCollection.insertOne(newSection);
@@ -68,28 +68,33 @@ export const getSectionsByJournalId = async (journalId) => {
     return sectionsList; 
 };
 
-export const addPostToSection = async (sectionId, postId) => {
-    if (!sectionId || !postId) throw ('Section ID and Post ID must be provided.');
-    if (!ObjectId.isValid(sectionId) || !ObjectId.isValid(postId)) throw ('Invalid ID format for section or post.');
-    const sectionsCollection = await sections();
-    const updateInfo = await sectionsCollection.updateOne(
-        { _id: new ObjectId(sectionId) },
-        { $push: { posts: new ObjectId(postId) } }
-    );
-    if (!updateInfo.matchedCount && !updateInfo.modifiedCount) throw ('Updating the section with the post failed.');
-    
-    return await getSection(sectionId);
-};
-
 
 export const deleteSection = async (sectionId) => {
-    if (!sectionId) throw ('Section ID must be provided.');
-    if (!ObjectId.isValid(sectionId)) throw ('Invalid section ID format.');
+    if (!sectionId) throw 'Section ID must be provided.';
+    if (!ObjectId.isValid(sectionId)) throw 'Invalid section ID format.';
+
     const sectionsCollection = await sections();
+    const journalCollection = await journals();
+
+    const section = await sectionsCollection.findOne({ _id: new ObjectId(sectionId) });
+    if (!section) throw 'Section not found.';
+
+    if (section.posts && section.posts.length > 0) {
+        const postsCollection = await posts();
+        await postsCollection.deleteMany({ _id: { $in: section.posts.map(id => new ObjectId(id)) } });
+    }
+
     const deletionInfo = await sectionsCollection.deleteOne({ _id: new ObjectId(sectionId) });
-    
-    if (!deletionInfo.deletedCount) throw ('Could not delete the section.');
-    
+    if (!deletionInfo.deletedCount) throw 'Failed to delete the section.';
+
+    const updateJournal = await journalCollection.updateOne(
+        { _id: new ObjectId(section.journalId) },
+        { $pull: { sections: new ObjectId(sectionId) } }
+    );
+    if (!updateJournal.matchedCount || !updateJournal.modifiedCount) {
+        throw 'Failed to remove the section from the journal.';
+    }
+
     return deletionInfo;
 };
 

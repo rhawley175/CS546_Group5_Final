@@ -1,6 +1,6 @@
 
-import {posts} from '../config/mongoCollections.js';
-import {sections} from '../config/mongoCollections.js';
+import {posts as postCollection} from '../config/mongoCollections.js';
+import {sections as sectionsCollection} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 
 export const addPost = async (
@@ -126,25 +126,23 @@ let newEntry = {
     image:image
 }
 
-let postCollection = await posts();
-let insertInfo = await postCollection.insertOne(newEntry);
+const postsDb = await postCollection();
+let insertInfo = await postsDb.insertOne(newEntry);
 
 if(insertInfo.insertedCount===0){
     throw 'Could not add new jorunal entry.';
 }
 
-
-const sectionsCollection = await sections();
-const updateSection = await sectionsCollection.updateOne(
+const sectionsDb = await sectionsCollection();
+const updateSection = await sectionsDb.updateOne(
     { _id: new ObjectId(sectionId) },
     { $push: { posts: insertInfo.insertedId } }
 );
 
 if (!updateSection.matchedCount && !updateSection.modifiedCount) throw 'Failed to link the post to the section.';
 
+
 return insertInfo.insertedId.toString();
-
-
 
 }
 
@@ -168,8 +166,8 @@ export const getPost = async(postId) => {
         throw 'Invalid object ID.';
     }
 
-    const postCollection = await posts();
-    const post = await postCollection.findOne({_id: new ObjectId(postId)});
+    const postsDb = await postCollection();
+    const post = await postsDb.findOne({_id: new ObjectId(postId)});
 
     if(post===null){
         throw 'No post with that ID.';
@@ -189,8 +187,8 @@ export const getPostsByKeyword = async (keyword) => {
         throw 'Keyword is empty string.';
     }
 
-    const postCollection = await posts();
-    const matchingPosts = await postCollection.find({ 
+    const postsDb = await postCollection();
+    const matchingPosts = await postsDb.find({ 
         title: { $regex: trimmedKeyword, $options: 'i' },
         pub: 'public'}).toArray();
 
@@ -220,22 +218,30 @@ export const deletePost = async (postId) =>{
         throw 'Invalid object ID.';
     }
 
-    const postCollection = await posts();
-    
-    const deletionInfo = await postCollection.findOneAndDelete({_id:  new ObjectId(postId)});
+    const postsDb = await postCollection();
+    const sectionsDb = await sectionsCollection();
 
-    if(!deletionInfo){
-        throw 'Could not delete post.';
-    }
+    const post = await postsDb.findOne({ _id: new ObjectId(postId) });
+    if (!post) throw ('No post with that ID found.');
+    const sectionId = post.sectionId.toString();
 
-    return {"deleted": true};
-}
+    const deletionInfo = await postsDb.deleteOne({ _id: new ObjectId(postId) });
+    if (deletionInfo.deletedCount === 0) throw ('Could not delete post.');
+
+    const updateResult = await sectionsDb.updateOne(
+        { _id: new ObjectId(sectionId) },
+        { $pull: { posts: new ObjectId(postId) } }
+    );
+    if (updateResult.modifiedCount === 0) throw ('Failed to update section after deleting post.');
+
+    return { deleted: true, sectionId: sectionId };
+};
 
 export const updatePost = async (
     postId,
     updates
 ) => {
-    let postCollection = await posts();
+    const postsDb = await postCollection();
 
     if (!postId || typeof postId !== 'string') {
         throw 'Invalid postId.';
@@ -243,7 +249,7 @@ export const updatePost = async (
 
     postId = new ObjectId(postId);
 
-    let existingPost = await postCollection.findOne({ _id: postId });
+    let existingPost = await postsDb.findOne({ _id: postId });
     if (!existingPost) {
         throw 'Post not found.';
     }
@@ -328,7 +334,7 @@ export const updatePost = async (
         updateFields.image = existingPost.image;
     }
 
-    let updateResult = await postCollection.updateOne({ _id: postId }, { $set: updateFields });
+    let updateResult = await postsDb.updateOne({ _id: postId }, { $set: updateFields });
 
     if (updateResult.modifiedCount === 0) {
         throw 'Could not update the post.';

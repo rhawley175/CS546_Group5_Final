@@ -91,6 +91,7 @@ router
               req.session.user = {
                 _id: user._id,
                 username: loggedUser.username,
+                role: user.role, 
               };
               return res.redirect("/journal.html");
             } else {

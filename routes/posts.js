@@ -102,8 +102,12 @@ router
                 return res.status(400).render('posts/error', { error: 'Invalid post ID provided' });
             }
 
-            await deletePost(postId);
-            res.redirect('/posts');
+            const result = await deletePost(postId);
+            if (result.deleted) {
+                res.redirect(`/sections/${result.sectionId}`);
+            } else{
+                throw ('Deletion failed');
+            }
         } catch (error) {
             console.error('Failed to delete post:', error);
             res.status(500).render('posts/error', { error: 'Failed to delete the post.' });
@@ -241,7 +245,7 @@ router
             res.status(404).render('posts/error', { error: 'Post not found' });
             return;
         }
-        res.render('posts/post', { post });
+        res.render('posts/post', {  title: post.title, post: post });
     } catch (error) {
         console.error("Error retrieving post:", error);
         res.status(500).render('posts/error', { error: 'Failed to retrieve the post' });
