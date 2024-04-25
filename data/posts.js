@@ -1,5 +1,6 @@
 import {posts as postCollection} from '../config/mongoCollections.js';
 import {sections as sectionsCollection} from '../config/mongoCollections.js';
+import {users} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 import * as helpers from '../helpers.js';
 import * as userMethods from '../data/users.js';
