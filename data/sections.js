@@ -1,4 +1,4 @@
-import {sections, journals} from '../config/mongoCollections.js';
+import {sections, journals, posts } from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 //import * as helpers from '../helpers.js';
 
@@ -37,21 +37,32 @@ export const createSection = async (journalId, title) => {
 };
 
 export const getSection = async (sectionId) => {
-    if (!sectionId) throw ('Section ID must be provided.');
-
-    if (!ObjectId.isValid(sectionId)) throw ('Invalid section ID format.');
     const sectionsCollection = await sections();
     const section = await sectionsCollection.findOne({ _id: new ObjectId(sectionId) });
     if (!section) throw ('Section not found.');
-    
+
+    if (section.posts && section.posts.length > 0) {
+        const postsCollection = await posts(); 
+        const postsDetails = [];
+
+        for (const postId of section.posts) {
+            const post = await postsCollection.findOne({ _id: new ObjectId(postId) });
+            if (post) {
+                postsDetails.push(post);
+            } else {
+                console.log("No post found for ID:", postId);
+            }
+        }
+
+        section.posts = postsDetails;
+    }
+
     return section;
 };
 
 export const getSectionsByJournalId = async (journalId) => {
     const sectionsCollection = await sections();
-    if (!ObjectId.isValid(journalId)) {
-        throw new Error('Invalid journal ID format.');
-    }
+    if (!ObjectId.isValid(journalId)) ('Invalid journal ID format.');
 
     const sectionsList = await sectionsCollection.find({ journalId: new ObjectId(journalId) }).toArray();
     return sectionsList; 
@@ -68,17 +79,6 @@ export const addPostToSection = async (sectionId, postId) => {
     if (!updateInfo.matchedCount && !updateInfo.modifiedCount) throw ('Updating the section with the post failed.');
     
     return await getSection(sectionId);
-};
-
-export const linkPostToSection = async (postId, sectionId) => {
-    if (!ObjectId.isValid(postId) || !ObjectId.isValid(sectionId)) throw ("Invalid postId or sectionId format.");
-    const sectionsCollection = await sections();
-    const updateResult = await sectionsCollection.updateOne(
-        { _id: new ObjectId(sectionId) },
-        { $push: { posts: new ObjectId(postId) } }
-    );
-    if (!updateResult.matchedCount || !updateResult.modifiedCount) throw ("Failed to link the post to the section.");
-    return true;
 };
 
 

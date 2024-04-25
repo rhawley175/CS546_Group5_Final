@@ -1,5 +1,6 @@
 
 import {posts} from '../config/mongoCollections.js';
+import {sections} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 
 export const addPost = async (
@@ -129,8 +130,17 @@ let postCollection = await posts();
 let insertInfo = await postCollection.insertOne(newEntry);
 
 if(insertInfo.insertedCount===0){
-    throw 'Could add new jorunal entry.';
+    throw 'Could not add new jorunal entry.';
 }
+
+
+const sectionsCollection = await sections();
+const updateSection = await sectionsCollection.updateOne(
+    { _id: new ObjectId(sectionId) },
+    { $push: { posts: insertInfo.insertedId } }
+);
+
+if (!updateSection.matchedCount && !updateSection.modifiedCount) throw 'Failed to link the post to the section.';
 
 return insertInfo.insertedId.toString();
 

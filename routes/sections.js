@@ -32,15 +32,17 @@ router
 router
 .route('/:sectionId')
 .get(async (req, res) => {
+    const sectionId = req.params.sectionId;
+    if (!sectionId || !ObjectId.isValid(sectionId)) {
+        return res.status(400).render('sections/error', { error: 'Invalid section ID provided' });
+    }
+
     try {
-        const sectionId = req.params.sectionId;
-
-        if (!sectionId || !ObjectId.isValid(sectionId)) throw 'Invalid section ID provided';
-
         const section = await sections.getSection(sectionId);
-        res.render('sections/sectionDetails', { title: 'Section Details', section });
-    } catch (error) {
-        res.status(404).render('error', { error: 'Section not found' });
+        if (!section) throw ('Section not found.');
+        res.render('sections/sectionDetails', { section });
+    } catch (e) {
+        res.status(404).render('sections/error', { error: 'Section not found' });
     }
 });
 
@@ -49,21 +51,20 @@ router
 .route('/delete/:sectionId')
 .get(async (req, res) => {
     if (!req.session.user || req.session.user.role !== "admin") {
-        return res.status(403).render('error', { error: "You do not have permission to delete sections." });
+        return res.status(403).render('sections/error', { error: "You do not have permission to delete sections." });
     }
-
-    res.render('sections/deleteSection', { title: 'Delete Section' });
-})
-.post(async (req, res) => {
     try {
-        const sectionId = req.body.sectionId;
+        const sectionId = req.params.sectionId;
 
-        if (!sectionId || !ObjectId.isValid(sectionId)) throw 'Invalid section ID provided';
+        if (!sectionId || !ObjectId.isValid(sectionId)) {
+            return res.status(400).render('sections/error', { error: 'Invalid section ID provided' });
+        }
 
         await sections.deleteSection(sectionId);
-        res.render('sections/deleteSection', { title: 'Delete Section', message: 'Section deleted successfully.' });
+        res.redirect('/journals');
     } catch (error) {
-        res.status(404).render('error', { error: 'Failed to delete the section.' });
+        console.error('Failed to delete section:', error);
+        res.status(500).render('sections/error', { error: 'Failed to delete the section.' });
     }
 });
 

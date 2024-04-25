@@ -5,8 +5,6 @@
 <body>
   <h2>{{journal.title}}</h2>
   <p>Author: {{journal.author}}</p>
-
-  <a href="/posts/newPost?journalId={{journal._id}}">Create a Post</a>
   <a href="/sections/newSection?journalId={{journal._id}}">Create a Section</a>
 
   <h3>Sections:</h3>
@@ -19,4 +17,6 @@
   {{else}}
     <p>No sections yet. Create one!</p>
   {{/if}}
+
+  <a href="/journal.html">Back to Main Journal Page</a>
 </body>
