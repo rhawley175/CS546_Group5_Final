@@ -7,7 +7,7 @@ const router = Router();
 router
 .route('/newSection')
 .get((req, res) => {
-    if (!req.session.user) return res.redirect("/login");
+    if (!req.session.user) return res.redirect("/users/login");
     const journalId = req.query.journalId;
     if (!journalId) {
         return res.status(400).render('sections/error', { error: 'Journal ID is required' });
@@ -16,7 +16,7 @@ router
 })
 .post(async (req, res) => {
     try {
-        if (!req.session.user) return res.redirect("/login");
+        if (!req.session.user) return res.redirect("/users/login");
         const { journalId, title } = req.body;
         
         if (!journalId || !title) throw 'Journal ID and title must be provided';
@@ -33,7 +33,7 @@ router
 router
 .route('/:sectionId')
 .get(async (req, res) => {
-    if (!req.session.user) return res.redirect("/login");
+    if (!req.session.user) return res.redirect("/users/login");
     const sectionId = req.params.sectionId;
     if (!sectionId || !ObjectId.isValid(sectionId)) {
         return res.status(400).render('sections/error', { error: 'Invalid section ID provided' });
@@ -55,7 +55,7 @@ router
 router
 .route('/delete/:sectionId')
 .get(async (req, res) => {
-    if (!req.session.user) return res.redirect("/login");
+    if (!req.session.user) return res.redirect("/users/login");
     try {
         const sectionId = req.params.sectionId;
         if (!sectionId || !ObjectId.isValid(sectionId)) throw 'Invalid section ID provided';
@@ -73,7 +73,7 @@ router
     }
 })
 .post(async (req, res) => {
-    if (!req.session.user) return res.redirect("/login");
+    if (!req.session.user) return res.redirect("/users/login");
     try {
         const sectionId = req.params.sectionId;
 

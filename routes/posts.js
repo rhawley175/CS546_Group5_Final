@@ -240,7 +240,7 @@ router
 
     try {
         const postId = req.params.postId;
-        const post = await getPost(postId);
+        const post = await getOtherPost(postId);
         if (!post) {
             res.status(404).render('posts/error', { error: 'Post not found' });
             return;
