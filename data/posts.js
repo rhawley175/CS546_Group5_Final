@@ -144,7 +144,13 @@ const updateSection = await sectionsDb.updateOne(
     { $push: { posts: insertInfo.insertedId } }
 );
 
-if (!updateSection.matchedCount && !updateSection.modifiedCount) throw 'Failed to link the post to the section.';
+const userCollection = await users();
+const user = await userCollection.findOne({username: usernames});
+// if (pub) {
+//     if (!user) throw "We could not find "
+// if (!updateSection.matchedCount && !updateSection.modifiedCount) throw 'Failed to link the post to the section.';
+// }
+
 
 
 return insertInfo.insertedId.toString();
