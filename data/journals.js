@@ -15,7 +15,6 @@ export const createJournal = async (userId, username, title) => {
       title: title,
       sections: [],
     };
-    const userCollection = await users();
     const addingUser = await userCollection.findOne({username: username});
     if (!addingUser) throw "We could not find a user with the username: " + username;
     const insertInfo = await journalCollection.insertOne(newJournal);
