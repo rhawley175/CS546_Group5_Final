@@ -21,7 +21,7 @@ if(sectionId===undefined){
 }
 
 // I didn't check if usernames are undefined. Initially, a user could have not shared with anyone. Let me know if you want me to change this.
-//Same for video URL and images because they are optional. Same with video and image.
+//Same for video URL and images because they are optional. Same with video and image. 
 
 if(title===undefined){
     throw 'You must have a title for your journal entry.';
@@ -117,7 +117,8 @@ if(pub !== 'public' && pub !=='private'){
 }
 
 let time = new Date().toLocaleString();
-
+usernamesArray = [];
+usernamesArray.push(usernames);
 
 let newEntry = {
     sectionId:sectionId,
@@ -353,7 +354,7 @@ export const getAllUserPosts = async(username, userAccessing, role) => {
     else role = helpers.checkRole(role);
     if (!userAccessing) userAccessing = "visitingUser";
     else if (userAccessing !== "visitingUser") {
-        userAccessing = helpers.checkString(userAccessing);
+        userAccessing = helpers.checkString(userAccessing, "accessing user");
         const accessingUser = await userMethods.getUser(userAccessing, userAccessing, role);
         if (!accessingUser) throw "Sorry, but we could not find the accessing user.";
     }
@@ -432,7 +433,7 @@ export const getAllUserPosts = async(username, userAccessing, role) => {
         let section;
         for (let i in currUser.publicPosts) {
             currPost = await getPost(currUser.publicPosts[i], userAccessing, role);
-            publicPosts.push(currPost);
+            publicPosts.push(currUser.publicPosts[i]);
         }
         for (let i in currUser.sharedPosts) {
             currPost = await getPost(currUser.sharedPosts[i], userAccessing, role);
@@ -444,6 +445,7 @@ export const getAllUserPosts = async(username, userAccessing, role) => {
                 section = await sectionMethods.getSection(journal.sections[j], userAccessing, role);
                 for (let k in section.posts) {
                     if (!publicPosts.includes(section.posts[k]) && !sharedPosts.includes(section.posts[k])) {
+                        return "Madet it here.";
                         currPost = await getPost(section.posts[k], userAccessing, role);
                         privatePosts.push(currPost);
                     }

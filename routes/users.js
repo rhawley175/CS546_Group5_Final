@@ -79,8 +79,8 @@ router
         return res.status(400).render("users/error", {error: "There are no fields in the request body."});
     }
     try {
-        newUserData.loginInput = helpers.checkString(newUserData.loginInput);
-        newUserData.passwordInput = helpers.checkString(newUserData.passwordInput);
+        newUserData.loginInput = helpers.checkString(newUserData.loginInput, "login");
+        newUserData.passwordInput = helpers.checkString(newUserData.passwordInput, "password");
     } catch(e) {
         return res.status(400).render("users/error", {error: e});
     }
@@ -163,11 +163,11 @@ router
     }
 })
 .post(async (req, res) => {
-    const requestBody = req.body;
     let username = req.params.username;
-    let keyword = requestBody.keywordInput;
-    let date1 = requestBody.date1Input;
-    let date2 = requestBody.date2Input;
+    let keyword = req.body.keywordInput;
+    let date1 = req.body.date1Input;
+    console.log(date1);
+    let date2 = req.body.date2Input;
     let wordSearch;
     let userAccessing;
     let role;
@@ -209,7 +209,7 @@ router
             allPosts = await posts.getUserPostsByDate(date1, date2, username, userAccessing, role);
         }
         let valid = true;
-        if (typeof posts === 'string') valid = false;
+        if (typeof allPosts === 'string') valid = false;
         let publicPosts = false;
         let sharedPosts = false;
         let privatePosts = false;

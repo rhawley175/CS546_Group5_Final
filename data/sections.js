@@ -14,7 +14,7 @@ export const createSection = async (journalId, title, userId) => {
 
     const sectionsCollection = await sections();
     const journalCollection = await journals();
-
+    
     const newSection = {
         journalId: new ObjectId(journalId),
         title: title,
