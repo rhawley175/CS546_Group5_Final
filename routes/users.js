@@ -37,6 +37,7 @@ router
     try {
         newUserData.usernameInput = await helpers.checkUsername(newUserData.usernameInput);
         newUserData.passwordInput = helpers.checkPassword(newUserData.passwordInput);
+        newUserData.confirmPasswordInput = helpers.checkPassword(newUserData.confirmPasswordInput);  //Added confirm password.
         newUserData.ageInput = Number(newUserData.ageInput);
         newUserData.ageInput = helpers.checkAge(newUserData.ageInput);
         newUserData.emailInput = await helpers.checkEmail(newUserData.emailInput);
@@ -49,6 +50,7 @@ router
         const newUser = await users.createUser(
             newUserData.usernameInput,
             newUserData.passwordInput,
+            newUserData.confirmPasswordInput,  //Pass confirm password.
             newUserData.ageInput,
             newUserData.emailInput,
             newUserData.firstNameInput,

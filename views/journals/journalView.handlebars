@@ -1,29 +1,21 @@
-{{!-- <h2>{{journal.title}}</h2>
-<p>Author: {{journal.author}}</p>
+<head>
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="../../public/css/main.css">
+</head>
+<body>
+  <h2>{{journal.title}}</h2>
+  <p>Author: {{journal.author}}</p>
+  <a href="/sections/newSection?journalId={{journal._id}}">Create a Section</a>
 
-<h3>Sections:</h3>
-<ul>
-  {{#each journal.sections}}
-    <li>{{this.title}}</li>
-  {{/each}}
-</ul> --}}
-
-
-<h2>{{journal.title}}</h2>
-<p>Author: {{journal.author}}</p>
-
-<a href="/posts/newPost?journalId={{journal._id}}">Create a Post</a>
-<a href="/sections/newSection?journalId={{journal._id}}">Create a Section</a>
-
-<h3>Sections:</h3>
-{{#if journal.sections.length}}
-  <ul>
-    {{#each journal.sections}}
-      <li><a href="/sections/{{_id}}">{{title}}</a></li>
-    {{/each}}
-  </ul>
-{{else}}
-  <p>No sections yet. Create one!</p>
-{{/if}}
-
-<a href="/journal.html" class="btn">Return to Journal Main Menu</a>
+  <h3>Sections:</h3>
+  {{#if journal.sections.length}}
+    <ul>
+      {{#each journal.sections}}
+        <li><a href="/sections/{{this._id}}">{{this.title}}</a></li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p>No sections yet. Create one!</p>
+  {{/if}}
+  <a href="/journal.html">Back to Main Journal Page</a>
+</body>

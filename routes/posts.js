@@ -1,5 +1,6 @@
 import {Router} from 'express';
 const router = Router();
+import { ObjectId } from 'mongodb';
 
 import {addPost, getOtherPost, deletePost, updatePost, getPostsByKeyword} from '../data/posts.js';
 
@@ -7,19 +8,32 @@ import {addPost, getOtherPost, deletePost, updatePost, getPostsByKeyword} from '
 router
 .route('/newPost')
 .get(async(req,res) => {
-    res.render('posts/newPost', {title: 'New Post'});   //change handlebar to entry name.
+    if(!req.session.user){
+        return res.redirect("/users/login");
+    }
+    const sectionId = req.query.sectionId;
+    if (!sectionId) {
+        return res.status(400).render('posts/error', { error: 'Section ID is required' });
+    }
+    try {
+        res.render('posts/newPost', {
+            title: 'Create New Post',
+            sectionId: sectionId
+        });
+    } catch (error) {
+        res.status(404).render('posts/error', { error: 'Failed to render the post creation page.' });
+    }
 })
 .post(async(req,res) => {
+   
+    
     const data=req.body;
-    
-    
-    
     
     try{
         const entry = await addPost(data.sectionIdInput, data.titleInput, data.entryText, data.pub, data.usernameInput);
 
         if(entry){
-            return res.render('posts/newPost', {title: 'New Post', success: true, postId: entry});
+            res.redirect('/sections/' + data.sectionIdInput);
         }
         else{
             res.status(500).render('posts/newPost', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
@@ -32,9 +46,13 @@ router
 
 
 
-    router
+    /*router
     .route('/delete')
     .get(async(req, res) => {
+
+        if(!req.session.user){
+            return res.redirect("/users/login");
+        }
         res.render('posts/delete', {title: 'Delete Post'});
 
     })
@@ -68,11 +86,36 @@ router
             return res.status(404).render('posts/delete', {title: 'Delete Post', hasError: true, error: e});
         }
 
-    })
+    }) */
+
+    router
+    .route('/delete/:postId')
+    .get(async(req, res) => {
+        if (!req.session.user) {
+            return res.status(403).render('posts/error', { error: "You are not authorized to perform this action." });
+        }
+
+        try {
+            const postId = req.params.postId;
+
+            if (!postId || !ObjectId.isValid(postId)) {
+                return res.status(400).render('posts/error', { error: 'Invalid post ID provided' });
+            }
+
+            await deletePost(postId);
+            res.redirect('/posts');
+        } catch (error) {
+            console.error('Failed to delete post:', error);
+            res.status(500).render('posts/error', { error: 'Failed to delete the post.' });
+        }
+    });
 
     router
     .route('/update')
     .get(async(req,res) => {
+        if(!req.session.user){
+            return res.redirect("/users/login");
+        }
         res.render('posts/update', {title: 'Update Post'});   //change handlebar to entry name.
     })
     .post(async(req,res) => {
@@ -122,6 +165,9 @@ router
 
     router.route('/search')
     .get(async (req, res) => {
+        if(!req.session.user){
+            return res.redirect("/users/login");
+        }
         res.render('posts/search', { title: 'Search Post' }); 
     })
     .post(async (req, res) => { 
@@ -145,7 +191,12 @@ router
     router
     .route('/:postId')
     .get(async(req, res) => {
+        /*
+        if(!req.session.user){
+            return res.redirect("/users/login");
+        }
         try{
+
             
             const postId=req.params.postId;
             
@@ -175,11 +226,29 @@ router
             }
         }
         catch(e){
-            return res.status(404).render('posts/post', {title: 'Error', hasError: true, error:e});
+            return res.status(404).render('error', { error: 'Error fetching post' });
         }
-    });
+    }); */
+      
+    if(!req.session.user){
+            return res.redirect("/users/login");
+        }  
 
+    try {
+        const postId = req.params.postId;
+        const post = await getPost(postId);
+        if (!post) {
+            res.status(404).render('posts/error', { error: 'Post not found' });
+            return;
+        }
+        res.render('posts/post', { post });
+    } catch (error) {
+        console.error("Error retrieving post:", error);
+        res.status(500).render('posts/error', { error: 'Failed to retrieve the post' });
+    }
+});
 
 
 
 export default router;
+

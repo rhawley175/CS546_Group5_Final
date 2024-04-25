@@ -1,5 +1,6 @@
 
 import {posts, users} from '../config/mongoCollections.js';
+import {sections} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 import * as helpers from '../helpers.js';
 import * as userMethods from '../data/users.js';
@@ -27,9 +28,9 @@ if(title===undefined){
     throw 'You must have a title for your journal entry.';
 }
 
-//if(!ObjectId.isValid(sectionId)){
-//    throw 'Invalid object ID.';
-//}
+if(!ObjectId.isValid(sectionId)){
+    throw 'Invalid object ID.';
+}
 
 if(content===undefined){
     throw 'No text was input.';
@@ -133,8 +134,17 @@ let postCollection = await posts();
 let insertInfo = await postCollection.insertOne(newEntry);
 
 if(insertInfo.insertedCount===0){
-    throw 'Could add new jorunal entry.';
+    throw 'Could not add new jorunal entry.';
 }
+
+
+const sectionsCollection = await sections();
+const updateSection = await sectionsCollection.updateOne(
+    { _id: new ObjectId(sectionId) },
+    { $push: { posts: insertInfo.insertedId } }
+);
+
+if (!updateSection.matchedCount && !updateSection.modifiedCount) throw 'Failed to link the post to the section.';
 
 return insertInfo.insertedId.toString();
 

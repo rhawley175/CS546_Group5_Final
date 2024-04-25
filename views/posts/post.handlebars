@@ -1,10 +1,17 @@
+<head>
+    <title>{{section.title}}</title>
+    <link rel="stylesheet" href="../../public/css/main.css">
+</head>
 <main>
     <div class="postPage">
-        <h1>{{title}}</h1>
-        <p>{{content}}</p>
+        <h1>{{post.title}}</h1>
+        <p>{{post.content}}</p>
         {{#if hasError}}
             <p class="error" name="error">{{error}}</p>
         {{/if}}
-        
+        <a href="/posts/delete/{{post._id}}" onclick="return confirm('Are you sure you want to delete this post?');">Delete This Post</a>
+        <a href="/posts/search">Go to Search</a><br>
+        <a href="/journal.html">Main Journal Page</a><br>
+        <a href="/journals/{{section.journalId}}">Back to Journal</a>
     </div>
 </main>

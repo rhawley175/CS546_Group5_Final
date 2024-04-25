@@ -7,6 +7,7 @@ import bcrypt from 'bcrypt';
 export const createUser = async(
     username,
     password,
+    confirmPassword,   //Added confirm password to check.
     age,
     email,
     firstName,
@@ -14,6 +15,10 @@ export const createUser = async(
 ) => {
     username = await helpers.checkNewUsername(username);
     password = helpers.checkPassword(password);
+    confirmPassword = helpers.checkPassword(confirmPassword);  //Added confirm password error check.
+    if(password!==confirmPassword){                            //Check if password and confirm password is the the same or not.
+        throw 'Password does not match.';
+    }
     age = helpers.checkAge(age);
     email = await helpers.checkNewEmail(email);
     firstName = helpers.checkName(firstName, "first name");

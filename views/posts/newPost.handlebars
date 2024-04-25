@@ -1,47 +1,49 @@
+<head>
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="../../public/css/main.css">
+</head>
+<body>
 <main>
     <h1>New Journal Entry</h1>
-        <form id="entryForm" method="POST" action="newPost">
-            <div class="title">
-                <label for="titleInput">Title:
-                    <input id="titleInput" name="titleInput" placeholder="Enter Title">
-                </label>
-            </div>
-            <div class="text-label">
-                    <label for="entryText">Journal Entry Text:</label>
-            </div>
-            <div class="text-box">
-                    <textarea id="entryText" name="entryText" rows="10" cols="50" placeholder="Enter Text Here"></textarea>
-            </div>
-            <div class="public">
-                <label for="pub">Public?:
-                    <select name="pub" id="pub">
-                        <option value="public">Public</option>
-                        <option value="private">Private</option>
-                    </select>
-                </label>
-            </div>
-            <label for="usernameInput">Usernames
-                <input id="usernameInput" name="usernameInput" placeholder="Enter Usernames to Share With">
+    <form id="entryForm" method="POST" action="/posts/newPost">
+        <div class="title">
+            <label for="titleInput">Title:
+                <input id="titleInput" name="titleInput" placeholder="Enter Title">
             </label>
-            <br>
-            <br>
-            <br>
-            <label for="sectionIdInput">Section ID
-                <input id="sectionIdInput" name="sectionIdInput" placeholder="Enter Section ID">
+        </div>
+        <div class="text-label">
+            <label for="entryText">Journal Entry Text:</label>
+        </div>
+        <div class="text-box">
+            <textarea id="entryText" name="entryText" rows="10" cols="50" placeholder="Enter Text Here"></textarea>
+        </div>
+        <div class="public">
+            <label for="pub">Public?:
+                <select name="pub" id="pub">
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                </select>
             </label>
-            <br>
-            <br>
-            <br>
-            <div class="post-reply">
-                {{#if success}}
-                    <p id="postId">Posted Successfully. Your Post ID: {{postId}}</p>
-                {{/if}}
-            </div>
-            <div class="button">
-                <button id="saveButton">Save Entry</button>
-            </div>
-            {{#if hasError}}
-                <p id="error" class="error">{{error}}</p>
-            {{/if}}
-        </form>
+        </div>
+        <label for="usernameInput">Usernames:
+            <input id="usernameInput" name="usernameInput" placeholder="Enter Usernames to Share With">
+        </label>
+        <input type="hidden" name="sectionIdInput" value="{{sectionId}}">
+        
+        <div class="button">
+            <button id="saveButton">Save Entry</button>
+        </div>
+        {{#if success}}
+            <p id="postId">Posted Successfully. Your Post ID: {{postId}}</p>
+        {{/if}}
+        {{#if hasError}}
+            <p id="error" class="error">{{error}}</p>
+        {{/if}}
+    </form>
 </main>
+</body>
+
+
+
+
+
