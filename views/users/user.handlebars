@@ -4,22 +4,60 @@
 </head>
 <body>
     <header>
-        <h1>{{username}}</h1>
+        <h1 class="user-title">{{username}}</h1>
     </header>
     <main>
-        {{#if valid}}
-            {{#each journals}}
-                <h2>{{title}}</h2>
+        <form class = "search-form" id = "search-form" method = "POST" action="/users/get/{{username}}">
+            <label for="keywordInput">Search by Keyword:</label>
+            <input type="text" name="keywordInput" id="keywordInput">
+            <br>
+            <label for="date1Input">Search by Date, Early Date:</label>
+            <input type="text" name="date1Iinput" id="date1Input">
+            <br>
+            <label for="date2Input">Search by Date, Later Date:</label>
+            <input type="text" name="date2Input" id="date2Input">
+            <br>
+            <button type="submit">Search</button>
+        </form> 
+        {{#if publicPosts}}
+        <div class="user-public">
+            <h2>Public Posts</h2>
+            {{#each posts.publicPosts}}
+                <a href ="/posts/{{_id}}">{{title}}</a>
+                <br>
             {{/each}}
+        </div>
         {{/if}}
-        {{#each publicPosts}}
-            <h2>{{title}}</h2>
-            <p>{{time}}</p>
-            <p>{{content}}</p>
-        {{/each}}
-        {{#each comments}}
-            <p>{{comment}}</p>
-        {{/each}}
+        {{#if shared}}
+        <div class="user-shared">
+            <h2>Shared Posts</h2>
+            {{#each posts.sharedPosts}}
+                <a href ="/posts/{{_id}}">{{title}}</a>
+                <br>
+            {{/each}}
+        </div>
+        {{/if}}
+        {{#if owned}}
+        <div class="user-journals">
+            <h2>Journals</h2>
+            <br>
+            <a href = "/journal.html">View All Journals</a>
+            <p>Your Journals:</p>
+            {{#each journals}}
+                <a href="/journals/{{_d}}">{{title}}</a>
+                <br>
+            {{/each}}
+        </div>
+        <div class="user-options">
+            <br>
+            <p>Options:</p>
+            <a href = "/users/update/{{username}}">Update User</a>
+            <br>
+            <a href="/users/delete/{{username}}">Delete User</a>
+            <br>
+            <a href="/users/logout">Logout</a>
+        </div>
+        {{/if}}
     </main>
     <script src="../../public/js/users.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
