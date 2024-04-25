@@ -23,9 +23,9 @@ if(title===undefined){
     throw 'You must have a title for your journal entry.';
 }
 
-//if(!ObjectId.isValid(sectionId)){
-//    throw 'Invalid object ID.';
-//}
+if(!ObjectId.isValid(sectionId)){
+    throw 'Invalid object ID.';
+}
 
 if(content===undefined){
     throw 'No text was input.';
