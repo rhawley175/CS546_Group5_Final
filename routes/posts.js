@@ -7,9 +7,14 @@ import {addPost, getPost, deletePost, updatePost, getPostsByKeyword} from '../da
 router
 .route('/newPost')
 .get(async(req,res) => {
+    if(!req.session.user){
+        return res.redirect("/users/login");
+    }
     res.render('posts/newPost', {title: 'New Post'});   //change handlebar to entry name.
 })
 .post(async(req,res) => {
+   
+    
     const data=req.body;
     
     
@@ -35,6 +40,9 @@ router
     router
     .route('/delete')
     .get(async(req, res) => {
+        if(!req.session.user){
+            return res.redirect("/users/login");
+        }
         res.render('posts/delete', {title: 'Delete Post'});
 
     })
@@ -73,6 +81,9 @@ router
     router
     .route('/update')
     .get(async(req,res) => {
+        if(!req.session.user){
+            return res.redirect("/users/login");
+        }
         res.render('posts/update', {title: 'Update Post'});   //change handlebar to entry name.
     })
     .post(async(req,res) => {
@@ -122,6 +133,9 @@ router
 
     router.route('/search')
     .get(async (req, res) => {
+        if(!req.session.user){
+            return res.redirect("/users/login");
+        }
         res.render('posts/search', { title: 'Search Post' }); 
     })
     .post(async (req, res) => { 
@@ -145,6 +159,9 @@ router
     router
     .route('/:postId')
     .get(async(req, res) => {
+        if(!req.session.user){
+            return res.redirect("/users/login");
+        }
         try{
             
             const postId=req.params.postId;
@@ -183,3 +200,4 @@ router
 
 
 export default router;
+
