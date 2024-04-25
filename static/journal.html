@@ -30,11 +30,27 @@
         <!-- Journal list items will be dynamically populated here -->
       </ul>
     </section>
+    <section id="errorMessage" style="display: none; color: red;"></section>
     <footer>
       <p>2024: The Journal App by Group 5.</p>
     </footer>
   </div>
+
   <script>
+    function displayErrorMessage(message) {
+      const errorSection = document.getElementById('errorMessage');
+      errorSection.textContent = message;
+      errorSection.style.display = 'block';
+    }
+
+    function handleForbiddenError(error) {
+      if (error.status === 403) {
+        displayErrorMessage('You are not authorized to perform this action.');
+      } else {
+        displayErrorMessage('An error occurred. Please try again later.');
+      }
+    }
+
     document.getElementById('createJournalBtn').addEventListener('click', function() {
       window.location.href = '/journals/create';
     });
@@ -46,7 +62,15 @@
     document.getElementById('updateJournalBtn').addEventListener('click', function() {
       const journalId = prompt('Enter the journal ID to update:');
       if (journalId) {
-        window.location.href = `/journals/${journalId}/edit`;
+        fetch(`/journals/${journalId}/edit`)
+          .then(response => {
+            if (response.ok) {
+              window.location.href = `/journals/${journalId}/edit`;
+            } else {
+              throw response;
+            }
+          })
+          .catch(handleForbiddenError);
       }
     });
 
@@ -60,13 +84,55 @@
     document.getElementById('deleteJournalBtn').addEventListener('click', function() {
       const journalId = prompt('Enter the journal ID to delete:');
       if (journalId) {
-        window.location.href = `/journals/${journalId}/delete`;
+        fetch(`/journals/${journalId}/delete`)
+          .then(response => {
+            if (response.ok) {
+              window.location.href = `/journals/${journalId}/delete`;
+            } else {
+              throw response;
+            }
+          })
+          .catch(handleForbiddenError);
       }
     });
 
     document.getElementById('searchJournalBtn').addEventListener('click', function() {
       const username = document.getElementById('usernameInput').value;
       window.location.href = `/journals/user/${username}`;
+    });
+
+    fetch('/journals')
+    .then(response => {
+      if (response.ok) {
+        return response.text();
+      } else {
+        throw new Error('Failed to fetch user journals');
+      }
+    })
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const journalListItems = doc.querySelectorAll('ul li');
+
+      const journalList = document.getElementById('journalListItems');
+      journalList.innerHTML = '';
+
+      if (journalListItems.length > 0) {
+        journalListItems.forEach(item => {
+          const link = item.querySelector('a');
+          const journalId = link.getAttribute('href').split('/').pop();
+          const journalTitle = link.textContent;
+
+          const listItem = document.createElement('li');
+          listItem.innerHTML = `<a href="${link.getAttribute('href')}">${journalTitle} (ID: ${journalId})</a>`;
+          journalList.appendChild(listItem);
+        });
+      } else {
+        journalList.innerHTML = '<li>No journals found.</li>';
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching user journals:', error);
     });
   </script>
 </body>

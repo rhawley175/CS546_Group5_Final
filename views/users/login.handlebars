@@ -5,19 +5,24 @@
 </head>
 <body>
     <header>
-        <h1>Login</h1>
+        <div class="user-title">
+            <h1>Login</h1>
+        </div>
     </header>
     <main>
-        <form id="login-form" method="POST" action="/users/login">
-            <label for="loginInput">Email or Username:</label>
-            <input type="text" name="loginInput" id="loginInput">
-            <br>
-            <label for="passwordInput">Password:</label>
-            <input type="password" name="passwordInput" id="passwordInput">
-            <br>
-            <button type="submit">Login</button>
-            <ul hidden id="errors"></ul>
-        </form>
+        <div class="log-form">
+            <form id="login-form" method="POST" action="/users/login">
+                <label for="loginInput">Email or Username:</label>
+                <input type="text" name="loginInput" id="loginInput">
+                <br>
+                <label for="passwordInput">Password:</label>
+                <input type="password" name="passwordInput" id="passwordInput">
+                <br>
+                <button type="submit">Login</button>
+                <ul hidden id="errors"></ul>
+            </form>
+        </div>
+        <a href="/users/register" class="register-links">Click Here to Register</a>
     </main>
     <script src="../../public/js/users.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>

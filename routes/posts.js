@@ -8,6 +8,9 @@ import {addPost, getPost, deletePost, updatePost, getPostsByKeyword} from '../da
 router
 .route('/newPost')
 .get(async(req,res) => {
+    if(!req.session.user){
+        return res.redirect("/users/login");
+    }
     const sectionId = req.query.sectionId;
     if (!sectionId) {
         return res.status(400).render('posts/error', { error: 'Section ID is required' });
@@ -22,6 +25,8 @@ router
     }
 })
 .post(async(req,res) => {
+   
+    
     const data=req.body;
     
     try{
@@ -44,7 +49,11 @@ router
     /*router
     .route('/delete')
     .get(async(req, res) => {
-         res.render('posts/delete', {title: 'Delete Post'});
+
+        if(!req.session.user){
+            return res.redirect("/users/login");
+        }
+        res.render('posts/delete', {title: 'Delete Post'});
 
     })
     .post(async(req,res) => {
@@ -104,6 +113,9 @@ router
     router
     .route('/update')
     .get(async(req,res) => {
+        if(!req.session.user){
+            return res.redirect("/users/login");
+        }
         res.render('posts/update', {title: 'Update Post'});   //change handlebar to entry name.
     })
     .post(async(req,res) => {
@@ -153,6 +165,9 @@ router
 
     router.route('/search')
     .get(async (req, res) => {
+        if(!req.session.user){
+            return res.redirect("/users/login");
+        }
         res.render('posts/search', { title: 'Search Post' }); 
     })
     .post(async (req, res) => { 
@@ -176,7 +191,12 @@ router
     router
     .route('/:postId')
     .get(async(req, res) => {
-        /* try{
+        /*
+        if(!req.session.user){
+            return res.redirect("/users/login");
+        }
+        try{
+
             
             const postId=req.params.postId;
             
@@ -209,6 +229,10 @@ router
             return res.status(404).render('error', { error: 'Error fetching post' });
         }
     }); */
+      
+    if(!req.session.user){
+            return res.redirect("/users/login");
+        }  
 
     try {
         const postId = req.params.postId;
@@ -227,3 +251,4 @@ router
 
 
 export default router;
+
