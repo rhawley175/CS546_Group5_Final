@@ -132,7 +132,7 @@
             errors.push(e);
         }
         try {
-            email = checkEmail(email);
+            email = checkString(email, "email");
         } catch(e) {
             errors.push(e);
         }
@@ -210,12 +210,6 @@ function checkAge(age) {
     if (age < 0 || age > 100) throw "The age is invalid.";
     if (age < 18) throw "We're sorry, but you're too young to access this application. Please contact a parent or guardian.";
     return age;
-};
-import validator from 'email-validator';
-function checkEmail(email) {
-    email = checkString(email, "email");
-    if (!validator.validate(email)) throw "The email is invalid.";
-    return email;
 };
 
 function checkName(name, nameVal) {

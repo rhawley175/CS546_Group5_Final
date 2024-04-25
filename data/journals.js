@@ -1,4 +1,4 @@
-import { journals } from '../config/mongoCollections.js';
+import { journals, users } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
 import * as helpers from '../helpers.js';
 
@@ -76,3 +76,23 @@ export const getJournalsByUsername = async (username) => {
   return await journalCollection.find({ author: username }).toArray();
 };
 
+export const getJournalsByAuthenticatedUsername = async (username, userAccessing, role) => {
+  const userCollection = await users();
+  userAccessing = helpers.checkString(userAccessing, "accessing user");
+  const accessingUser = await userCollection.findOne({username: userAccessing});
+  if (!accessingUser) throw "We could not find the accessing user.";
+  role = helpers.checkRole(role);
+  username = helpers.checkString(username, "username");
+  const foundUser = await userCollection.findOne({username: username});
+  if (!foundUser) throw "We could not find the user with username: " + username + ".";
+  if (userAccessing !== username && role !== "admin") throw "Access denied.";
+  const journalCollection = await journals();
+  let journal;
+  let journalArray = [];
+  for (let i in foundUser.journals) {
+    journal = await journalCollection.findOne({_id: new ObjectId(foundUser.journals[i])});
+    journalArray.push(journal);
+  }
+  if (journalArray.length === 0) return "You have no journals to view.";
+  return journalArray;
+};

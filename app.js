@@ -38,13 +38,15 @@ app.listen(3000, () => {
     console.log("Your routes will be running on http://localhost:3000");
 });
 
-// If you need to do work other than run the server, comment out the above code, and write your new code below:
+//If you need to do work other than run the server, comment out the above code, and write your new code below:
 
 // import * as users from './data/users.js';
+// import * as posts from './data/posts.js';
+// import * as journals from './data/journals.js';
 // import * as connection from './config/mongoConnection.js';
 
 // try {
-//     console.log(await users.updateUser("ETashjiG", "ETashjiG", "user", {password: "P@ssw0rd"}));
+//     console.log(await posts.getUserPostsByKeyword("title", "username"));
 // } catch(e) {
 //     console.log(e);
 // }
