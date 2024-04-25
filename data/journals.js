@@ -33,6 +33,7 @@ export const getJournalById = async (journalId) => {
   return journal;
 };
 
+
 export const getJournalsByUser = async (userId) => {
   const journalCollection = await journals();
   return await journalCollection.find({ user_id: userId }).toArray();

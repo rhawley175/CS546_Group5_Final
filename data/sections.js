@@ -1,4 +1,4 @@
-import {sections, journals} from '../config/mongoCollections.js';
+import {sections, journals, posts } from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 //import * as helpers from '../helpers.js';
 
@@ -37,25 +37,35 @@ export const createSection = async (journalId, title) => {
 };
 
 export const getSection = async (sectionId) => {
-    if (!sectionId) throw ('Section ID must be provided.');
-
-    if (!ObjectId.isValid(sectionId)) throw ('Invalid section ID format.');
     const sectionsCollection = await sections();
     const section = await sectionsCollection.findOne({ _id: new ObjectId(sectionId) });
     if (!section) throw ('Section not found.');
-    
+
+    if (section.posts && section.posts.length > 0) {
+        const postsCollection = await posts(); 
+        const postsDetails = [];
+
+        for (const postId of section.posts) {
+            const post = await postsCollection.findOne({ _id: new ObjectId(postId) });
+            if (post) {
+                postsDetails.push(post);
+            } else {
+                console.log("No post found for ID:", postId);
+            }
+        }
+
+        section.posts = postsDetails;
+    }
+
     return section;
 };
 
-export const getSectionsByJournal = async (journalId) => {
-    if (!journalId) throw ('Journal ID must be provided.');
-    if (!ObjectId.isValid(journalId)) throw ('Invalid journal ID format.');
+export const getSectionsByJournalId = async (journalId) => {
     const sectionsCollection = await sections();
-    const sectionsList = await sectionsCollection.find({ journalId: new ObjectId(journalId) }).toArray();
-    
-    if (!sectionsList.length) throw ('No sections found for the given journal ID.');
+    if (!ObjectId.isValid(journalId)) ('Invalid journal ID format.');
 
-    return sectionsList;
+    const sectionsList = await sectionsCollection.find({ journalId: new ObjectId(journalId) }).toArray();
+    return sectionsList; 
 };
 
 export const addPostToSection = async (sectionId, postId) => {
@@ -71,6 +81,7 @@ export const addPostToSection = async (sectionId, postId) => {
     return await getSection(sectionId);
 };
 
+
 export const deleteSection = async (sectionId) => {
     if (!sectionId) throw ('Section ID must be provided.');
     if (!ObjectId.isValid(sectionId)) throw ('Invalid section ID format.');
@@ -81,3 +92,4 @@ export const deleteSection = async (sectionId) => {
     
     return deletionInfo;
 };
+
