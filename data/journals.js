@@ -8,6 +8,7 @@ export const createJournal = async (userId, username, title) => {
     title = helpers.checkString(title, "Title");
 
     const journalCollection = await journals();
+    const userCollection = await users();
     const newJournal = {
       user_id: [userId],
       author: [username],
@@ -18,6 +19,11 @@ export const createJournal = async (userId, username, title) => {
     const insertInfo = await journalCollection.insertOne(newJournal);
     if (!insertInfo.acknowledged || !insertInfo.insertedId)
       throw 'Could not add journal';
+
+    await userCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $push: { journals: insertInfo.insertedId } }
+    );
 
     return await getJournalById(insertInfo.insertedId);
   } catch (error) {
@@ -63,6 +69,10 @@ export const updateJournal = async (journalId, updatedJournal) => {
 export const deleteJournal = async (journalId) => {
   journalId = helpers.checkString(journalId, "Journal ID");
   const journalCollection = await journals();
+  await userCollection.updateMany(
+    {},
+    { $pull: { journals: new ObjectId(journalId) } }
+  );
   const deleteInfo = await journalCollection.deleteOne({ _id: new ObjectId(journalId) });
   if (deleteInfo.deletedCount === 0) {
     throw `Could not delete journal with id ${journalId}`;
