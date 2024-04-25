@@ -55,7 +55,7 @@ try {
   const journal = await getJournalById(journalId);
   const sections = await sectionData.getSectionsByJournalId(journalId);
   journal.sections = sections;
-  res.render('journals/journalView', { journal });
+  res.render('journals/journalView', {  title: journal.title, journal });
 } catch (error) {
   res.status(404).json({ error: 'Journal not found.' });
 }
