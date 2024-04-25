@@ -1,6 +1,9 @@
 import {Router} from 'express';
 import * as users from '../data/users.js';
 import * as helpers from '../helpers.js';
+import * as posts from '../data/posts.js';
+import * as journals from '../data/journals.js';
+import {ObjectId} from 'mongodb';
 const router = Router();
 
 router
@@ -89,8 +92,9 @@ router
               req.session.user = {
                 _id: user._id,
                 username: loggedUser.username,
+                role: user.role
               };
-              return res.redirect("/journal.html");
+              return res.redirect("/users/get/" + loggedUser.username);
             } else {
               throw "User not found";
             }
@@ -118,35 +122,98 @@ router
         return res.status(400).render("users/error", {error: e});
     }
     try {
+        let owned;
+        let shared;
+        let publicPosts;
         const getUser = await users.getUser(username, userAccessing, role);
-        let valid;
+        let allPosts = await posts.getAllUserPosts(username, userAccessing, role);
         if (!getUser) return res.status(404).render("users/error", {error: "User not found."});
         if (getUser.role === "admin" && (!req.session.user || role !== "admin")) return res.status(403).render("users/error", {error: "Access denied."});
-        if (!req.session.user || req.session.user.username !== username) {
-            valid = false;
+        if (allPosts.sharedPosts && allPosts.sharedPosts.length > 0) shared = true;
+        else shared = false;
+        if (allPosts.publicPosts && allPosts.publicPosts.length > 0) publicPosts = true;
+        else publicPosts = false;
+        if (!req.session.user || (req.session.user.username !== username && req.session.user.role !== "admin")) {
+            owned = false;
             return res.status(200).render("users/user", {
-                valid: valid,
+                owned: owned,
+                publicPosts: publicPosts,
+                shared: shared,
                 username: getUser.username,
-                publicPosts: getUser.publicPosts,
-                comments: getUser.comments
+                posts: allPosts
             });
         };
         if (username === userAccessing || role === "admin") {
-            valid = true;
+            owned = true;
+            let allJournals = await journals.getJournalsByAuthenticatedUsername(username, userAccessing, role);
             return res.status(200).render("users/user", {
-                valid: valid,
+                owned: owned,
+                publicPosts: publicPosts,
+                shared: shared,
                 username: getUser.username,
-                age: getUser.age,
-                email: getUser.email,
-                firstName: getUser.firstName,
-                lastName: getUser.lastName,
-                role: getUser.role,
-                publicPosts: getUser.publicPosts,
-                sharedPosts: getUser.sharedPosts,
-                journals: getUser.journals,
-                comments: getUser.comments
+                posts: allPosts,
+                journals: allJournals
             });
         };
+    } catch(e) {
+        return res.status(500).render("users/error", {error: e});
+    }
+})
+.post(async (req, res) => {
+    const requestBody = req.body;
+    let username = req.params.username;
+    let keyword = requestBody.keywordInput;
+    let date1 = requestBody.date1Input;
+    let date2 = requestBody.date2Input;
+    let wordSearch;
+    let userAccessing;
+    let role;
+    try {
+        if (keyword !== "")  {
+            keyword = helpers.checkString(keyword, "search term");
+            wordSearch = true;
+        }
+        else if (date1 !== "" && date2 !== "") {
+            date1 = helpers.checkDate(date1);
+            date2 = helpers.checkDate(date2);
+            let newDate1 = Date.parse(date1);
+            let newDate2 = Date.parse(date2);
+            if (newDate1 > newDate2) throw "The first date is later than the second.";
+            wordSearch = false;
+        }
+        else throw "No search data was entered.";
+        if (req.session.user) {
+            userAccessing = helpers.checkString(req.session.user.username, "accessing user");
+            role = helpers.checkRole(req.session.user.role);
+            const accessingUser = await users.getUser(userAccessing, userAccessing, role);
+            if (!accessingUser) throw "We could not find the accessing user.";
+        }
+        else {
+            userAccessing = "visitingUser";
+            role = "user";
+        }
+        const user = await users.getUser(username, userAccessing, role);
+        if (!user) throw "We could not find that user.";
+    } catch(e) {
+        return res.status(400).render("users/error", {error: e});
+    }
+    try {
+        var allPosts;
+        if (wordSearch) {
+            allPosts = await posts.getUserPostsByKeyword(keyword, username, userAccessing, role);
+        }
+        if (!wordSearch) {
+            allPosts = await posts.getUserPostsByDate(date1, date2, username, userAccessing, role);
+        }
+        let valid = true;
+        if (typeof posts === 'string') valid = false;
+        let publicPosts = false;
+        let sharedPosts = false;
+        let privatePosts = false;
+        if (allPosts.publicPosts && allPosts.publicPosts.length > 0) publicPosts = true;
+        if (allPosts.sharedPosts && allPosts.sharedPosts.length > 0) sharedPosts = true;
+        if (allPosts.privatePosts && allPosts.privatePosts.length > 0) privatePosts = true;
+        return res.status(200).render('users/search', {valid: valid, posts: allPosts, keyword: keyword, username: username, publicPosts: publicPosts, sharedPosts: sharedPosts, privatePosts: privatePosts});
     } catch(e) {
         return res.status(500).render("users/error", {error: e});
     }
@@ -185,18 +252,16 @@ router
         const getUser = await users.getUser(username, req.session.user.username, req.session.user.role);
         if (!getUser) return res.status(404).json({error: "User not found."});
         if (req.session.user.username !== username && req.session.user.role !== "admin") return res.status(403).json({error: "Access Denied."});
-        if (requestBody.usernameInput !== "") requestBody.usernameInput = await helpers.checkNewUsername(requestBody.usernameInput);
         if (requestBody.passwordInput !== "") requestBody.passwordInput = helpers.checkPassword(requestBody.passwordInput);
-        if (requestBody.ageInput !== "") requestBody.ageInput = helpers.checkAge(requestBody.ageInput);
+        if (requestBody.ageInput !== "") requestBody.ageInput = helpers.checkAge(Number(requestBody.ageInput));
         if (requestBody.emailInput !== "") requestBody.emailInput = await helpers.checkNewEmail(requestBody.emailInput);
         if (requestBody.firstNameInput !== "") requestBody.firstNameInput = helpers.checkName(requestBody.firstNameInput, "first name");
-        if (requestBody.lastNameInput !== "") requestBody.lastName = helpers.checkName(requestBody.lastNameInput, "last name");
+        if (requestBody.lastNameInput !== "") requestBody.lastNameInput = helpers.checkName(requestBody.lastNameInput, "last name");
     } catch(e) {
         return res.status(400).render("users/error", {error: e});
     }
     try {
         const newUser = {
-            username: requestBody.usernameInput,
             password: requestBody.passwordInput,
             age: requestBody.ageInput,
             email: requestBody.emailInput,
@@ -210,7 +275,7 @@ router
             newUser
         );
         if (updatedUser === "Cannot update the user, as nothing is being changed.") return res.status(400).render("users/error", {error: updatedUser});
-        req.session.user = await users.getUser(updatedUser.username, updatedUser.username, req.session.user.role);
+        req.session.user.username = updatedUser.username;
         return res.redirect("/users/get/" + req.session.user.username);
     } catch(e) {
         return res.status(500).render("users/error", {error: e});

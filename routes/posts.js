@@ -1,7 +1,7 @@
 import {Router} from 'express';
 const router = Router();
 
-import {addPost, getPost, deletePost, updatePost, getPostsByKeyword} from '../data/posts.js';
+import {addPost, getOtherPost, deletePost, updatePost, getPostsByKeyword} from '../data/posts.js';
 
 
 router
@@ -164,7 +164,7 @@ router
             }
         
             
-            const post = await getPost(trimpostId);
+            const post = await getOtherPost(trimpostId);
             
             if(post){
                 
