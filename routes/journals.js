@@ -50,15 +50,21 @@ router.post('/create', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-try {
-  const journalId = req.params.id;
-  const journal = await getJournalById(journalId);
-  const sections = await sectionData.getSectionsByJournalId(journalId);
-  journal.sections = sections;
-  res.render('journals/journalView', {  title: journal.title, journal });
-} catch (error) {
-  res.status(404).json({ error: 'Journal not found.' });
-}
+  try {
+    const journalId = req.params.id;
+    const journal = await getJournalById(journalId);
+
+    // Check if the logged-in user is the owner of the journal
+    if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const sections = await sectionData.getSectionsByJournalId(journalId);
+    journal.sections = sections;
+    res.render('journals/journalView', { title: journal.title, journal });
+  } catch (error) {
+    res.status(404).json({ error: 'Journal not found.' });
+  }
 });
 
 
