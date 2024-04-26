@@ -1,4 +1,4 @@
-import { journals, users } from '../config/mongoCollections.js';
+import { journals, users, sections } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
 import * as helpers from '../helpers.js';
 
