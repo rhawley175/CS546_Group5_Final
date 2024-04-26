@@ -1,7 +1,8 @@
-import { journals, users } from '../config/mongoCollections.js';
+import { journals, users, sections, posts } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
 import * as helpers from '../helpers.js';
 import * as sectionMethods from './sections.js';
+
 
 export const createJournal = async (userId, username, title) => {
   try {
@@ -69,8 +70,11 @@ export const updateJournal = async (journalId, updatedJournal) => {
 };
 
 
+
+
 export const deleteJournal = async (journalId) => {
   journalId = helpers.checkString(journalId, "Journal ID");
+
   const journalCollection = await journals();
   const journal = await journalCollection.findOne({_id: new ObjectId(journalId)});
   if (!journal) throw "We could not find the journal to be deleted.";
@@ -82,8 +86,9 @@ export const deleteJournal = async (journalId) => {
     section = await sectionMethods.deleteSection(journal.sections[i]);
     if (!section) throw "We could not delete the section.";
   }
+
   await userCollection.updateMany(
-    {},
+    { journals: new ObjectId(journalId) },
     { $pull: { journals: new ObjectId(journalId) } }
   );
 
@@ -91,8 +96,11 @@ export const deleteJournal = async (journalId) => {
   if (deleteInfo.deletedCount === 0) {
     throw `Could not delete journal with id ${journalId}`;
   }
+
   return true;
 };
+
+
 
 
 export const getJournalsByUsername = async (username) => {
