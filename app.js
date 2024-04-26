@@ -46,7 +46,7 @@ app.listen(3000, () => {
 // import * as connection from './config/mongoConnection.js';
 
 // try {
-//     console.log(await posts.getAllUserPosts("username", "username", "user"));
+//     console.log(await users.getAllUsersLimited());
 // } catch(e) {
 //     console.log(e);
 // }
