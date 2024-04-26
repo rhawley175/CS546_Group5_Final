@@ -70,30 +70,44 @@ export const updateJournal = async (journalId, updatedJournal) => {
 
 
 
+
 export const deleteJournal = async (journalId) => {
   journalId = helpers.checkString(journalId, "Journal ID");
+
   const journalCollection = await journals();
   const userCollection = await users();
+  const sectionsCollection = await sections();
+  const postsCollection = await posts();
 
   const journal = await journalCollection.findOne({ _id: new ObjectId(journalId) });
   if (!journal) {
     throw `Could not find journal with id ${journalId}`;
   }
 
+  // Delete all sections and posts related to the journal
+  for (const sectionId of journal.sections) {
+    const section = await sectionsCollection.findOne({ _id: new ObjectId(sectionId) });
+    if (section) {
+      for (const postId of section.posts) {
+        await postsCollection.deleteOne({ _id: new ObjectId(postId) });
+      }
+      await sectionsCollection.deleteOne({ _id: new ObjectId(sectionId) });
+    }
+  }
+
   await userCollection.updateMany(
     { journals: new ObjectId(journalId) },
     { $pull: { journals: new ObjectId(journalId) } }
   );
-  
-  const sectionsCollection = await sections();
-  await sectionsCollection.deleteMany({ journalId: new ObjectId(journalId) });
 
   const deleteInfo = await journalCollection.deleteOne({ _id: new ObjectId(journalId) });
   if (deleteInfo.deletedCount === 0) {
     throw `Could not delete journal with id ${journalId}`;
   }
+
   return true;
 };
+
 
 
 
