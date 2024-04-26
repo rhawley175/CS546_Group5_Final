@@ -61,6 +61,7 @@ export const getUser = async(username, userAccessing, role) => {
     let newUser;
     if (role === "admin" || username === userAccessing) {
         newUser = {
+            "_id": foundUser._id,
             "username": foundUser.username,
             "age": foundUser.age,
             "email": foundUser.email,

@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
     const journals = await getJournalsByUser(userId);
     res.render('journals/journalList', { journals });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).render('users/error', { error: 'Internal Server Error' });
   }
 });
 
@@ -32,7 +32,7 @@ router.get('/create', async (req, res) => {
   try {
     res.render('journals/createJournal');
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).render('users/error',{ error: 'Internal Server Error' });
   }
 });
 
@@ -45,13 +45,12 @@ router.post('/create', async (req, res) => {
 
     const userId = req.session.user._id; 
     const username = req.session.user.username; 
-    console.log('userId:', userId); 
     const { title } = req.body;
     const newJournal = await createJournal(userId, username, title);
     res.redirect(`/journals/${newJournal._id}`);
   } catch (error) {
     console.error('Error in POST /journals/create:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).render('users/error', { error: 'Internal Server Error' });
   }
 });
 
@@ -64,14 +63,14 @@ if (!req.session.user) return res.redirect("/users/login");
 
     // Check if the logged-in user is the owner of the journal
     if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.status(403).render('users/error', { error: 'Forbidden' });
     }
 
     const sections = await sectionData.getSectionsByJournalId(journalId);
     journal.sections = sections;
     res.render('journals/journalView', { title: journal.title, journal });
   } catch (error) {
-    res.status(404).json({ error: 'Journal not found.' });
+    res.status(404).render('users/error', { error: 'Journal not found.' });
   }
 
 });
@@ -85,12 +84,12 @@ router.get('/:id/edit', async (req, res) => {
     
     // Check if the logged-in user is the owner of the journal
     if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.status(403).json('users/error', { error: 'Forbidden' });
     }
     
     res.render('journals/editJournal', { journal });
   } catch (error) {
-    res.status(404).json({ error: 'Journal not found' });
+    res.status(404).render('users/error', { error: 'Journal not found' });
   }
 });
 
@@ -102,13 +101,13 @@ router.put('/:id', async (req, res) => {
     // Check if the logged-in user is the owner of the journal
     const journal = await getJournalById(journalId);
     if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.status(403).render('users/error', { error: 'Forbidden' });
     }
     
     await updateJournal(journalId, updatedJournal);
     res.redirect(`/journals/${journalId}`);
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).render('users/error', { error: 'Internal Server Error' });
   }
 });
 
@@ -119,12 +118,12 @@ router.get('/:id/delete', async (req, res) => {
     
     // Check if the logged-in user is the owner of the journal
     if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.status(403).render('users/error', { error: 'Forbidden' });
     }
     
     res.render('journals/deleteJournal', { journal });
   } catch (error) {
-    res.status(404).json({ error: 'Journal not found' });
+    res.status(404).render('users/error', { error: 'Journal not found' });
   }
 });
 
@@ -154,7 +153,7 @@ router.get('/user/:username', async (req, res) => {
     const journals = await getJournalsByUsername(username);
     res.render('journals/journalList', { journals });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).render('users/error', { error: 'Internal Server Error' });
   }
 });
 

@@ -135,7 +135,7 @@ router
             const post = await postCollection.findOne({_id: new ObjectId(postId)});
             const user = await userMethods.getUser(req.session.user.username, req.session.user.username, req.session.user.role);
             if (!user) throw "We could not find the user this belongs to.";
-            if (post.usernames[0] !== user.username && user.role !== "admin") throw "Access denied.";
+            if (post.usernames[0].toLowerCase() !== user.username.toLowerCase() && user.role !== "admin") throw "Access denied.";
             res.render('posts/update', {title: 'Update Post', id: post._id.toString()});  
         } catch(e) {
             return res.status(400).json({error: e});
@@ -248,24 +248,32 @@ router
             if (!post) throw "We could not find the post.";
             if (post.pub !== "public" && !req.session.user) return res.redirect("/users/login");
             let owned = false;
+            let user;
             if (req.session.user) {
-                const user = await userMethods.getUser(req.session.user.username, req.session.user.username, req.session.user.role);
+                user = await userMethods.getUser(req.session.user.username, req.session.user.username, req.session.user.role);
                 if (!user) throw "We cannot find the accessing user.";
-                if (!post.usernames.includes(user.username)) throw "Access denied.";
-                if (req.session.user.username === post.usernames[0]) {
+                let usernames = post.usernames;
+                for (let i in usernames) {
+                    usernames[i] = usernames[i].toLowerCase();
+                }
+                if (!post.usernames.includes(user.username.toLowerCase()) && user.role !== "admin") throw "Access denied.";
+                if (req.session.user.username.toLowerCase() === post.usernames[0].toLowerCase()) {
                     owned = true;
                 }
             };
-            if(post){
+            if(post && req.session.user){
+                user = await userMethods.getUser(req.session.user.username, req.session.user.username, req.session.user.role);
+                return res.status(200).render('posts/post', {title: post.title, content: post.content, id: post._id.toString(), owned: owned, sectionId: post.sectionId, username: user.username});
+            }
+            else if (post) {
                 return res.status(200).render('posts/post', {title: post.title, content: post.content, id: post._id.toString(), owned: owned, sectionId: post.sectionId});
-
             }
             else{
                 res.status(500).render('posts/post', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
             }
         }
         catch(e){
-            return res.status(404).render('users/error', { error: 'Error fetching post' });
+            return res.status(404).render('users/error', { error: e});
         }
       
     if(!req.session.user){
