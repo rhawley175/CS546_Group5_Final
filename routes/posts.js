@@ -1,17 +1,21 @@
 import {Router} from 'express';
 const router = Router();
 import { ObjectId } from 'mongodb';
+import{posts, sections, users} from '../config/mongoCollections.js';
+import * as postMethods from "../data/posts.js";
+import * as userMethods from '../data/users.js';
+import * as helpers from '../helpers.js';
 
 import {addPost, getOtherPost, deletePost, updatePost, getPostsByKeyword} from '../data/posts.js';
 
 
 router
-.route('/newPost')
+.route('/newPost/:sectionId')
 .get(async(req,res) => {
     if(!req.session.user){
         return res.redirect("/users/login");
     }
-    const sectionId = req.query.sectionId;
+    const sectionId = req.params.sectionId;
     if (!sectionId) {
         return res.status(400).render('posts/error', { error: 'Section ID is required' });
     }
@@ -26,11 +30,11 @@ router
 })
 .post(async(req,res) => {
    
-    
+    const sectionId = req.params.sectionId;
     const data=req.body;
     
     try{
-        const entry = await addPost(data.sectionIdInput, data.titleInput, data.entryText, data.pub, data.usernameInput);
+        const entry = await addPost(sectionId, data.titleInput, data.entryText, data.pub, req.session.user.username);
 
         if(entry){
             res.redirect('/sections/' + data.sectionIdInput);
@@ -92,14 +96,18 @@ router
     .route('/delete/:postId')
     .get(async(req, res) => {
         if (!req.session.user) {
-            return res.status(403).render('posts/error', { error: "You are not authorized to perform this action." });
+            return res.redirect("/users/login");
         }
 
         try {
             const postId = req.params.postId;
+            const postCollection = await posts();
+            const post = await postCollection.findOne({_id: new ObjectId(postId)});
+            if (!post) throw "Post not found.";
+            if (req.session.user.role !== "admin" && req.session.user.username !== post.usernames[0]) throw "Access denied.";
 
             if (!postId || !ObjectId.isValid(postId)) {
-                return res.status(400).render('posts/error', { error: 'Invalid post ID provided' });
+                return res.status(400).json({ error: 'Invalid post ID provided' });
             }
 
             const result = await deletePost(postId);
@@ -110,47 +118,69 @@ router
             }
         } catch (error) {
             console.error('Failed to delete post:', error);
-            res.status(500).render('posts/error', { error: 'Failed to delete the post.' });
+            res.status(500).json({ error: 'Failed to delete the post.' });
         }
     });
 
     router
-    .route('/update')
+    .route('/update/:postId')
     .get(async(req,res) => {
+        let postId;
         if(!req.session.user){
             return res.redirect("/users/login");
         }
-        res.render('posts/update', {title: 'Update Post'});   //change handlebar to entry name.
+        try {
+            postId = req.params.postId;
+            const postCollection = await posts();
+            const post = await postCollection.findOne({_id: new ObjectId(postId)});
+            const user = await userMethods.getUser(req.session.user.username, req.session.user.username, req.session.user.role);
+            if (!user) throw "We could not find the user this belongs to.";
+            if (post.usernames[0] !== user.username && user.role !== "admin") throw "Access denied.";
+            res.render('posts/update', {title: 'Update Post', id: post._id.toString()});  
+        } catch(e) {
+            return res.status(400).json({error: e});
+        }
+ //change handlebar to entry name.
     })
     .post(async(req,res) => {
-        const data=req.body;
-        
+        if (!req.session.user) return res.redirect("/users/login");
+        let postId = req.params.postId;
+        let title = req.body.titleInput;
+        let content = req.body.entryText;
+        let pub = req.body.pub;
+        let username = req.body.usernameInput;
         try{
-            const updates = {};
-
-
-            if (data.sectionIdInput.trim() !== '') {
-                updates.sectionId = data.sectionIdInput.trim();
+            let postObject = {};
+            const userCollection = await users();
+            const user = await userCollection.findOne({username: req.session.user.username});
+            if (!user) throw "We could not find the accessing user.";
+            let userAccessing = req.session.user.username;
+            let role = req.session.user.role;
+            const post = await postMethods.getPost(postId, userAccessing, role);
+            if (!post) return res.status(404).render("posts/error", {error: "Post not found."}); 
+            if (title !== "" && title !== undefined) {
+                title = helpers.checkString(title, "title");
+                if (title !== post.title) {
+                    valid = true;
+                    postObject.title = title;
+                }
             }
-
-            if (data.titleInput.trim() !== '') {
-                updates.title = data.titleInput.trim();
+            else postObject.title = post.title;
+            if (content !== "" && content !== undefined) {
+                content = helpers.checkContent(content);
+                if (content !== post.content) {
+                    valid = true;
+                    postObject.content = content;
+                }
             }
-
-            if (data.entryText.trim() !== '') {
-                updates.content = data.entryText.trim();
-            }
-
-
-            if (data.pub !== '') {
-                updates.pub = data.pub;
-            }
-
-            if (data.usernameInput !== undefined) {
-                updates.usernames = data.usernameInput !== null && data.usernameInput.trim() !== '' ? data.usernameInput.trim() : null;
-            }
-
-            const entry = await updatePost(data.postIdInput, updates);
+            else postObject.content = post.content;
+            if (pub !== "public" && pub !== "private") throw "Public or private indicator is incorrect.";
+            postObject.pub = pub;
+            if (username !== "" && username !== undefined) {
+                username = helpers.checkString(username, "username");
+                postObject.username = username;
+            }        
+            const entry = await updatePost(postId, userAccessing, role, postObject);  
             if(entry){
                 return res.render('posts/update', {title: 'Update Post', success: true, postId: entry});
             }
@@ -195,13 +225,9 @@ router
     router
     .route('/:postId')
     .get(async(req, res) => {
-        
-        if(!req.session.user){
-            return res.redirect("/users/login");
-        }
         try{
 
-            
+
             const postId=req.params.postId;
             
             if(!postId){
@@ -219,10 +245,20 @@ router
             }
             
             const post = await getOtherPost(trimpostId);
-            
+            if (!post) throw "We could not find the post.";
+            if (post.pub !== "public" && !req.session.user) return res.redirect("/users/login");
+            let owned = false;
+            if (req.session.user) {
+                const user = await userMethods.getUser(req.session.user.username, req.session.user.username, req.session.user.role);
+                if (!user) throw "We cannot find the accessing user.";
+                if (!post.usernames.includes(user.username)) throw "Access denied.";
+                if (req.session.user.username === post.usernames[0]) {
+                    owned = true;
+                }
+            };
             if(post){
-                
-                return res.status(200).render('posts/post', {title: post.title, content: post.content, _id: post._id, time:post.time});
+                return res.status(200).render('posts/post', {title: post.title, content: post.content, id: post._id.toString(), owned: owned, sectionId: post.sectionId});
+
             }
             else{
                 res.status(500).render('posts/post', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});

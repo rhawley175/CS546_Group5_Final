@@ -1,6 +1,6 @@
 <main>
     <h1>Update Journal Entry</h1>
-        <form id="entryForm" method="POST" action="update">
+        <form id="entryForm" method="POST" action="/posts/update/{{id}}">
             <div class="title">
                 <label for="titleInput">Title:
                     <input id="titleInput" name="titleInput" placeholder="Enter Title">
@@ -15,26 +15,17 @@
             <div class="public">
                 <label for="pub">Public?:
                     <select name="pub" id="pub">
-                        <option value="public">Public</option>
                         <option value="private">Private</option>
+                        <option value="public">Public</option>
                     </select>
                 </label>
             </div>
-            <label for="usernameInput">Usernames
-                <input id="usernameInput" name="usernameInput" placeholder="Enter Usernames to Share With">
+            <label for="usernameInput">Username
+                <input id="usernameInput" name="usernameInput" placeholder="Enter Username to Share With">
             </label>
             <br>
             <br>
             <br>
-            <label for="sectionIdInput">Section ID
-                <input id="sectionIdInput" name="sectionIdInput" placeholder="Enter Section ID">
-            </label>
-            <br>
-            <br>
-            <br>
-            <label for="postIdInput">Post ID
-                <input id="postIdInput" name="postIdInput" placeholder="Enter Post ID">
-            </label>
             <div class="post-reply">
                 {{#if success}}
                     <p id="postId">Updated Successfully.</p>

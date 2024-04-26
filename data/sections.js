@@ -1,5 +1,9 @@
 import {sections, journals, posts, users } from '../config/mongoCollections.js';
+import * as postMethods from './posts.js';
 import {ObjectId} from 'mongodb';
+
+//import * as helpers from '../helpers.js';
+
 
 
 export const createSection = async (journalId, title, userId) => {
@@ -26,14 +30,14 @@ export const createSection = async (journalId, title, userId) => {
 
     const updateJournalInfo = await journalCollection.updateOne(
         { _id: new ObjectId(journalId) },
-        { $push: { sections: insertInfo.insertedId } }
+        { $push: { sections: insertInfo.insertedId.toString() } }
       );
     
       if (!updateJournalInfo.matchedCount && !updateJournalInfo.modifiedCount)
         throw ('Failed to link section to journal');
     
 
-    return await getSection(insertInfo.insertedId.toString());
+    return await getSection(insertInfo.insertedId);
 };
 
 export const getSection = async (sectionId) => {
@@ -74,27 +78,28 @@ export const deleteSection = async (sectionId) => {
     if (!ObjectId.isValid(sectionId)) throw 'Invalid section ID format.';
 
     const sectionsCollection = await sections();
+    const section = await sectionsCollection.findOne({_id: new ObjectId(sectionId)});
+    if (!section) throw "We could not find the section to delete.";
     const journalCollection = await journals();
-
-    const section = await sectionsCollection.findOne({ _id: new ObjectId(sectionId) });
-    if (!section) throw 'Section not found.';
-
-    if (section.posts && section.posts.length > 0) {
-        const postsCollection = await posts();
-        await postsCollection.deleteMany({ _id: { $in: section.posts.map(id => new ObjectId(id)) } });
-    }
-
-    const deletionInfo = await sectionsCollection.deleteOne({ _id: new ObjectId(sectionId) });
-    if (!deletionInfo.deletedCount) throw 'Failed to delete the section.';
-
+    const journal = await journalCollection.findOne({_id: section.journalId});
+    if (!journal) throw "We couldn't find the journal this section belongs to.";
     const updateJournal = await journalCollection.updateOne(
-        { _id: new ObjectId(section.journalId) },
-        { $pull: { sections: new ObjectId(sectionId) } }
+        { _id: section.journalId },
+        { $pull: { sections: sectionId } }
     );
     if (!updateJournal.matchedCount || !updateJournal.modifiedCount) {
         throw 'Failed to remove the section from the journal.';
     }
+    if (section.posts && section.posts.length > 0) {
+        for (let i in section.posts) {
+            const deletePost = await postMethods.deletePost(section.posts[i].toString());
+            if (!deletePost) throw "We could not delete one of the posts.";
+        }
+    }
+    const deletionInfo = await sectionsCollection.deleteOne({ _id: new ObjectId(sectionId) });
+    if (!deletionInfo.deletedCount) throw 'Failed to delete the section.';
 
+  
     return deletionInfo;
 };
 
