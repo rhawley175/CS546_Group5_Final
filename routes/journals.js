@@ -118,22 +118,23 @@ router.get('/:id/delete', async (req, res) => {
   }
 });
 
+
 router.delete('/:id', async (req, res) => {
   try {
     const journalId = req.params.id;
-    
     // Check if the logged-in user is the owner of the journal
     const journal = await getJournalById(journalId);
     if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
-      return res.status(403).json({ error: 'Forbidden' });
+      return res.status(403).render('posts/error', { error: 'Forbidden' });
     }
-    
     await deleteJournal(journalId);
     res.redirect('/journals');
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).render('posts/error', { error: 'Internal Server Error' });
   }
 });
+
+
 
 
 
