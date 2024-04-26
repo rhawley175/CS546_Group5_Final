@@ -222,7 +222,7 @@ router
             
             if(post){
                 
-                return res.status(200).render('posts/post', {title: post.title, content: post.content, _id: post._id});
+                return res.status(200).render('posts/post', {title: post.title, content: post.content, _id: post._id, time:post.time});
             }
             else{
                 res.status(500).render('posts/post', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
