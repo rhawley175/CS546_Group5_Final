@@ -1,6 +1,7 @@
-import { journals, users, sections } from '../config/mongoCollections.js';
+import { journals, users, sections, posts } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
 import * as helpers from '../helpers.js';
+
 
 export const createJournal = async (userId, username, title) => {
   try {
