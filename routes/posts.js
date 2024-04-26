@@ -40,7 +40,7 @@ router
         }
     }
     catch(e){
-        res.status(400).render('posts/newPost', {hasError: true, error: e, title: 'New Post'});
+        res.status(400).render('posts/newPost', {hasError: true, error: e, title: 'New Post', sectionId: data.sectionIdInput});
     }
 });
 
