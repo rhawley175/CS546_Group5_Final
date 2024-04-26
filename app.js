@@ -44,9 +44,10 @@ app.listen(3000, () => {
 // import * as posts from './data/posts.js';
 // import * as journals from './data/journals.js';
 // import * as connection from './config/mongoConnection.js';
+// import * as sections from './data/sections.js';
 
 // try {
-//     console.log(await users.getAllUsersLimited());
+//     console.log());
 // } catch(e) {
 //     console.log(e);
 // }

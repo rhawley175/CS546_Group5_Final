@@ -33,8 +33,10 @@ function checkUsername(username) {
 const checkNewUsername = async(username) => {
     username = checkUsername(username);
     const userCollection = await users();
-    const oldUser = await userCollection.findOne({username: username});
-    if (oldUser || username === "visitingUser" || username === "login") throw "This username has already been used.";
+    const allUsers = await userCollection.find({}).toArray();
+    for (let i in allUsers) {
+        if (allUsers[i].username.toLowerCase() === username.toLowerCase()) throw "This username has already been used.";
+    }
     return username;
 };
 
@@ -142,5 +144,11 @@ function checkDate(date) {
     return date;
 };
 
+function checkContent(content) {
+    content = checkString(content, "content");
+    if(content.length < 10 || content.length > 1000) throw 'Journal entry must be at least 10 characters and no more than 1000.';
+    return content;
+};
+
 export { checkString, checkNewUsername, checkPassword, checkAge, checkNewEmail, checkName, checkEmail, checkUsername, checkLogin, 
-    checkRole, checkObject, checkId, checkDate };
+    checkRole, checkObject, checkId, checkDate, checkContent };
