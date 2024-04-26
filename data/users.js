@@ -111,6 +111,22 @@ export const getAllUsers = async() => {
     return usersArray;
 };
 
+export const getAllUsersLimited = async() => {
+    const userCollection = await users();
+    const allUsers = await userCollection.find({}).toArray();
+    let userList = [];
+    let user;
+    for (let i in allUsers) {
+        if (allUsers[i].role !=="admin") {
+            user = new Object();
+            user.username = allUsers[i].username;
+            user.email = allUsers[i].email;
+            userList.push(user);
+        }
+    }
+    return userList;
+}
+
 export const deleteUser = async(username, userAccessing, role) => {
     username = helpers.checkString(username, "username");
     userAccessing = helpers.checkString(userAccessing, "user accessing");
