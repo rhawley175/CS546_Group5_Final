@@ -33,8 +33,10 @@ function checkUsername(username) {
 const checkNewUsername = async(username) => {
     username = checkUsername(username);
     const userCollection = await users();
-    const oldUser = await userCollection.findOne({username: username});
-    if (oldUser || username === "visitingUser" || username === "login") throw "This username has already been used.";
+    const allUsers = await userCollection.find({}).toArray();
+    for (let i in allUsers) {
+        if (allUsers[i].username.toLowerCase() === username.toLowerCase()) throw "This username has already been used.";
+    }
     return username;
 };
 

@@ -47,7 +47,7 @@ app.listen(3000, () => {
 // import * as sections from './data/sections.js';
 
 // try {
-//     console.log(await posts.updatePost("662b55084ede6bd797058d02", {username: "EricTashji"}));
+//     console.log());
 // } catch(e) {
 //     console.log(e);
 // }

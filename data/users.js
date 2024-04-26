@@ -88,11 +88,14 @@ export const loginUser = async (login, password) => {
     login = helpers.checkLogin(login, "login");
     password = helpers.checkString(password, "password");
     const userCollection = await users();
-    var userObject = await userCollection.findOne({email: login});
-    if (!userObject) userObject = await userCollection.findOne({username: login});
-    if (!userObject) throw "The email/username or password is incorrect.";
+    const allUsers = await userCollection.find({}).toArray();
+    var userObject;
+    for (let i in allUsers) {
+        if (allUsers[i].username.toLowerCase() === login.toLowerCase()) userObject = allUsers[i];
+    }
+    if (!userObject) throw "The username or password is incorrect.";
     const valid = await bcrypt.compare(password, userObject.password);
-    if (!valid) throw "Either the email/username or password is incorrect.";
+    if (!valid) throw "Either the username or password is incorrect.";
     return await getUser(userObject.username, userObject.username, userObject.role);
 };
 
@@ -120,7 +123,7 @@ export const deleteUser = async(username, userAccessing, role) => {
     if (userToDelete.role === "admin" && role !== "admin") throw "You do not have permission to do that.";
     let journal;
     for (let i in userToDelete.journals) {
-        journal = await journals.deleteJournal(userToDelete.journals[i]);
+        journal = await journals.deleteJournal(userToDelete.journals[i].toString());
         if (!journal) throw "We could not delete the journal.";
     }
     const deletedUser = await userCollection.findOneAndDelete({username: username});

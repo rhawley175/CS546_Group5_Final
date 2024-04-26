@@ -1,6 +1,6 @@
 import {posts as postCollection} from '../config/mongoCollections.js';
 import {sections as sectionsCollection} from '../config/mongoCollections.js';
-import {users, post, sections} from '../config/mongoCollections.js';
+import {users, posts, sections} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 import * as helpers from '../helpers.js';
 import * as userMethods from '../data/users.js';
@@ -155,9 +155,6 @@ const updateSection = await sectionsDb.updateOne(
     { _id: new ObjectId(sectionId) },
     { $push: { posts: insertInfo.insertedId } }
 );
-
-const userCollection = await users();
-const user = await userCollection.findOne({username: usernames});
 // if (pub) {
 //     if (!user) throw "We could not find "
 // if (!updateSection.matchedCount && !updateSection.modifiedCount) throw 'Failed to link the post to the section.';
@@ -274,11 +271,9 @@ export const deletePost = async (postId) =>{
     }
 
 
-    const postsDb = await postCollection();
-    const sectionsDb = await sectionsCollection();
+    const postsDb = await posts();
+    const sectionsDb = await sections();
 
-
-    const post = await postsDb.findOne({ _id: new ObjectId(postId) });
     if (!post) throw ('No post with that ID found.');
     const sectionId = post.sectionId.toString();
 
@@ -297,15 +292,20 @@ export const deletePost = async (postId) =>{
 
 export const updatePost = async (
     postId,
+    userAccessing,
+    role,
     updates
 ) => {
-
+    userAccessing = helpers.checkString(userAccessing, "accessing user");
+    role = helpers.checkRole(role);
+    const userCollection = await users();
+    const accessingUser = await userCollection.findOne({username: userAccessing});
+    if (!accessingUser) throw "We could not find the accessing user.";
     const postCollection = await posts();
     postId = helpers.checkId(postId);
     let existingPost = await postCollection.findOne({ _id: new ObjectId(postId) });
-    const userCollection = await users();
-    let accessingUser = userCollection.findOne({username: existingPost.usernames[0]});
     if (!existingPost) throw 'Post not found.';
+    if (existingPost.usernames[0] !== userAccessing && role !== "admin") throw "Access denied.";
     let newPost = new Object();
     newPost._id = new ObjectId(postId);
     newPost.sectionId = existingPost.sectionId;
@@ -325,12 +325,12 @@ export const updatePost = async (
         newPost.content = updates.content;
     }
     else newPost.content = existingPost.content;
-    if (updates.pub) {
-        if (updates.pub !== "private" && updates.pub !== "public") throw "Public or private indicator is incorrect.";
+    if (updates.pub !== "private" && updates.pub !== "public") throw "Illegal public or private indicator." 
+        updates.pub = helpers.checkString(updates.pub, "public or private indicator");
         if (updates.pub !== existingPost.pub) {
             valid = true;
             newPost.pub = updates.pub;
-            if (updates.pub) {
+            if (updates.pub === "public") {
                 accessingUser.publicPosts.push(postId);
             }
             else {
@@ -339,17 +339,20 @@ export const updatePost = async (
                         accessingUser.publicPosts[i] = accessingUser.publicPosts[accessingUser.publicPosts.length - 1];
                         accessingUser.publicPosts.pop();
                     }
-
                 }
             }
             const updatedUser = await userCollection.findOneAndReplace({username: userAccessing}, accessingUser);
             if (!updatedUser) throw "Sorry, we could not update the post with id: " + postId +".";
         }
         newPost.pub = updates.pub;
-    }
+
     if (updates.username) {
         updates.username = helpers.checkUsername(updates.username);
-        if (!existingPost.usernames.includes(updates.username)) valid = true;
+        let usernames = existingPost.usernames;
+        for (let i in usernames) {
+            usernames[i] = usernames[i].toLowerCase();
+        }
+        if (!usernames.includes(updates.username.toLowerCase())) valid = true;
         newPost.usernames.push(updates.username);
         const sharedPost = await sharePost(postId, updates.username);
         if (!sharedPost) throw "Could not share the post."
@@ -357,10 +360,9 @@ export const updatePost = async (
 
     if (!valid) throw "Cannot update the post with id: " + postId + ". Nothing is being updated.";
     const updateResult = await postCollection.findOneAndReplace({ _id: new ObjectId(postId) }, newPost);
-
-
     return { updated: true };
 };
+
 
 
 export const getAllUserPosts = async(username, userAccessing, role) => {
@@ -676,11 +678,18 @@ export const sharePost = async(postId, username) => {
     const userCollection = await users();
     const owningUser = await userCollection.findOne({username: post.usernames[0]});
     if (!owningUser) throw "We could not find the user this post belongs to.";
+    if (owningUser.username === username) throw "You cannot share a post with only yourself.";
     if (!owningUser.sharedPosts.includes(postId.toString())) owningUser.sharedPosts.push(post._id.toString());
+    const allUsers = await userCollection.find({}).toArray();
+    let user;
+    for (let i in allUsers) {
+        if (allUsers[i].username.toLowerCase() === username.toLowerCase()) {
+            user = allUsers[i];
+        }
+    }
+    if (!user) throw "One of the usernames entered does not exist.";
     let updatedUser = await userCollection.findOneAndReplace({username: owningUser.username}, owningUser);
     if (!updatedUser) throw "We could not update the owning user.";
-    let user = await userCollection.findOne({username: username});
-    if (!user) throw "One of the usernames entered does not exist.";
     if (!user.sharedPosts.includes(postId.toString())) user.sharedPosts.push(post._id.toString());
     else throw "This post has already been shared with the user.";
     updatedUser = await userCollection.findOneAndReplace({username: user.username}, user);

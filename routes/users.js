@@ -92,10 +92,10 @@ router
             if (user) {
               req.session.user = {
                 _id: user._id,
-                username: loggedUser.username,
+                username: user.username,
                 role: user.role
               };
-              return res.redirect("/users/get/" + loggedUser.username);
+              return res.redirect("/users/get/" + user.username);
             } else {
               throw "User not found";
             }

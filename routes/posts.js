@@ -1,7 +1,7 @@
 import {Router} from 'express';
 const router = Router();
 import { ObjectId } from 'mongodb';
-import{posts} from '../config/mongoCollections.js';
+import{posts, sections, users} from '../config/mongoCollections.js';
 import * as postMethods from "../data/posts.js";
 import * as userMethods from '../data/users.js';
 import * as helpers from '../helpers.js';
@@ -135,7 +135,7 @@ router
             const post = await postCollection.findOne({_id: new ObjectId(postId)});
             const user = await userMethods.getUser(req.session.user.username, req.session.user.username, req.session.user.role);
             if (!user) throw "We could not find the user this belongs to.";
-            if (post.usernames[0] !== user && user.role !== "admin") throw "Access denied.";
+            if (post.usernames[0] !== user.username && user.role !== "admin") throw "Access denied.";
             res.render('posts/update', {title: 'Update Post', id: post._id.toString()});  
         } catch(e) {
             return res.status(400).json({error: e});
@@ -179,8 +179,8 @@ router
             if (username !== "" && username !== undefined) {
                 username = helpers.checkString(username, "username");
                 postObject.username = username;
-            }         
-            const entry = await updatePost(postId, postObject);  
+            }        
+            const entry = await updatePost(postId, userAccessing, role, postObject);  
             if(entry){
                 return res.render('posts/update', {title: 'Update Post', success: true, postId: entry});
             }
@@ -227,7 +227,7 @@ router
     .get(async(req, res) => {
         try{
 
-            
+
             const postId=req.params.postId;
             
             if(!postId){
@@ -252,13 +252,12 @@ router
                 const user = await userMethods.getUser(req.session.user.username, req.session.user.username, req.session.user.role);
                 if (!user) throw "We cannot find the accessing user.";
                 if (!post.usernames.includes(user.username)) throw "Access denied.";
-                if (req.session.user = post.usernames[0]) {
+                if (req.session.user.username === post.usernames[0]) {
                     owned = true;
                 }
             };
             if(post){
-
-                return res.status(200).render('posts/post', {title: post.title, content: post.content, id: post._id.toString(), owned: owned});
+                return res.status(200).render('posts/post', {title: post.title, content: post.content, id: post._id.toString(), owned: owned, sectionId: post.sectionId});
 
             }
             else{

@@ -29,7 +29,7 @@ router
         const journal = await journalCollection.findOne({_id: new ObjectId(journalId)});
         if (!journal) throw "We could not find the journal this section belongs to.";
         if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") throw "Access denied.";
-        const section = await sections.createSection(journalId.trim(), title.trim());
+        const section = await sections.createSection(journalId.trim(), title.trim(), req.session.user._id);
 
         
         res.render('sections/newSection', { title: 'Create New Section', success: true, sectionId: section._id });
@@ -50,7 +50,6 @@ router
     try {
         const section = await sections.getSection(sectionId);
         if (!section) throw ('Section not found.');
-
         const journalCollection = await journals();
         const journal = await journalCollection.findOne({_id: new ObjectId(section.journalId)});
         if (!journal) throw "We could not find the journal this section belongs to.";
@@ -58,7 +57,7 @@ router
 
         res.render('sections/sectionDetails', { section });
     } catch (e) {
-        res.status(404).render('sections/error', { error: 'Section not found' });
+        res.status(404).render('sections/error', { error: e });
     }
 });
 
@@ -97,7 +96,6 @@ router
         if (!req.session.user || (section.userId.toString() !== req.session.user._id && req.session.user.role !== "admin")) {
             return res.status(403).render('sections/error', { error: "You do not have permission to delete this section." });
         }
-        const section = await sections.getSection(sectionId);
         if (!section) throw ('Section not found.');
         const journalCollection = await journals();
         const journal = await journalCollection.findOne({_id: new ObjectId(section.journalId)});

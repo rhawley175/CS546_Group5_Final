@@ -1,8 +1,8 @@
 import {sections, journals, posts, users } from '../config/mongoCollections.js';
+import * as postMethods from './posts.js';
 import {ObjectId} from 'mongodb';
 
 //import * as helpers from '../helpers.js';
-import * as postMethods from './posts.js';
 
 
 
@@ -80,28 +80,26 @@ export const deleteSection = async (sectionId) => {
     const sectionsCollection = await sections();
     const section = await sectionsCollection.findOne({_id: new ObjectId(sectionId)});
     if (!section) throw "We could not find the section to delete.";
-    let deletedPost;
-    for (let i in section.posts) {
-        deletedPost = await postMethods.deletePost(section.posts[i].toString());
-        if (!deletedPost) throw "We could not delete all the posts from the section.";
-    }
     const journalCollection = await journals();
-    const allJournals = await journalCollection.find({}).toArray();
-    if (section.posts && section.posts.length > 0) {
-        const postsCollection = await posts();
-        await postsCollection.deleteMany({ _id: { $in: section.posts.map(id => new ObjectId(id)) } });
-    }
-
-    const deletionInfo = await sectionsCollection.deleteOne({ _id: new ObjectId(sectionId) });
-    if (!deletionInfo.deletedCount) throw 'Failed to delete the section.';
-
+    const journal = await journalCollection.findOne({_id: section.journalId});
+    if (!journal) throw "We couldn't find the journal this section belongs to.";
     const updateJournal = await journalCollection.updateOne(
-        { _id: new ObjectId(section.journalId) },
-        { $pull: { sections: new ObjectId(sectionId) } }
+        { _id: section.journalId },
+        { $pull: { sections: sectionId } }
     );
     if (!updateJournal.matchedCount || !updateJournal.modifiedCount) {
         throw 'Failed to remove the section from the journal.';
     }
+    if (section.posts && section.posts.length > 0) {
+        for (let i in section.posts) {
+            const deletePost = await postMethods.deletePost(section.posts[i].toString());
+            if (!deletePost) throw "We could not delete one of the posts.";
+        }
+    }
+    const deletionInfo = await sectionsCollection.deleteOne({ _id: new ObjectId(sectionId) });
+    if (!deletionInfo.deletedCount) throw 'Failed to delete the section.';
+
+  
     return deletionInfo;
 };
 
