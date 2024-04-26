@@ -13,6 +13,7 @@ import {
 } from '../data/journals.js';
 
 router.get('/', async (req, res) => {
+  
   try {
     const userId = req.session.user._id;
     const journals = await getJournalsByUser(userId);
@@ -23,6 +24,10 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/create', async (req, res) => {
+  if(!req.session.user){                        //Added redirect
+    res.status(302).redirect("/users/login")
+  }
+  
   try {
     res.render('journals/createJournal');
   } catch (error) {
