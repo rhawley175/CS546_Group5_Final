@@ -19,11 +19,7 @@
       <button id="viewJournalBtn">View Journal</button>
       <button id="deleteJournalBtn">Delete Journal</button>
     </nav>
-    <section id="searchJournal">
-      <h2>Search Journals by Username</h2>
-      <input type="text" id="usernameInput" placeholder="Enter Username">
-      <button id="searchJournalBtn">Search</button>
-    </section>
+    
     <section id="journalList">
       <h2>My Journals</h2>
       <ul id="journalListItems">
@@ -94,11 +90,6 @@
           })
           .catch(handleForbiddenError);
       }
-    });
-
-    document.getElementById('searchJournalBtn').addEventListener('click', function() {
-      const username = document.getElementById('usernameInput').value;
-      window.location.href = `/journals/user/${username}`;
     });
 
     fetch('/journals')
