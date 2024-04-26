@@ -20,6 +20,14 @@ router
 });
 
 router
+.route('/json')
+.get(async(req, res) =>{
+    const allUsers = await users.getAllUsersLimited();
+    if (!allUsers) return res.status(500).json("Could not get all users.");
+    else return res.status(200).json(allUsers);
+});
+
+router
 .route("/register")
 .get(async (req, res) => {
     try {
