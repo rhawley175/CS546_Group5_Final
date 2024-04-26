@@ -1,6 +1,7 @@
 import { Router } from 'express';
 const router = Router();
 import * as sectionData from '../data/sections.js';
+import * as users from '../data/users.js';
 
 import {
   createJournal,
@@ -50,19 +51,24 @@ router.post('/create', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
+if (!req.session.user) return res.redirect("/users/login");
 try {
+  const user = await users.getUser(req.session.user.username, req.session.user.username, req.session.user.role);
+  if (!user) throw "We could not find the accessing user.";
   const journalId = req.params.id;
   const journal = await getJournalById(journalId);
+  if (user.role !== "admin" && user.username !== journal.author[0]) throw "Access denied.";
   const sections = await sectionData.getSectionsByJournalId(journalId);
   journal.sections = sections;
   res.render('journals/journalView', { journal });
 } catch (error) {
-  res.status(404).json({ error: 'Journal not found.' });
+  res.status(404).json({ error: error});
 }
 });
 
 
 router.get('/:id/edit', async (req, res) => {
+  if (!req.session.user) return res.redirect("/users/login");
   try {
     const journalId = req.params.id;
     const journal = await getJournalById(journalId);

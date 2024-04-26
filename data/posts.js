@@ -131,6 +131,10 @@ let newEntry = {
     image:image
 }
 
+    const userCollection = await users();
+    const user = await userCollection.findOne({username: usernames});
+    if (!user) throw "We could not find the user with username: " + usernames + ".";
+
 let postCollection = await posts();
 let insertInfo = await postCollection.insertOne(newEntry);
 
@@ -138,6 +142,10 @@ if(insertInfo.insertedCount===0){
     throw 'Could not add new jorunal entry.';
 }
 
+if (pub === "public") {
+    const updatedUser = await userCollection.updateOne({username: usernames}, {$push: {publicPosts: insertInfo.insertedId.toString()}});
+    if (!updatedUser.matchedCount && !updatedUser.modifiedCount) throw 'Failed to make the post public.';
+}
 
 const sectionsCollection = await sections();
 const updateSection = await sectionsCollection.updateOne(
@@ -148,10 +156,7 @@ const updateSection = await sectionsCollection.updateOne(
 if (!updateSection.matchedCount && !updateSection.modifiedCount) throw 'Failed to link the post to the section.';
 
 return insertInfo.insertedId.toString();
-
-
-
-}
+};
 
 
 export const getOtherPost = async(postId) => {
@@ -181,7 +186,7 @@ export const getOtherPost = async(postId) => {
     }
 
     return post;
-}
+};
 
 export const getPostsByKeyword = async (keyword) => {
     if (typeof keyword !== 'string') {
@@ -224,9 +229,48 @@ export const deletePost = async (postId) =>{
     if(!ObjectId.isValid(postId)){
         throw 'Invalid object ID.';
     }
-
     const postCollection = await posts();
-    
+    const userCollection = await users();
+    const sectionCollection = await sections();
+    const post = await postCollection.findOne({_id: new ObjectId(postId)});
+    if (!post) throw "We could not find the post with the id: " + postId + ".";
+    const user = await userCollection.findOne({username: post.usernames[0]});
+    if (!user) throw "We could not find the user that owns this post.";
+    if (post.pub === "public") {
+        for (let i in user.publicPosts) {
+            if (user.publicPosts[i] === postId) {
+                user.publicPosts[i] = user.publicPosts[user.publicPosts.length - 1];
+                user.publicPosts.pop();
+            }
+        }
+        const updatedUser = await userCollection.findOneAndReplace({username: user.username}, user);
+        if (!updatedUser) throw "We could not update the user in removing the public post.";
+    }
+    let currUser;
+    if (post.usernames.length > 1) {
+        for (let i in post.usernames) {
+            currUser = await userCollection.findOne({username: post.usernames[i]});
+            for (let j in currUser.sharedPosts) {
+                if (currUser.sharedPosts[j] === postId) {
+                    currUser.sharedPosts[j] = currUser.sharedPosts[currUser.sharedPosts.length - 1];
+                    currUser.sharedPosts.pop();
+                }
+            }
+            const updatedUser = await userCollection.findOneAndReplace({username: currUser.username}, currUser);
+            if (!updatedUser) throw "We could not update the user.";
+        }
+    }
+
+    const currSection = await sectionCollection.findOne({_id: new ObjectId(post.sectionId)});
+    if (!currSection) throw "We could not find the section this post belongs to.";
+    for (let i in currSection.posts) {
+        if (currSection.posts[i].toString() === postId) {
+            currSection.posts[i] = currSection.posts[currSection.posts.length - 1];
+            currSection.posts.pop();
+        }
+    }
+    const updatedSection = await sectionCollection.findOneAndReplace({_id: new ObjectId(post.sectionId)}, currSection);
+    if (!updatedSection) throw "We could not update the section.";
     const deletionInfo = await postCollection.findOneAndDelete({_id:  new ObjectId(postId)});
 
     if(!deletionInfo){
@@ -234,113 +278,69 @@ export const deletePost = async (postId) =>{
     }
 
     return {"deleted": true};
-}
+};
 
 export const updatePost = async (
     postId,
     updates
 ) => {
-    let postCollection = await posts();
-
-    if (!postId || typeof postId !== 'string') {
-        throw 'Invalid postId.';
+    const postCollection = await posts();
+    postId = helpers.checkId(postId);
+    let existingPost = await postCollection.findOne({ _id: new ObjectId(postId) });
+    const userCollection = await users();
+    let accessingUser = userCollection.findOne({username: existingPost.usernames[0]});
+    if (!existingPost) throw 'Post not found.';
+    let newPost = new Object();
+    newPost._id = new ObjectId(postId);
+    newPost.sectionId = existingPost.sectionId;
+    newPost.usernames = existingPost.usernames;
+    updates = helpers.checkObject(updates);
+    let valid = false;
+    if (updates.title) {
+        if (updates.title !== existingPost.title) valid = true;
+        updates.title = helpers.checkString(updates.title, "title");
+        newPost.title = updates.title;
     }
-
-    postId = new ObjectId(postId);
-
-    let existingPost = await postCollection.findOne({ _id: postId });
-    if (!existingPost) {
-        throw 'Post not found.';
+    else newPost.title = existingPost.title;
+    newPost.time = new Date().toLocaleString();
+    if (updates.content) {
+        if (updates.content !== existingPost.content) valid = true;
+        updates.content = helpers.checkContent(updates.content);
+        newPost.content = updates.content;
     }
-
-    
-    if (updates && typeof updates === 'object') {
-        for (let field in updates) {
-            
-            if (updates[field] !== null) {
-                switch (field) {
-                    case 'sectionId':
-                        if (typeof updates[field] !== 'string') {
-                            throw 'Section ID must be a string.';
-                        }
-                        existingPost.sectionId = updates[field].trim();
-                        break;
-                    case 'title':
-                        if (typeof updates[field] !== 'string') {
-                            throw 'Title must be a string.';
-                        }
-                        existingPost.title = updates[field].trim();
-                        break;
-                    case 'content':
-                        if (typeof updates[field] !== 'string') {
-                            throw 'Content must be a string.';
-                        }
-                        existingPost.content = updates[field].trim();
-                        break;
-                    case 'pub':
-                        if (typeof updates[field] !== 'string') {
-                            throw 'Pub must be a string.';
-                        }
-                        let pub = updates[field].toLowerCase().trim();
-                        if (pub !== 'public' && pub !== 'private') {
-                            throw 'Pub must be either "public" or "private".';
-                        }
-                        existingPost.pub = pub;
-                        break;
-                    case 'usernames':
-                        if (typeof updates[field] !== 'string') {
-                            throw 'Usernames must be a string.';
-                        }
-                        let usernamesArray = updates[field].split(',').map(username => username.trim());
-                        existingPost.usernames = usernamesArray.filter(username => username !== '');
-                        break;
-                    case 'image':
-                        if (typeof updates[field] !== 'string') {
-                            throw 'Image must be a string.';
-                        }
-                        existingPost.image = updates[field].trim();
-                        break;
-                    default:
-                        throw `Invalid field '${field}' for updating.`;
+    else newPost.content = existingPost.content;
+    if (updates.pub) {
+        if (updates.pub !== "private" && updates.pub !== "public") throw "Public or private indicator is incorrect.";
+        if (updates.pub !== existingPost.pub) {
+            valid = true;
+            newPost.pub = updates.pub;
+            if (updates.pub) {
+                accessingUser.publicPosts.push(postId);
+            }
+            else {
+                for (let i in accessingUser.publicPosts) {
+                    if (accessingUser.publicPosts[i] === postId) {
+                        accessingUser.publicPosts[i] = accessingUser.publicPosts[accessingUser.publicPosts.length - 1];
+                        accessingUser.publicPosts.pop();
+                    }
                 }
             }
+            const updatedUser = await userCollection.findOneAndReplace({username: userAccessing}, accessingUser);
+            if (!updatedUser) throw "Sorry, we could not update the post with id: " + postId +".";
         }
+        newPost.pub = updates.pub;
     }
-
-    
-    if (Object.keys(updates || {}).length > 0) {
-        existingPost.time = new Date().toLocaleString();
+    if (updates.username) {
+        updates.username = helpers.checkUsername(updates.username);
+        if (!existingPost.usernames.includes(updates.username)) valid = true;
+        newPost.usernames.push(updates.username);
+        const sharedPost = await sharePost(postId, updates.username);
+        if (!sharedPost) throw "Could not share the post."
     }
-
-    let updateFields = {};
-    
-    if (existingPost.sectionId !== null && updates.sectionId !== null) {
-        updateFields.sectionId = existingPost.sectionId;
-    }
-    if (existingPost.title !== null && updates.title !== null) {
-        updateFields.title = existingPost.title;
-    }
-    if (existingPost.content !== null && updates.content !== null) {
-        updateFields.content = existingPost.content;
-    }
-    if (existingPost.pub !== null && updates.pub !== null) {
-        updateFields.pub = existingPost.pub;
-    }
-    if (existingPost.usernames !== null && updates.usernames !== null) {
-        updateFields.usernames = existingPost.usernames;
-    }
-    if (existingPost.image !== null && updates.image !== null) {
-        updateFields.image = existingPost.image;
-    }
-
-    let updateResult = await postCollection.updateOne({ _id: postId }, { $set: updateFields });
-
-    if (updateResult.modifiedCount === 0) {
-        throw 'Could not update the post.';
-    }
-
+    if (!valid) throw "Cannot update the post with id: " + postId + ". Nothing is being updated.";
+    const updateResult = await postCollection.findOneAndReplace({ _id: new ObjectId(postId) }, newPost);
     return { updated: true };
-}
+};
 
 
 export const getAllUserPosts = async(username, userAccessing, role) => {
@@ -428,7 +428,7 @@ export const getAllUserPosts = async(username, userAccessing, role) => {
         let section;
         for (let i in currUser.publicPosts) {
             currPost = await getPost(currUser.publicPosts[i], userAccessing, role);
-            publicPosts.push(currUser.publicPosts[i]);
+            publicPosts.push(currPost);
         }
         for (let i in currUser.sharedPosts) {
             currPost = await getPost(currUser.sharedPosts[i], userAccessing, role);
@@ -440,8 +440,7 @@ export const getAllUserPosts = async(username, userAccessing, role) => {
                 section = await sectionMethods.getSection(journal.sections[j], userAccessing, role);
                 for (let k in section.posts) {
                     if (!publicPosts.includes(section.posts[k]) && !sharedPosts.includes(section.posts[k])) {
-                        return "Madet it here.";
-                        currPost = await getPost(section.posts[k], userAccessing, role);
+                        currPost = await getPost(section.posts[k]._id.toString(), userAccessing, role);
                         privatePosts.push(currPost);
                     }
                 }
@@ -648,4 +647,23 @@ export const getUserPostsByDate = async (firstDate, secondDate, username, userAc
             return postObject;
         }
     }
+};
+
+export const sharePost = async(postId, username) => {
+    const postCollection = await posts();
+    const post = await postCollection.findOne({_id: new ObjectId(postId)});
+    if (!post) throw "We could not find the post with the id: " + postId;
+    const userCollection = await users();
+    const owningUser = await userCollection.findOne({username: post.usernames[0]});
+    if (!owningUser) throw "We could not find the user this post belongs to.";
+    if (!owningUser.sharedPosts.includes(postId.toString())) owningUser.sharedPosts.push(post._id.toString());
+    let updatedUser = await userCollection.findOneAndReplace({username: owningUser.username}, owningUser);
+    if (!updatedUser) throw "We could not update the owning user.";
+    let user = await userCollection.findOne({username: username});
+    if (!user) throw "One of the usernames entered does not exist.";
+    if (!user.sharedPosts.includes(postId.toString())) user.sharedPosts.push(post._id.toString());
+    else throw "This post has already been shared with the user.";
+    updatedUser = await userCollection.findOneAndReplace({username: user.username}, user);
+    if (!updatedUser) throw "We could not share with one of the users.";
+    return true;
 };

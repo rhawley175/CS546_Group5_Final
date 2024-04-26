@@ -1,6 +1,7 @@
 import {sections, journals, posts, users } from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 //import * as helpers from '../helpers.js';
+import * as postMethods from './posts.js';
 
 
 export const createSection = async (journalId, title) => {
@@ -26,14 +27,14 @@ export const createSection = async (journalId, title) => {
 
     const updateJournalInfo = await journalCollection.updateOne(
         { _id: new ObjectId(journalId) },
-        { $push: { sections: insertInfo.insertedId } }
+        { $push: { sections: insertInfo.insertedId.toString() } }
       );
     
       if (!updateJournalInfo.matchedCount && !updateJournalInfo.modifiedCount)
         throw ('Failed to link section to journal');
     
 
-    return await getSection(insertInfo.insertedId.toString());
+    return await getSection(insertInfo.insertedId);
 };
 
 export const getSection = async (sectionId) => {
@@ -86,8 +87,30 @@ export const deleteSection = async (sectionId) => {
     if (!sectionId) throw ('Section ID must be provided.');
     if (!ObjectId.isValid(sectionId)) throw ('Invalid section ID format.');
     const sectionsCollection = await sections();
+    const section = await sectionsCollection.findOne({_id: new ObjectId(sectionId)});
+    if (!section) throw "We could not find the section to delete.";
+    let deletedPost;
+    for (let i in section.posts) {
+        deletedPost = await postMethods.deletePost(section.posts[i].toString());
+        if (!deletedPost) throw "We could not delete all the posts from the section.";
+    }
+    const journalCollection = await journals();
+    const allJournals = await journalCollection.find({}).toArray();
+    let journal
+    for (let i in allJournals) {
+        if (allJournals[i].sections.includes(sectionId)) {
+            journal = allJournals[i];
+        }
+    }
+    for (let i in journal.sections) {
+        if (journal.sections[i] === sectionId) {
+            journal.sections[i] === journal.sections[journal.sections.length - 1];
+            journal.sections.pop();
+        }
+    }
+    const updatedJournal = await journalCollection.findOneAndReplace({_id: journal._id}, journal);
+    if (!updatedJournal) throw "We could not find the journal this section belongs to.";
     const deletionInfo = await sectionsCollection.deleteOne({ _id: new ObjectId(sectionId) });
-    
     if (!deletionInfo.deletedCount) throw ('Could not delete the section.');
     
     return deletionInfo;

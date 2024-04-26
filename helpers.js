@@ -142,5 +142,11 @@ function checkDate(date) {
     return date;
 };
 
+function checkContent(content) {
+    content = checkString(content, "content");
+    if(content.length < 10 || content.length > 1000) throw 'Journal entry must be at least 10 characters and no more than 1000.';
+    return content;
+};
+
 export { checkString, checkNewUsername, checkPassword, checkAge, checkNewEmail, checkName, checkEmail, checkUsername, checkLogin, 
-    checkRole, checkObject, checkId, checkDate };
+    checkRole, checkObject, checkId, checkDate, checkContent };
