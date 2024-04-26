@@ -1,6 +1,7 @@
 import { journals, users, sections, posts } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
 import * as helpers from '../helpers.js';
+import * as sectionMethods from './sections.js';
 
 
 export const createJournal = async (userId, username, title) => {
@@ -75,24 +76,15 @@ export const deleteJournal = async (journalId) => {
   journalId = helpers.checkString(journalId, "Journal ID");
 
   const journalCollection = await journals();
+  const journal = await journalCollection.findOne({_id: new ObjectId(journalId)});
+  if (!journal) throw "We could not find the journal to be deleted.";
   const userCollection = await users();
-  const sectionsCollection = await sections();
-  const postsCollection = await posts();
-
-  const journal = await journalCollection.findOne({ _id: new ObjectId(journalId) });
-  if (!journal) {
-    throw `Could not find journal with id ${journalId}`;
-  }
-
-  // Delete all sections and posts related to the journal
-  for (const sectionId of journal.sections) {
-    const section = await sectionsCollection.findOne({ _id: new ObjectId(sectionId) });
-    if (section) {
-      for (const postId of section.posts) {
-        await postsCollection.deleteOne({ _id: new ObjectId(postId) });
-      }
-      await sectionsCollection.deleteOne({ _id: new ObjectId(sectionId) });
-    }
+  const user = await userCollection.findOne({username: journal.author[0]});
+  if (!user) throw "We could not find the user that owns the journal.";
+  let section;
+  for (let i in journal.sections) {
+    section = await sectionMethods.deleteSection(journal.sections[i]);
+    if (!section) throw "We could not delete the section.";
   }
 
   await userCollection.updateMany(
