@@ -17,7 +17,7 @@ router
     }
     const sectionId = req.params.sectionId;
     if (!sectionId) {
-        return res.status(400).render('posts/error', { error: 'Section ID is required' });
+        return res.status(400).render('users/error', { error: 'Section ID is required' });
     }
     try {
         res.render('posts/newPost', {
@@ -25,7 +25,7 @@ router
             sectionId: sectionId
         });
     } catch (error) {
-        res.status(404).render('posts/error', { error: 'Failed to render the post creation page.' });
+        res.status(404).render('users/error', { error: 'Failed to render the post creation page.' });
     }
 })
 .post(async(req,res) => {
@@ -157,7 +157,7 @@ router
             let userAccessing = req.session.user.username;
             let role = req.session.user.role;
             const post = await postMethods.getPost(postId, userAccessing, role);
-            if (!post) return res.status(404).render("posts/error", {error: "Post not found."}); 
+            if (!post) return res.status(404).render("users/error", {error: "Post not found."}); 
             if (title !== "" && title !== undefined) {
                 title = helpers.checkString(title, "title");
                 if (title !== post.title) {
@@ -265,7 +265,7 @@ router
             }
         }
         catch(e){
-            return res.status(404).render('error', { error: 'Error fetching post' });
+            return res.status(404).render('users/error', { error: 'Error fetching post' });
         }
       
     if(!req.session.user){
@@ -276,13 +276,12 @@ router
         const postId = req.params.postId;
         const post = await getOtherPost(postId);
         if (!post) {
-            res.status(404).render('posts/error', { error: 'Post not found' });
+            res.status(404).render('users/error', { error: 'Post not found' });
             return;
         }
         res.render('posts/post', {  title: post.title, post: post });
     } catch (error) {
-        console.error("Error retrieving post:", error);
-        res.status(500).render('posts/error', { error: 'Failed to retrieve the post' });
+        res.status(500).render('users/error', { error: 'Failed to retrieve the post' });
     }
 });
 
