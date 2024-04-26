@@ -393,3 +393,68 @@
 .user-shared h2 {
   text-align: center;
 }
+
+.postPage {
+  max-width: 800px; 
+  margin: 0 auto; 
+  padding: 20px;
+  border: 1px solid #ccc; 
+}
+
+.postPage h1 {
+  text-align: center; 
+  margin-top: 0; 
+}
+
+.postPage p {
+  text-align: justify; 
+  margin-top: 0; 
+}
+
+.postPage * {
+  background-color: transparent; 
+}
+
+
+.title label,
+.text-label label,
+.public label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.title input[type="text"],
+.text-box textarea {
+    width: calc(100% - 50%px);
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.public select {
+    width: 10%; 
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.button button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button button:hover {
+    background-color: #0056b3;
+}
+
+.error {
+    color: red;
+    font-style: italic;
+    margin-top: 10px;
+}

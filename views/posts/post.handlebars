@@ -1,14 +1,16 @@
 <head>
-    <title>{{section.title}}</title>
+    <title>{{title}}</title>
     <link rel="stylesheet" href="../../public/css/main.css">
 </head>
 <main>
     <div class="postPage">
         <h1>{{title}}</h1>
         <p>{{content}}</p>
+        
         {{#if hasError}}
             <p class="error" name="error">{{error}}</p>
         {{/if}}
+
         {{#if owned}}
             <a href="/posts/delete/{{id}}" onclick="return confirm('Are you sure you want to delete this post?');">Delete This Post</a><br>
             <a href="/posts/update/{{id}}">Update This Post</a><br>
@@ -17,3 +19,6 @@
             <a href="/journals/{{section.journalId}}">Back to Journal</a>
     </div>
 </main>
+<footer>
+    <p>Last updated: {{time}}</p>
+</footer>

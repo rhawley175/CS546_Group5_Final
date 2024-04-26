@@ -9,21 +9,25 @@ export const createJournal = async (userId, username, title) => {
     title = helpers.checkString(title, "Title");
 
     const journalCollection = await journals();
+    const userCollection = await users();
     const newJournal = {
       user_id: [userId],
       author: [username],
       title: title,
       sections: [],
     };
-    const userCollection = await users();
     const addingUser = await userCollection.findOne({username: username});
     if (!addingUser) throw "We could not find a user with the username: " + username;
     const insertInfo = await journalCollection.insertOne(newJournal);
     if (!insertInfo.acknowledged || !insertInfo.insertedId)
       throw 'Could not add journal';
-    addingUser.journals.push(insertInfo.insertedId.toString());
-    const journalAdded = await userCollection.findOneAndReplace({username: username}, addingUser);
-    if (!journalAdded) throw "Could not add the journal.";
+
+    await userCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $push: { journals: insertInfo.insertedId } }
+    );
+
+
     return await getJournalById(insertInfo.insertedId);
   } catch (error) {
     console.error('Error in createJournal:', error);
@@ -78,14 +82,11 @@ export const deleteJournal = async (journalId) => {
     section = await sectionMethods.deleteSection(journal.sections[i]);
     if (!section) throw "We could not delete the section.";
   }
-  for (let i in user.journals) {
-    if (user.journals[i] === journalId) {
-      user.journals[i] = user.journals[user.journals.length - 1];
-      user.journals.pop();
-    }
-  }
-  const updatedUser = await userCollection.findOneAndReplace({username: user.username}, user);
-  if (!updatedUser) throw "We could not update the user.";
+  await userCollection.updateMany(
+    {},
+    { $pull: { journals: new ObjectId(journalId) } }
+  );
+
   const deleteInfo = await journalCollection.deleteOne({ _id: new ObjectId(journalId) });
   if (deleteInfo.deletedCount === 0) {
     throw `Could not delete journal with id ${journalId}`;

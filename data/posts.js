@@ -1,6 +1,6 @@
-
-import {posts, users} from '../config/mongoCollections.js';
-import {sections} from '../config/mongoCollections.js';
+import {posts as postCollection} from '../config/mongoCollections.js';
+import {sections as sectionsCollection} from '../config/mongoCollections.js';
+import {users, post, sections} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 import * as helpers from '../helpers.js';
 import * as userMethods from '../data/users.js';
@@ -131,32 +131,43 @@ let newEntry = {
     image:image
 }
 
+
     const userCollection = await users();
     const user = await userCollection.findOne({username: usernames});
     if (!user) throw "We could not find the user with username: " + usernames + ".";
 
-let postCollection = await posts();
-let insertInfo = await postCollection.insertOne(newEntry);
+const postsDb = await postCollection();
+let insertInfo = await postsDb.insertOne(newEntry);
+
 
 if(insertInfo.insertedCount===0){
     throw 'Could not add new jorunal entry.';
 }
 
+
 if (pub === "public") {
     const updatedUser = await userCollection.updateOne({username: usernames}, {$push: {publicPosts: insertInfo.insertedId.toString()}});
     if (!updatedUser.matchedCount && !updatedUser.modifiedCount) throw 'Failed to make the post public.';
 }
+const sectionsDb = await sectionsCollection();
+const updateSection = await sectionsDb.updateOne(
 
-const sectionsCollection = await sections();
-const updateSection = await sectionsCollection.updateOne(
     { _id: new ObjectId(sectionId) },
     { $push: { posts: insertInfo.insertedId } }
 );
 
-if (!updateSection.matchedCount && !updateSection.modifiedCount) throw 'Failed to link the post to the section.';
+const userCollection = await users();
+const user = await userCollection.findOne({username: usernames});
+// if (pub) {
+//     if (!user) throw "We could not find "
+// if (!updateSection.matchedCount && !updateSection.modifiedCount) throw 'Failed to link the post to the section.';
+// }
+
 
 return insertInfo.insertedId.toString();
-};
+
+}
+
 
 
 export const getOtherPost = async(postId) => {
@@ -178,8 +189,8 @@ export const getOtherPost = async(postId) => {
         throw 'Invalid object ID.';
     }
 
-    const postCollection = await posts();
-    const post = await postCollection.findOne({_id: new ObjectId(postId)});
+    const postsDb = await postCollection();
+    const post = await postsDb.findOne({_id: new ObjectId(postId)});
 
     if(post===null){
         throw 'No post with that ID.';
@@ -199,8 +210,8 @@ export const getPostsByKeyword = async (keyword) => {
         throw 'Keyword is empty string.';
     }
 
-    const postCollection = await posts();
-    const matchingPosts = await postCollection.find({ 
+    const postsDb = await postCollection();
+    const matchingPosts = await postsDb.find({ 
         title: { $regex: trimmedKeyword, $options: 'i' },
         pub: 'public'}).toArray();
 
@@ -229,6 +240,7 @@ export const deletePost = async (postId) =>{
     if(!ObjectId.isValid(postId)){
         throw 'Invalid object ID.';
     }
+
     const postCollection = await posts();
     const userCollection = await users();
     const sectionCollection = await sections();
@@ -261,29 +273,33 @@ export const deletePost = async (postId) =>{
         }
     }
 
-    const currSection = await sectionCollection.findOne({_id: new ObjectId(post.sectionId)});
-    if (!currSection) throw "We could not find the section this post belongs to.";
-    for (let i in currSection.posts) {
-        if (currSection.posts[i].toString() === postId) {
-            currSection.posts[i] = currSection.posts[currSection.posts.length - 1];
-            currSection.posts.pop();
-        }
-    }
-    const updatedSection = await sectionCollection.findOneAndReplace({_id: new ObjectId(post.sectionId)}, currSection);
-    if (!updatedSection) throw "We could not update the section.";
-    const deletionInfo = await postCollection.findOneAndDelete({_id:  new ObjectId(postId)});
 
-    if(!deletionInfo){
-        throw 'Could not delete post.';
-    }
+    const postsDb = await postCollection();
+    const sectionsDb = await sectionsCollection();
 
-    return {"deleted": true};
+
+    const post = await postsDb.findOne({ _id: new ObjectId(postId) });
+    if (!post) throw ('No post with that ID found.');
+    const sectionId = post.sectionId.toString();
+
+    const deletionInfo = await postsDb.deleteOne({ _id: new ObjectId(postId) });
+    if (deletionInfo.deletedCount === 0) throw ('Could not delete post.');
+
+    const updateResult = await sectionsDb.updateOne(
+        { _id: new ObjectId(sectionId) },
+        { $pull: { posts: new ObjectId(postId) } }
+    );
+    if (updateResult.modifiedCount === 0) throw ('Failed to update section after deleting post.');
+
+    return { deleted: true, sectionId: sectionId };
+
 };
 
 export const updatePost = async (
     postId,
     updates
 ) => {
+
     const postCollection = await posts();
     postId = helpers.checkId(postId);
     let existingPost = await postCollection.findOne({ _id: new ObjectId(postId) });
@@ -323,6 +339,7 @@ export const updatePost = async (
                         accessingUser.publicPosts[i] = accessingUser.publicPosts[accessingUser.publicPosts.length - 1];
                         accessingUser.publicPosts.pop();
                     }
+
                 }
             }
             const updatedUser = await userCollection.findOneAndReplace({username: userAccessing}, accessingUser);
@@ -337,8 +354,11 @@ export const updatePost = async (
         const sharedPost = await sharePost(postId, updates.username);
         if (!sharedPost) throw "Could not share the post."
     }
+
     if (!valid) throw "Cannot update the post with id: " + postId + ". Nothing is being updated.";
     const updateResult = await postCollection.findOneAndReplace({ _id: new ObjectId(postId) }, newPost);
+
+
     return { updated: true };
 };
 

@@ -51,19 +51,24 @@ router.post('/create', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
+
 if (!req.session.user) return res.redirect("/users/login");
-try {
-  const user = await users.getUser(req.session.user.username, req.session.user.username, req.session.user.role);
-  if (!user) throw "We could not find the accessing user.";
-  const journalId = req.params.id;
-  const journal = await getJournalById(journalId);
-  if (user.role !== "admin" && user.username !== journal.author[0]) throw "Access denied.";
-  const sections = await sectionData.getSectionsByJournalId(journalId);
-  journal.sections = sections;
-  res.render('journals/journalView', { journal });
-} catch (error) {
-  res.status(404).json({ error: error});
-}
+  try {
+    const journalId = req.params.id;
+    const journal = await getJournalById(journalId);
+
+    // Check if the logged-in user is the owner of the journal
+    if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const sections = await sectionData.getSectionsByJournalId(journalId);
+    journal.sections = sections;
+    res.render('journals/journalView', { title: journal.title, journal });
+  } catch (error) {
+    res.status(404).json({ error: 'Journal not found.' });
+  }
+
 });
 
 

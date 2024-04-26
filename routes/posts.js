@@ -110,8 +110,12 @@ router
                 return res.status(400).json({ error: 'Invalid post ID provided' });
             }
 
-            await deletePost(postId);
-            res.redirect('/posts');
+            const result = await deletePost(postId);
+            if (result.deleted) {
+                res.redirect(`/sections/${result.sectionId}`);
+            } else{
+                throw ('Deletion failed');
+            }
         } catch (error) {
             console.error('Failed to delete post:', error);
             res.status(500).json({ error: 'Failed to delete the post.' });
@@ -253,8 +257,9 @@ router
                 }
             };
             if(post){
-                
+
                 return res.status(200).render('posts/post', {title: post.title, content: post.content, id: post._id.toString(), owned: owned});
+
             }
             else{
                 res.status(500).render('posts/post', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
@@ -270,12 +275,12 @@ router
 
     try {
         const postId = req.params.postId;
-        const post = await getPost(postId);
+        const post = await getOtherPost(postId);
         if (!post) {
             res.status(404).render('posts/error', { error: 'Post not found' });
             return;
         }
-        res.render('posts/post', { post });
+        res.render('posts/post', {  title: post.title, post: post });
     } catch (error) {
         console.error("Error retrieving post:", error);
         res.status(500).render('posts/error', { error: 'Failed to retrieve the post' });

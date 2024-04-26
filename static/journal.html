@@ -19,11 +19,7 @@
       <button id="viewJournalBtn">View Journal</button>
       <button id="deleteJournalBtn">Delete Journal</button>
     </nav>
-    <section id="searchJournal">
-      <h2>Search Journals by Username</h2>
-      <input type="text" id="usernameInput" placeholder="Enter Username">
-      <button id="searchJournalBtn">Search</button>
-    </section>
+    
     <section id="journalList">
       <h2>My Journals</h2>
       <ul id="journalListItems">
@@ -77,7 +73,20 @@
     document.getElementById('viewJournalBtn').addEventListener('click', function() {
       const journalId = prompt('Enter the journal ID to view:');
       if (journalId) {
-        window.location.href = `/journals/${journalId}`;
+        fetch(`/journals/${journalId}`)
+          .then(response => {
+            if (response.ok) {
+              window.location.href = `/journals/${journalId}`;
+            } else if (response.status === 403) {
+              displayErrorMessage('You are not authorized to view this journal.');
+            } else {
+              throw new Error('Failed to view journal');
+            }
+          })
+          .catch(error => {
+            console.error('Error viewing journal:', error);
+            displayErrorMessage('An error occurred. Please try again later.');
+          });
       }
     });
 
@@ -94,11 +103,6 @@
           })
           .catch(handleForbiddenError);
       }
-    });
-
-    document.getElementById('searchJournalBtn').addEventListener('click', function() {
-      const username = document.getElementById('usernameInput').value;
-      window.location.href = `/journals/user/${username}`;
     });
 
     fetch('/journals')
