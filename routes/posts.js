@@ -178,6 +178,7 @@ router
             if (!post) return res.status(404).render("users/error", {error: "Post not found."});
             if (post.usernames[0] !== req.session.user.username && req.session.user.role !== "admin") return res.status(403).render("users/error", {error: "Access denied."});
             if (title !== "" && title !== undefined) {
+            let valid = false;
                 title = helpers.checkString(title, "title");
                 if (title !== post.title) {
                     valid = true;
