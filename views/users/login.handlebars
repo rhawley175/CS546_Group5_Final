@@ -5,11 +5,10 @@
 </head>
 <body>
     <header>
-        <div class="user-title">
-            <h1>Login</h1>
-        </div>
+        <h1>Login</h1>
+        <a href="/users/register" class="button-link">Click Here to Register</a>
     </header>
-    <main>
+    <main class="login-main">
         <div class="log-form">
             <form id="login-form" method="POST" action="/users/login">
                 <label for="loginInput">Email or Username:</label>
@@ -18,12 +17,14 @@
                 <label for="passwordInput">Password:</label>
                 <input type="password" name="passwordInput" id="passwordInput">
                 <br>
-                <button type="submit">Login</button>
+                <button type="submit" class="button-link">Login</button>
                 <ul hidden id="errors"></ul>
             </form>
         </div>
-        <a href="/users/register" class="register-links">Click Here to Register</a>
     </main>
+    <footer>
+        <p>2024: The Journal App by CS546 Group 5.</p>
+    </footer>
     <script src="../../public/js/users.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 </body>

@@ -2,13 +2,21 @@
     <title>{{title}}</title>
     <link rel="stylesheet" href="../../public/css/main.css">
 </head>
-<body></body>
+<body>
+  <header>
   <h2>Create New Journal</h2>
+  </header>
+  <main>
   <form action="/journals/create" method="POST">
     <div>
       <label for="title">Journal Title:</label>
       <input type="text" id="title" name="title" required>
     </div>
-    <button type="submit">Create Journal</button>
+    <button type="submit" class="button-link">Create Journal</button>
   </form>
+  </main>
+  <footer>
+    <a href="/journal.html" class="button-link">Back to Main Journal Page</a>
+    <p>2024: The Journal App by CS546 Group 5.</p>
+  </footer>
 </body>

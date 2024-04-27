@@ -4,16 +4,17 @@
 </head>
 <body>
     <header>
-        <h1 class="delete-title">Delete {{username}}</h1>
+        <h1>Delete: {{username}}</h1>
     </header>
     <main>
-        <div class="container">
             <form class="delete" id="delete-form" method="POST" action="/users/delete/{{username}}">
                 <label for="deleteButton">Are you sure you want to delete {{username}}?</label>
-                <button type="submit">Delete</button>
+                <button type="submit" class="delete-button-link">Delete</button>
             </form>
-        </div>
     </main>
+    <footer>
+        <p>2024: The Journal App by CS546 Group 5.</p>
+    </footer>
     <script src="../../public/js/users.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </body>

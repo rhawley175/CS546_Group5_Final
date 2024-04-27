@@ -1,11 +1,18 @@
-<main>
+<head>
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="../../public/css/main.css">
+</head>
+<header>
     <h1>Update Journal Entry</h1>
+</header>
+<main>
         <form id="entryForm" method="POST" action="update">
             <div class="title">
                 <label for="titleInput">Title:
                     <input id="titleInput" name="titleInput" placeholder="Enter Title">
                 </label>
             </div>
+            <br>
             <div class="text-label">
                     <label for="entryText">Journal Entry Text:</label>
             </div>
@@ -35,11 +42,13 @@
             <label for="postIdInput">Post ID
                 <input id="postIdInput" name="postIdInput" placeholder="Enter Post ID">
             </label>
+            
             <div class="post-reply">
                 {{#if success}}
                     <p id="postId">Updated Successfully.</p>
                 {{/if}}
             </div>
+            <br>
             <div class="button">
                 <button id="saveButton">Save Entry</button>
             </div>
@@ -47,12 +56,11 @@
                 <p id="error" class="error">{{error}}</p>
             {{/if}}
         </form>
-        <br>
-        <a href="/posts/newPost">Go to New Post</a>
-        <br>
-        <br>
-        <a href="/posts/search">Search a Post</a>
-        <br>
-        <br>
-        <a href="/posts/delete">Delete a Post</a>
 </main>
+<footer>
+    <a href="/posts/newPost" class="button-link">Go to New Post</a>
+    <a href="/posts/search" class="button-link">Search a Post</a>
+    <a href="/posts/delete" class="delete-button-link">Delete a Post</a>
+    <br>
+    <p>2024: The Journal App by CS546 Group 5.</p>
+</footer>

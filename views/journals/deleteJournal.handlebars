@@ -3,10 +3,18 @@
     <link rel="stylesheet" href="../../public/css/main.css">
 </head>
 <body>
-  <h1>Delete Journal</h1>
-  <p>Are you sure you want to delete the journal "{{journal.title}}"?</p>
-  <form action="/journals/{{journal._id}}" method="POST">
-    <input type="hidden" name="_method" value="DELETE">
-    <button type="submit">Delete Journal</button>
-  </form>
+  <header>
+    <h1>Delete Journal</h1>
+  </header>
+  <main>
+    <p>Are you sure you want to delete the journal "{{journal.title}}"?</p>
+    <form action="/journals/{{journal._id}}" method="POST">
+      <input type="hidden" name="_method" value="DELETE">
+      <button type="submit" class="delete-button-link">Delete Journal</button>
+    </form>
+  </main>
+  <footer>
+        <a href="/journals/" class="button-link">Back to Journals</a><br>
+        <p>2024: The Journal App by CS546 Group 5.</p>
+  </footer>
 </body>

@@ -5,9 +5,81 @@
 </head>
 <body>
     <header>
-        <h1 class="user-title">{{username}}</h1>
+        <h1>{{username}}</h1>
     </header>
-    <main>
+    <main class="user-main">
+        {{#if publicPosts}}
+        <div class="user-public">
+            <h2>Public Posts</h2>
+            {{#each posts.publicPosts}}
+                <a href ="/posts/{{_id}}">{{title}}</a>
+                <br>
+            {{/each}}
+        </div>
+        {{/if}}
+        {{#if shared}}
+        <div class="user-shared">
+            <h2>Shared Posts</h2>
+            {{#each posts.sharedPosts}}
+                <a href ="/posts/{{_id}}">{{title}}</a>
+                <br>
+            {{/each}}
+        </div>
+        {{/if}}
+        {{#if owned}}
+        <div class="user-journals">
+            <h2>Journals</h2>
+            <a href = "/journal.html"class="button-link">View All Journals</a>
+            <p>Your Journals:</p>
+            {{#each journals}}
+                <a href="/journals/{{_id}}">{{title}}</a>
+                <br>
+            {{/each}}
+        </div>
+        <br>
+        <div class="user-options">
+            <br>
+            <h2>Options</h2>
+            <a href = "/users/update/{{username}}" class="button-link">Update User</a>
+            <br>
+            <a href="/users/delete/{{username}}" class="delete-button-link">Delete User</a>
+            <br>
+            <a href="/users/logout" class="logout-button-link">Logout</a>
+        </div>
+        {{/if}}
+        <form class = "search-form" id = "search-form" method = "POST" action="/users/get/{{username}}">
+            <label for="keywordInput">Search by Keyword:</label>
+            <input type="text" name="keywordInput" id="keywordInput">
+            <br>
+            <label for="date1Input">Search by Date, Early Date:</label>
+            <input type="text" name="date1Input" id="date1Input">
+            <br>
+            <label for="date2Input">Search by Date, Later Date:</label>
+            <input type="text" name="date2Input" id="date2Input">
+            <br>
+            <button type="submit" class="button-link">Search</button>
+            <ul hidden id="errors"></ul>
+        </form> 
+    </main>
+    <script src="../../public/js/users.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <footer>
+        <p>2024: The Journal App by CS546 Group 5.</p>
+    </footer>
+</body>
+
+
+
+{{!-- <head>
+        <title>{{username}}</title>
+        <link rel = "stylesheet" href="../../public/css/main.css">
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <h1>{{username}}</h1>
+    </header>
+    <main class="user-main">
         <form class = "search-form" id = "search-form" method = "POST" action="/users/get/{{username}}">
             <label for="keywordInput">Search by Keyword:</label>
             <input type="text" name="keywordInput" id="keywordInput">
@@ -63,4 +135,7 @@
     </main>
     <script src="../../public/js/users.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-</body>
+    <footer>
+        <p>2024: The Journal App by CS546 Group 5.</p>
+    </footer>
+</body> --}}

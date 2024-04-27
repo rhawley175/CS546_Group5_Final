@@ -3,23 +3,30 @@
     <link rel="stylesheet" href="../../public/css/main.css">
 </head>
 <body>
+    <header>
     <h2>{{section.title}}</h2>
     <p>Section ID: {{section._id}}</p>
-    <a href="/posts/newPost?sectionId={{section._id}}">Create a new post</a>
+    <a href="/posts/newPost?sectionId={{section._id}}" class="button-link" >Create a new post</a>
+    </header>
 
-    <h3>Posts:</h3>
-    {{#if section.posts.length}}
-    <ul>
-        {{#each section.posts}}
-        <li><a href="/posts/{{this._id}}">{{this.title}}</a></li>
-        {{/each}}
-    </ul>
-    {{else}}
-    <p>No posts yet.</p>
-    {{/if}}
+    <main>
+        <h3>Posts</h3>
+        {{#if section.posts.length}}
+        <ul>
+            {{#each section.posts}}
+            <li><a href="/posts/{{this._id}}" class="text-link">{{this.title}}</a></li>
+            {{/each}}
+        </ul>
+        {{else}}
+        <p>No posts yet.</p>
+        {{/if}}
+    </main>
 
-    <a href="/journals/{{section.journalId}}">Back to Journal</a>
-    <a href="/sections/delete/{{section._id}}">Delete This Section</a>
+    <footer>
+        <a href="/journals/{{section.journalId}}" class="button-link">Back to Journal</a>
+        <a href="/sections/delete/{{section._id}}" class="delete-button-link">Delete This Section</a>
+        <p>2024: The Journal App by CS546 Group 5.</p>
+    </footer>
 
 
     <script src="../../public/js/sections.js"></script>

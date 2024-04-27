@@ -3,14 +3,17 @@
     <link rel="stylesheet" href="../../public/css/main.css">
 </head>
 <body>
-<main>
+<header>
     <h1>New Journal Entry</h1>
+</header>
+<main>
     <form id="entryForm" method="POST" action="/posts/newPost">
         <div class="title">
             <label for="titleInput">Title:
                 <input id="titleInput" name="titleInput" placeholder="Enter Title">
             </label>
         </div>
+        <br>
         <div class="text-label">
             <label for="entryText">Journal Entry Text:</label>
         </div>
@@ -40,6 +43,9 @@
             <p id="error" class="error">{{error}}</p>
         {{/if}}
     </form>
-    <a href="/journal.html">Back to Journals</a>
 </main>
+<footer>
+    <a href="/journals/" class="button-link">Back to Journals</a><br>
+    <p>2024: The Journal App by CS546 Group 5.</p>
+</footer>
 </body>
