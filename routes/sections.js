@@ -101,7 +101,6 @@ router
         const journal = await journalCollection.findOne({_id: section.journalId});
         if (!journal) throw "We could not find the journal this section belongs to.";
         if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") return res.render("users/error", {error: "Access denied."});
-        return res.json("Made it here.");
         await sections.deleteSection(sectionId);
         res.redirect('/journals');
     } catch (e) {

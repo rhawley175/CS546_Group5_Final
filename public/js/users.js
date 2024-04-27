@@ -85,7 +85,7 @@
                 for (let i in dataObject) {
                     if (dataObject[i].email === email) throw "This email has already been used.";
                 }
-                email = checkEmail(email);
+                email = checkString(email, "email");
             } catch(e) {
                 errors.push(e);
             }

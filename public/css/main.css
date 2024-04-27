@@ -337,7 +337,7 @@
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   position: absolute;
-  top: 46%;
+  top: 25%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
@@ -369,8 +369,8 @@
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   position: absolute;
-  top: 10%;
-  left: 50%;
+  top: 25%;
+  left: 25%;
   transform: translate(-50%, -50%);
 }
 
@@ -386,7 +386,7 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   position: absolute;
   top: 25%;
-  left: 50%;
+  left: 75%;
   transform: translate(-50%, -50%);
 }
 
