@@ -294,10 +294,10 @@ router
             };
             if(post && req.session.user){
                 user = await userMethods.getUser(req.session.user.username, req.session.user.username, req.session.user.role);
-                return res.status(200).render('posts/post', {title: post.title, content: post.content, id: post._id.toString(), owned: owned, sectionId: post.sectionId, username: user.username});
+                return res.status(200).render('posts/post', {title: post.title, content: post.content, id: post._id.toString(), owned: owned, sectionId: post.sectionId, username: user.username, time:post.time});
             }
             else if (post) {
-                return res.status(200).render('posts/post', {title: post.title, content: post.content, id: post._id.toString(), owned: owned, sectionId: post.sectionId});
+                return res.status(200).render('posts/post', {title: post.title, content: post.content, id: post._id.toString(), owned: owned, sectionId: post.sectionId, time:post.time});
             }
             else{
                 res.status(500).render('posts/post', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
