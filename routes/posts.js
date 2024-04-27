@@ -204,11 +204,11 @@ router
                 return res.render('posts/update', {title: 'Update Post', success: true, postId: entry, id: post._id.toString()});
             }
             else{
-                res.status(500).render('posts/update', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
+                res.status(500).render('posts/update', {hasError: true, error: 'Internal Server Error.', title: 'New Post', id: post._id.toString()});
             }
         }
         catch(e){
-            res.status(400).render('posts/update', {hasError: true, error: e, title: 'Update Post'});
+            res.status(400).render('users/error', {hasError: true, error: e, title: 'Update Post'});
         }
     });
 
