@@ -218,10 +218,9 @@ router
 
     router.route('/search')
     .get(async (req, res) => {
-        if(!req.session.user){
-            return res.redirect("/users/login");
-        }
-        res.render('posts/search', { title: 'Search Post' }); 
+        let username = false;
+        if (req.session.user) username = req.session.user.username;
+        res.render('posts/search', { title: 'Search Post', username: username }); 
     })
     .post(async (req, res) => { 
         const searchInput = req.body.searchInput.trim();

@@ -30,8 +30,8 @@
     <br>
 </main>
 <footer>
-    <a href="/posts/newPost" class="button-link">Go to New Post</a>
-    <a href="/posts/update" class="button-link">Go to Update Post</a>
-    <a href="/posts/delete" class="delete-button-link">Go to Delete Post</a>
+    {{#if username}}
+        <a class="button-link" href="/users/get/{{username}}">Return to User</a>
+    {{/if}}
     <p>2024: The Journal App by CS546 Group 5.</p>
 </footer>

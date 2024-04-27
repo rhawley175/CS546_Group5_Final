@@ -455,13 +455,12 @@ footer {
   background-color: #ffffff;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
   position: absolute;
-  top: 25%;
+  top: 15%;
   position: absolute;
   background-color: #ffffff;
   left: 50%;
-  transform: translate(-50%, -50%); */
+  transform: translate(-50%, -50%); 
 }
 
 .user-journals h2 {
@@ -491,7 +490,6 @@ footer {
   border: 1px solid #ccc;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
   position: absolute;
   top: 25%;
   left: 25%;
@@ -508,7 +506,6 @@ footer {
   border: 1px solid #ccc;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
   position: absolute;
   top: 25%;
   left: 75%;
