@@ -318,10 +318,6 @@ footer {
     border: 1px solid #ccc;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-/*     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); */
   }
 
 .log-form h2 {
@@ -455,12 +451,7 @@ footer {
   background-color: #ffffff;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  position: absolute;
-  top: 15%;
-  position: absolute;
   background-color: #ffffff;
-  left: 50%;
-  transform: translate(-50%, -50%); 
 }
 
 .user-journals h2 {
@@ -474,10 +465,6 @@ footer {
   background-color: #ffffff;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  /* position: absolute;
-  top: 70%;
-  left: 50%;
-  transform: translate(-50%, -50%); */
 }
 
 .user-options p {
@@ -490,10 +477,6 @@ footer {
   border: 1px solid #ccc;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  position: absolute;
-  top: 25%;
-  left: 25%;
-  transform: translate(-50%, -50%);
 }
 
 .user-public h2 {
@@ -506,11 +489,6 @@ footer {
   border: 1px solid #ccc;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  position: absolute;
-  top: 25%;
-  left: 75%;
-  transform: translate(-50%, -50%);
-
 }
 
 .user-shared h2 {
