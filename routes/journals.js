@@ -14,7 +14,7 @@ import {
 } from '../data/journals.js';
 
 router.get('/', async (req, res) => {
-  
+  if (!req.session.user) return res.redirect("/users/login");
   try {
     const userId = req.session.user._id;
     const journals = await getJournalsByUser(userId);
@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
 
 router.get('/create', async (req, res) => {
   if(!req.session.user){                        //Added redirect
-    res.status(302).redirect("/users/login")
+    return res.status(403).redirect("/users/login")
   }
   
   try {
@@ -84,7 +84,7 @@ router.get('/:id/edit', async (req, res) => {
     
     // Check if the logged-in user is the owner of the journal
     if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
-      return res.status(403).json('users/error', { error: 'Forbidden' });
+      return res.status(403).render('users/error', { error: 'Forbidden' });
     }
     
     res.render('journals/editJournal', { journal });
@@ -94,6 +94,7 @@ router.get('/:id/edit', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
+  if (!req.session.user) return res.redirect("/users/login");
   try {
     const journalId = req.params.id;
     const updatedJournal = req.body;
@@ -112,6 +113,7 @@ router.put('/:id', async (req, res) => {
 });
 
 router.get('/:id/delete', async (req, res) => {
+  if (!req.session.user) return res.redirect("/users/login");
   try {
     const journalId = req.params.id;
     const journal = await getJournalById(journalId);
@@ -129,6 +131,7 @@ router.get('/:id/delete', async (req, res) => {
 
 
 router.delete('/:id', async (req, res) => {
+  if (!req.session.user) return res.redirect("/users/login");
   try {
     const journalId = req.params.id;
     // Check if the logged-in user is the owner of the journal
@@ -142,10 +145,6 @@ router.delete('/:id', async (req, res) => {
     res.status(500).render('posts/error', { error: 'Internal Server Error' });
   }
 });
-
-
-
-
 
 router.get('/user/:username', async (req, res) => {
   try {

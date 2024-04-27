@@ -21,7 +21,7 @@ router
 
 router
 .route('/json')
-.get(async(req, res) =>{
+.post(async(req, res) =>{
     const allUsers = await users.getAllUsersLimited();
     if (!allUsers) return res.status(500).json("Could not get all users.");
     else return res.status(200).json(allUsers);
@@ -38,6 +38,7 @@ router
         return res.status(500).render("users/error", {error: e});
     }
 }).post(async (req, res) => {
+    if (req.session.user) return res.redirect("/users/login");
     let newUserData = req.body;
     if (!newUserData || Object.keys(newUserData).length === 0) {
         return res.status(400).render("users/error", {error: "There are no fields in the request body."});
@@ -80,6 +81,7 @@ router
         return res.status(500).render("users/error", {error: e});
     }
 }).post(async (req, res) => {
+    if (req.session.user) return res.redirect("/users/get/" + req.session.user.username);
     let newUserData = req.body;
     if (!newUserData || Object.keys(newUserData).length === 0) {
         return res.status(400).render("users/error", {error: "There are no fields in the request body."});

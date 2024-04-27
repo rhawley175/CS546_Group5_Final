@@ -8,7 +8,7 @@
     dataObject;
 
     let requestConfig = {
-        method: "GET", 
+        method: "POST",
         url: "/users/json",
         success: function(data) {
             dataObject = data;
@@ -16,7 +16,8 @@
     }
 
     $(document).ready(function() {
-        $.ajax(requestConfig);
+        $.ajax(requestConfig).then(function(){
+        });
     });
 
     $(loginForm).submit(function(event) {

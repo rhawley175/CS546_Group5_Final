@@ -1,7 +1,7 @@
 import {Router} from 'express';
 const router = Router();
 import { ObjectId } from 'mongodb';
-import{posts, sections, users} from '../config/mongoCollections.js';
+import{posts, sections, users, journals} from '../config/mongoCollections.js';
 import * as postMethods from "../data/posts.js";
 import * as userMethods from '../data/users.js';
 import * as helpers from '../helpers.js';
@@ -19,21 +19,39 @@ router
     if (!sectionId) {
         return res.status(400).render('users/error', { error: 'Section ID is required' });
     }
+    const sectionCollection = await sections();
+    const section = await sectionCollection.findOne({_id: new ObjectId(sectionId)});
+    if (!section) throw "We could not find the section this post would belong to.";
+    const journalCollection = await journals();
+    const journal = await journalCollection.findOne({_id: section.journalId});
+    if (!journal) throw "We could not find the journal this section should belong to.";
+    if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") return res.status(403).render("users/error", {error: "Access denied."});
     try {
         res.render('posts/newPost', {
             title: 'Create New Post',
             sectionId: sectionId
         });
     } catch (error) {
-        res.status(404).render('users/error', { error: 'Failed to render the post creation page.' });
+        res.status(404).render('users/error', { error: error });
     }
 })
 .post(async(req,res) => {
-   
+   if (!req.session.user) return res.redirect("/users/login");
     const sectionId = req.params.sectionId;
     const data=req.body;
     
     try{
+        if (!sectionId) {
+            return res.status(400).render('users/error', { error: 'Section ID is required' });
+        }
+        const sectionCollection = await sections();
+        const section = await sectionCollection.findOne({_id: new ObjectId(sectionId)});
+        if (!section) throw "We could not find the section this post would belong to.";
+        const journalCollection = await journals();
+        const journal = await journalCollection.findOne({_id: section.journalId});
+        if (!journal) throw "We could not find the journal this section should belong to.";
+        if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") return res.status(403).render("users/error", {error: "Access denied."});
+
         const entry = await addPost(sectionId, data.titleInput, data.entryText, data.pub, req.session.user.username);
 
         if(entry){
@@ -104,10 +122,10 @@ router
             const postCollection = await posts();
             const post = await postCollection.findOne({_id: new ObjectId(postId)});
             if (!post) throw "Post not found.";
-            if (req.session.user.role !== "admin" && req.session.user.username !== post.usernames[0]) throw "Access denied.";
+            if (req.session.user.role !== "admin" && req.session.user.username !== post.usernames[0]) return res.render("users/error", {error: "Access denied."});
 
             if (!postId || !ObjectId.isValid(postId)) {
-                return res.status(400).json({ error: 'Invalid post ID provided' });
+                return res.status(400).render("users/error", { error: 'Invalid post ID provided' });
             }
 
             const result = await deletePost(postId);
@@ -117,8 +135,7 @@ router
                 throw ('Deletion failed');
             }
         } catch (error) {
-            console.error('Failed to delete post:', error);
-            res.status(500).json({ error: 'Failed to delete the post.' });
+            res.status(500).render("users/error", { error: 'Failed to delete the post: ' + error });
         }
     });
 
@@ -135,7 +152,7 @@ router
             const post = await postCollection.findOne({_id: new ObjectId(postId)});
             const user = await userMethods.getUser(req.session.user.username, req.session.user.username, req.session.user.role);
             if (!user) throw "We could not find the user this belongs to.";
-            if (post.usernames[0].toLowerCase() !== user.username.toLowerCase() && user.role !== "admin") throw "Access denied.";
+            if (post.usernames[0].toLowerCase() !== user.username.toLowerCase() && user.role !== "admin") return res.render("users/error", {error: "Access denied."});
             res.render('posts/update', {title: 'Update Post', id: post._id.toString()});  
         } catch(e) {
             return res.status(400).json({error: e});
@@ -150,6 +167,7 @@ router
         let pub = req.body.pub;
         let username = req.body.usernameInput;
         try{
+            if (!req.session.user) return res.redirect("/users/login");
             let postObject = {};
             const userCollection = await users();
             const user = await userCollection.findOne({username: req.session.user.username});
@@ -157,7 +175,8 @@ router
             let userAccessing = req.session.user.username;
             let role = req.session.user.role;
             const post = await postMethods.getPost(postId, userAccessing, role);
-            if (!post) return res.status(404).render("users/error", {error: "Post not found."}); 
+            if (!post) return res.status(404).render("users/error", {error: "Post not found."});
+            if (post.usernames[0] !== req.session.user.username && req.session.user.role !== "admin") return res.status(403).render("users/error", {error: "Access denied."});
             if (title !== "" && title !== undefined) {
                 title = helpers.checkString(title, "title");
                 if (title !== post.title) {
@@ -182,7 +201,7 @@ router
             }        
             const entry = await updatePost(postId, userAccessing, role, postObject);  
             if(entry){
-                return res.render('posts/update', {title: 'Update Post', success: true, postId: entry});
+                return res.render('posts/update', {title: 'Update Post', success: true, postId: entry, id: post._id.toString()});
             }
             else{
                 res.status(500).render('posts/update', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
@@ -256,7 +275,7 @@ router
                 for (let i in usernames) {
                     usernames[i] = usernames[i].toLowerCase();
                 }
-                if (!post.usernames.includes(user.username.toLowerCase()) && user.role !== "admin") throw "Access denied.";
+                if (!post.usernames.includes(user.username.toLowerCase()) && user.role !== "admin" && post.pub !== "public") throw "Access denied.";
                 if (req.session.user.username.toLowerCase() === post.usernames[0].toLowerCase()) {
                     owned = true;
                 }
