@@ -3,8 +3,10 @@
     <link rel="stylesheet" href="../../public/css/main.css">
 </head>
 <body>
-  <h2>All Journals</h2>
-
+  <header>
+    <h2>All Journals</h2>
+  </header>
+  <main>
   {{#if journals.length}}
   <ul>
     {{#each journals}}
@@ -14,6 +16,9 @@
   {{else}}
   <p>No journals found.</p>
   {{/if}}
-
-  <a href="/journal.html" class="btn">Return to Journal Main Menu</a>
+  </main>
+  <footer>
+    <a href="/journal.html" class="button-link">Return to Journal Main Menu</a>
+    <p>2024: The Journal App by CS546 Group 5.</p>
+  </footer>
 </body>

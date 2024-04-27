@@ -4,14 +4,15 @@
 </head>
 
 <body>
-  <h2>{{journal.title}}</h2>
-  <p>Author: {{journal.author}}</p>
+  <header>
+    <h2>{{journal.title}}</h2>
+    <p>Author: {{journal.author}}</p>
 
-  <div class="section-actions">
-    <a href="/sections/newSection?journalId={{journal._id}}">Create a Section</a>
-  </div>
+    <a href="/sections/newSection?journalId={{journal._id}}" class="button-link">Create a Section</a>
+  </header>
 
-  <h3>Sections:</h3>
+  <main>
+  <h3>Sections</h3>
   {{#if journal.sections.length}}
     <ul>
       {{#each journal.sections}}
@@ -21,12 +22,12 @@
   {{else}}
     <p>No sections yet. Create one!</p>
   {{/if}}
+  </main>
 
-  <div class="journal-actions">
-    <a href="/journal.html">Back to Main Journal Page</a>
-    <br>
-    <a href="/users/get/{{journal.author}}">Back to User Page</a>
+  <footer>
+    <a href="/journal.html" class="button-link">Back to Main Journal Page</a>
+    <a href="/users/get/{{journal.author}}" class="button-link">Back to User Page</a>
     <br><br>
-    <a href="/journals/{{journal._id}}/delete" class="delete-link">Delete This Journal</a>
-  </div>
+    <a href="/journals/{{journal._id}}/delete" class="delete-button-link">Delete This Journal</a>
+  </footer>
 </body>

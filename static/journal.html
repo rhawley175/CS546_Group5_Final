@@ -7,19 +7,18 @@
   <link rel="stylesheet" href="/public/css/main.css">
 </head>
 <body>
-  <div class="journal-page">
     <header>
       <h1>Welcome to Your Journal</h1>
       <p>Capture and share life's moments.</p>
-    </header>
     <nav>
-      <button id="createJournalBtn">Create New Journal</button>
-      <button id="viewJournalsBtn">View All Journals</button>
-      <button id="updateJournalBtn">Update Journal</button>
-      <button id="viewJournalBtn">View Journal</button>
-      <button id="deleteJournalBtn">Delete Journal</button>
+      <button id="createJournalBtn" class="button-link">Create New Journal</button>
+      <button id="viewJournalsBtn" class="button-link">View All Journals</button>
+      <button id="updateJournalBtn" class="button-link">Update Journal</button>
+      <button id="viewJournalBtn" class="button-link">View Journal</button>
+      <button id="deleteJournalBtn" class="button-link">Delete Journal</button>
     </nav>
-    
+  </header>
+  <main>
     <section id="journalList">
       <h2>My Journals</h2>
       <ul id="journalListItems">
@@ -27,10 +26,10 @@
       </ul>
     </section>
     <section id="errorMessage" style="display: none; color: red;"></section>
+  </main>
     <footer>
       <p>2024: The Journal App by Group 5.</p>
     </footer>
-  </div>
 
   <script>
     function displayErrorMessage(message) {
