@@ -3,7 +3,7 @@ import * as sections from '../data/sections.js';
 import { ObjectId } from 'mongodb';
 import {journals} from '../config/mongoCollections.js';
 const router = Router();
-
+import xss from 'xss';
 
 router
 .route('/newSection')
@@ -19,6 +19,9 @@ router
 })
 .post(async (req, res) => {
     try {
+        var html = xss(req.body);
+        html = xss(req.body.title);
+        html = xss(req.body.journalId);
         if (!req.session.user) return res.redirect("/users/login");
         const { journalId, title } = req.body;
         

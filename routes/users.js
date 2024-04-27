@@ -5,6 +5,7 @@ import * as posts from '../data/posts.js';
 import * as journals from '../data/journals.js';
 import {ObjectId} from 'mongodb';
 const router = Router();
+import xss from 'xss';
 
 router
 .route('/')
@@ -30,6 +31,13 @@ router
 router
 .route("/register")
 .get(async (req, res) => {
+    var html = xss(req.body);
+    html = xss(req.body.usernameInput);
+    html = xss(req.body.passwordInput);
+    html = xss(req.body.ageInput);
+    html = xss(req.body.emailInput);
+    html = xss(req.body.firstNameInput);
+    html = xss(req.body.lastNameInput);
     try {
         if (!req.session.user) res.status(200).render("users/register");
         else if (req.session.user) res.redirect("/users/get/" + req.session.user.username);
@@ -75,6 +83,9 @@ router
 .route("/login")
 .get(async (req, res) => {
     try {
+        var html = xss(req.body);
+        html = xss(req.body.loginInput);
+        html = xss(req.body.passwordInput);
         if (req.session.user) return res.redirect("/users/get/" + req.session.user.username);
         return res.status(200).render("users/login");
     } catch(e) {
@@ -171,6 +182,10 @@ router
     }
 })
 .post(async (req, res) => {
+    var html = xss(req.body);
+    html = xss(req.body.keywordInput);
+    html = xss(req.body.date1Input);
+    html = xss(req.body.date2Input);
     let username = req.params.username;
     let keyword = req.body.keywordInput;
     let date1 = req.body.date1Input;
@@ -251,6 +266,12 @@ router
     }
 })
 .post(async (req, res) => {
+    var html = xss(req.body);
+    html = xss(req.body.passwordInput);
+    html = xss(req.body.ageInput);
+    html = xss(req.body.emailInput);
+    html = xss(req.body.firstNameInput);
+    html = xss(req.body.lastNameInput);
     const requestBody = req.body;
     if (!requestBody || Object.keys(requestBody).length === 0) {
         return res.status(400).render({error: "There are no fields in the request body."});
