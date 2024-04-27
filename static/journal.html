@@ -127,7 +127,7 @@
           const journalTitle = link.textContent;
 
           const listItem = document.createElement('li');
-          listItem.innerHTML = `<a href="${link.getAttribute('href')}">${journalTitle} (ID: ${journalId})</a>`;
+          listItem.innerHTML = `<a href="${link.getAttribute('href')}">${journalTitle}</a>`;
           journalList.appendChild(listItem);
         });
       } else {

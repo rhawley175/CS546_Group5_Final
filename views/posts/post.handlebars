@@ -4,7 +4,6 @@
 </head>
 <header>
     <h1>{{title}}</h1>
-    <a href="/posts/update" class="button-link">Update Post</a>
 </header>
 <main>
         <p>{{content}}</p>
@@ -16,22 +15,24 @@
 
 
         {{#if owned}}
-            <a href="/posts/delete/{{id}}" onclick="return confirm('Are you sure you want to delete this post?');">Delete This Post</a><br>
-            <a href="/posts/update/{{id}}">Update This Post</a><br>
-            <a href="/sections/{{sectionId}}">Back to Section</a><br>
+            <a class="button-link" href="/posts/delete/{{id}}" onclick="return confirm('Are you sure you want to delete this post?');">Delete This Post</a><br>
+            <a class="button-link" href="/posts/update/{{id}}">Update This Post</a><br>
+            <a class="button-link" href="/sections/{{sectionId}}">Back to Section</a><br>
         {{/if}}
         {{#if username}}
-            <a href="/users/get/{{username}}">Back to User</a>
+            <a class="button-link" href="/users/get/{{username}}">Back to User</a>
         {{/if}}
     </div>
 </main>
 <footer>
     <p>Last updated: {{time}}</p>
     <a href="/posts/search" class="button-link">Go to Search</a>
-    <a href="/journal.html" class="button-link">Main Journal Page</a>
-    <a href="/journals/{{section.journalId}}" class="button-link">Back to Journal</a>
-    <br>
-    <a href="/posts/delete/{{_id}}" onclick="return confirm('Are you sure you want to delete this post?');" class="delete-button-link">Delete This Post</a>
+    {{#if owned}}
+        <a href="/journal.html" class="button-link">Main Journal Page</a>
+        <a href="/journals/{{section.journalId}}" class="button-link">Back to Journal</a>
+        <br>
+        <a href="/posts/delete/{{_id}}" onclick="return confirm('Are you sure you want to delete this post?');" class="delete-button-link">Delete This Post</a>
+    {{/if}}
     <br>
     <p>2024: The Journal App by CS546 Group 5.</p>
 </footer>
