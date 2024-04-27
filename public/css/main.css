@@ -448,7 +448,6 @@ footer {
   width: 300px; 
   padding: 20px;
   border: 1px solid #ccc;
-  background-color: #ffffff;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
@@ -484,6 +483,7 @@ footer {
 .user-public {
   width: 300px; 
   padding: 20px;
+  background-color: #ffffff;
   border: 1px solid #ccc;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -496,6 +496,7 @@ footer {
 .user-shared {
   width: 300px; 
   padding: 20px;
+  background-color: #ffffff;
   border: 1px solid #ccc;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);

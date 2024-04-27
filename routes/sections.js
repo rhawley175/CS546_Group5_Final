@@ -3,13 +3,20 @@ import * as sections from '../data/sections.js';
 import { ObjectId } from 'mongodb';
 import {journals} from '../config/mongoCollections.js';
 const router = Router();
-
+import xss from 'xss';
 
 router
 .route('/newSection')
-.get((req, res) => {
+.get( async(req, res) => {
     if (!req.session.user) return res.redirect("/users/login");
     const journalId = req.query.journalId;
+    const journalCollection = await journals();
+    const journal = await journalCollection.findOne({_id: new ObjectId(journalId)});
+    if (!journal) throw "We could not find the journal this section belongs to.";
+    //if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") throw "Access denied.";
+    if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") {
+        return res.status(403).render('sections/error', { error: "Access denied." });
+    }
 
     if (!journalId) {
         return res.status(400).render('sections/error', { error: 'Journal ID is required' });
@@ -19,6 +26,9 @@ router
 })
 .post(async (req, res) => {
     try {
+        var html = xss(req.body);
+        html = xss(req.body.title);
+        html = xss(req.body.journalId);
         if (!req.session.user) return res.redirect("/users/login");
         const { journalId, title } = req.body;
         

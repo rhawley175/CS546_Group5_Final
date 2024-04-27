@@ -2,6 +2,7 @@ import { Router } from 'express';
 const router = Router();
 import * as sectionData from '../data/sections.js';
 import * as users from '../data/users.js';
+import xss from 'xss';
 
 import {
   createJournal,
@@ -42,7 +43,8 @@ router.post('/create', async (req, res) => {
     if (!req.session.user) {
       return res.redirect('/users/login'); 
     }
-
+    var html = xss(req.body);
+    html = xss(req.body.title);
     const userId = req.session.user._id; 
     const username = req.session.user.username; 
     const { title } = req.body;
@@ -98,6 +100,8 @@ router.put('/:id', async (req, res) => {
   try {
     const journalId = req.params.id;
     const updatedJournal = req.body;
+    var html = xss(req.body);
+    html = xss(req.body.title);
     
     // Check if the logged-in user is the owner of the journal
     const journal = await getJournalById(journalId);

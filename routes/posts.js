@@ -5,6 +5,7 @@ import{posts, sections, users, journals} from '../config/mongoCollections.js';
 import * as postMethods from "../data/posts.js";
 import * as userMethods from '../data/users.js';
 import * as helpers from '../helpers.js';
+import xss from 'xss';
 
 import {addPost, getOtherPost, deletePost, updatePost, getPostsByKeyword} from '../data/posts.js';
 
@@ -38,7 +39,11 @@ router
 .post(async(req,res) => {
    if (!req.session.user) return res.redirect("/users/login");
     const sectionId = req.params.sectionId;
-    const data=req.body;
+    var html = xss(req.body);
+    html = xss(req.body.titleInput);
+    html = xss(req.body.entryText);
+    html = xss(req.body.pub);
+    const data = req.body;
     
     try{
         if (!sectionId) {
@@ -161,6 +166,11 @@ router
     })
     .post(async(req,res) => {
         if (!req.session.user) return res.redirect("/users/login");
+        var html = xss(req.body);
+        html = xss(req.body.titleInput);
+        html = xss(req.body.entryText);
+        html = xss(req.body.pub);
+        html = xss(req.body.usernameInput);
         let postId = req.params.postId;
         let title = req.body.titleInput;
         let content = req.body.entryText;
@@ -223,7 +233,9 @@ router
         if (req.session.user) username = req.session.user.username;
         res.render('posts/search', { title: 'Search Post', username: username }); 
     })
-    .post(async (req, res) => { 
+    .post(async (req, res) => {
+        var html = xss(req.body);
+        html = xss(req.body.searchInput); 
         const searchInput = req.body.searchInput.trim();
 
         if (!searchInput) {

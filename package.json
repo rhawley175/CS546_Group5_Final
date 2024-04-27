@@ -27,6 +27,7 @@
     "express-session": "^1.18.0",
     "mongodb": "^6.5.0",
     "path": "^0.12.7",
-    "session": "^0.1.0"
+    "session": "^0.1.0",
+    "xss": "^1.0.15"
   }
 }
