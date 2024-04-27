@@ -166,6 +166,8 @@ router
         let content = req.body.entryText;
         let pub = req.body.pub;
         let username = req.body.usernameInput;
+        let valid = false;
+
         try{
             if (!req.session.user) return res.redirect("/users/login");
             let postObject = {};
@@ -178,7 +180,6 @@ router
             if (!post) return res.status(404).render("users/error", {error: "Post not found."});
             if (post.usernames[0] !== req.session.user.username && req.session.user.role !== "admin") return res.status(403).render("users/error", {error: "Access denied."});
             if (title !== "" && title !== undefined) {
-            let valid = false;
                 title = helpers.checkString(title, "title");
                 if (title !== post.title) {
                     valid = true;
@@ -205,11 +206,11 @@ router
                 return res.render('posts/update', {title: 'Update Post', success: true, postId: entry, id: post._id.toString()});
             }
             else{
-                res.status(500).render('posts/update', {hasError: true, error: 'Internal Server Error.', title: 'New Post'});
+                res.status(500).render('posts/update', {hasError: true, error: 'Internal Server Error.', title: 'New Post', id: post._id.toString()});
             }
         }
         catch(e){
-            res.status(400).render('posts/update', {hasError: true, error: e, title: 'Update Post'});
+            res.status(400).render('users/error', {hasError: true, error: e, title: 'Update Post'});
         }
     });
 
