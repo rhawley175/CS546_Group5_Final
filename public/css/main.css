@@ -454,6 +454,16 @@ footer {
   background-color: #ffffff;
 }
 
+.user-public {
+  width: 300px; 
+  padding: 20px;
+  border: 1px solid #ccc;
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+}
+
 .user-journals h2 {
   text-align: center;
 }
