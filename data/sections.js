@@ -2,9 +2,6 @@ import {sections, journals, posts, users } from '../config/mongoCollections.js';
 import * as postMethods from './posts.js';
 import {ObjectId} from 'mongodb';
 
-//import * as helpers from '../helpers.js';
-
-
 
 export const createSection = async (journalId, title, userId) => {
     if (!journalId || !title || !userId) throw ('Journal ID, title, and user ID must be provided.');

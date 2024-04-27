@@ -10,7 +10,7 @@
     <main>
         {{#if success}}
             <p>Section created successfully!</p>
-            <a href="/journals/{{journalId}}" class="button-link">Back to Journal</a>
+            <a href="/sections/{{ sectionId }}" class="button-link">Back to Section</a>
         {{else}}
         <form id="new-section-form" action="/sections/newSection" method="post">
             <input type="hidden" name="journalId" value="{{journalId}}">

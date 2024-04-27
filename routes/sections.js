@@ -22,19 +22,29 @@ router
         if (!req.session.user) return res.redirect("/users/login");
         const { journalId, title } = req.body;
         
-        if (!journalId || !title) throw 'Journal ID and title must be provided';
-        if (!ObjectId.isValid(journalId)) throw 'Invalid journal ID provided';
+        /* if (!journalId || !title) throw 'Journal ID and title must be provided';
+        if (!ObjectId.isValid(journalId)) throw 'Invalid journal ID provided'; */
+
+        if (!journalId || !title) {
+            return res.status(400).render('sections/error', { error: 'Journal ID and title must be provided' });
+        }
+        if (!ObjectId.isValid(journalId)) {
+            return res.status(400).render('sections/error', { error: 'Invalid journal ID provided' });
+        }
 
         const journalCollection = await journals();
         const journal = await journalCollection.findOne({_id: new ObjectId(journalId)});
         if (!journal) throw "We could not find the journal this section belongs to.";
-        if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") throw "Access denied.";
+        //if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") throw "Access denied.";
+        if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") {
+            return res.status(403).render('sections/error', { error: "Access denied." });
+        }
         const section = await sections.createSection(journalId.trim(), title.trim(), req.session.user._id);
 
         
         res.render('sections/newSection', { title: 'Create New Section', success: true, sectionId: section._id });
     } catch (e) {
-        res.status(400).render('sections/error', { error: e });
+        res.status(500).render('sections/error', { error: e });
     }
 }); 
 
@@ -53,7 +63,10 @@ router
         const journalCollection = await journals();
         const journal = await journalCollection.findOne({_id: new ObjectId(section.journalId)});
         if (!journal) throw "We could not find the journal this section belongs to.";
-        if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") throw "Access denied.";
+        //if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") throw "Access denied.";
+        if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") {
+            return res.status(403).render('sections/error', { error: "Access denied." });
+        }
 
         res.render('sections/sectionDetails', { section });
     } catch (e) {
@@ -80,7 +93,7 @@ router
 
         res.render('sections/deleteSection', { title: 'Delete Section', section: section });
     } catch (e) {
-        res.status(404).render('sections/error', { e: e.toString() });
+        res.status(404).render('sections/error', { e: e.message });
     }
 })
 .post(async (req, res) => {
@@ -104,7 +117,7 @@ router
         await sections.deleteSection(sectionId);
         res.redirect('/journals');
     } catch (e) {
-        res.status(404).render('sections/error', { e: 'Failed to delete the section.' });
+        res.status(500).render('sections/error', { e: 'Failed to delete the section.' });
     }
 });
 
