@@ -6,9 +6,9 @@
 </head>
 <body>
     <header>
-        <h1 class="register-title">Update: {{username}}</h1>
+        <h1>Update: {{username}}</h1>
     </header>
-    <main>
+    <main class="update-main">
         <form class="log-form" id="update-form" method="POST" action="/users/update/{{username}}">
             <label for="passwordInput">New Password:</label>
             <input type="password" name="passwordInput" id="passwordInput">
@@ -28,10 +28,13 @@
             <label for="lastNameInput">Original Last Name: {{lastName}}, Last Name:</label>
             <input type="text" name="lastNameInput" id="lastNameInput">
             <br>
-            <button type="submit">Update</button>
+            <button type="submit" class="button-link">Update</button>
             <ul hidden id="errors"></ul>
         </form>
     </main>
+    <footer>
+        <p>2024: The Journal App by CS546 Group 5.</p>
+    </footer>
     <script src="../../public/js/users.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 </body>

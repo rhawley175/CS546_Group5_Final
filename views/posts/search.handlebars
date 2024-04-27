@@ -1,5 +1,11 @@
-<main>
+<head>
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="../../public/css/main.css">
+</head>
+<header>
     <h1>Search Journal Entry</h1>
+</header>
+<main>
     <form id="searchForm" method="POST" action="/posts/search">
         <div class="search">
             <label for="searchInput">Title:
@@ -10,7 +16,7 @@
             
         </div>
         <div class="button">
-            <button type="submit" id="searchButton">Save Entry</button>
+            <button type="submit" id="searchButton" class="button-link">Save Entry</button>
         </div>
         <p id="error">{{error}}</p>
         <p id="message">{{message}}</p>
@@ -22,11 +28,10 @@
         </ol>
     </form>
     <br>
-    <a href="/posts/newPost">Go to New Post</a>
-    <br>
-    <br>
-    <a href="/posts/delete">Go to Delete Post</a>
-    <br>
-    <br>
-    <a href="/posts/update">Go to Update Post</a>
 </main>
+<footer>
+    <a href="/posts/newPost" class="button-link">Go to New Post</a>
+    <a href="/posts/update" class="button-link">Go to Update Post</a>
+    <a href="/posts/delete" class="delete-button-link">Go to Delete Post</a>
+    <p>2024: The Journal App by CS546 Group 5.</p>
+</footer>
