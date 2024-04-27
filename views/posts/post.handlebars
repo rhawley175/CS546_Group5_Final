@@ -18,8 +18,11 @@
         {{#if owned}}
             <a href="/posts/delete/{{id}}" onclick="return confirm('Are you sure you want to delete this post?');">Delete This Post</a><br>
             <a href="/posts/update/{{id}}">Update This Post</a><br>
-        {{/if}}
             <a href="/sections/{{sectionId}}">Back to Section</a><br>
+        {{/if}}
+        {{#if username}}
+            <a href="/users/get/{{username}}">Back to User</a>
+        {{/if}}
     </div>
 </main>
 <footer>

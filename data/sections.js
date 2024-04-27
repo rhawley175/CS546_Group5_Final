@@ -83,11 +83,17 @@ export const deleteSection = async (sectionId) => {
     const journalCollection = await journals();
     const journal = await journalCollection.findOne({_id: section.journalId});
     if (!journal) throw "We couldn't find the journal this section belongs to.";
-    const updateJournal = await journalCollection.updateOne(
-        { _id: section.journalId },
-        { $pull: { sections: sectionId } }
-    );
-    if (!updateJournal.matchedCount || !updateJournal.modifiedCount) {
+    let valid = false;
+    for (let i in journal.sections) {
+        if (journal.sections[i].toString() === section._id.toString()) {
+            valid = true;
+            journal.sections[i] = journal.sections[journal.sections.length - 1];
+            journal.sections.pop();
+        }
+    }
+    if (!valid) throw "We could not remove the section from the journal.";
+    const updateJournal = await journalCollection.findOneAndReplace({_id: section.journalId}, journal);
+    if (!updateJournal) {
         throw 'Failed to remove the section from the journal.';
     }
     if (section.posts && section.posts.length > 0) {

@@ -4,14 +4,35 @@
     errorList = $("#errors"),
     updateForm = $("#update-form"),
     registrationForm = $("#registration-form"),
-    searchForm = $("#search-form");
+    searchForm = $("#search-form"),
+    dataObject;
+
+    let requestConfig = {
+        method: "POST",
+        url: "/users/json",
+        success: function(data) {
+            dataObject = data;
+        }
+    }
+
+    $(document).ready(function() {
+        $.ajax(requestConfig).then(function(){
+        });
+    });
 
     $(loginForm).submit(function(event) {
         let errors = [];
         let login = $("#loginInput").val(),
         password = $("#passwordInput").val();
+        let valid = false;
         try {
             login = checkString(login, "username or email");
+            for (let i in dataObject) {
+                if (dataObject[i].username.toLowerCase() === login.toLowerCase()) {
+                    valid = true;
+                }
+            }
+            if (!valid) throw "Username or password is incorrect.";
         } catch(e) {
             errors.push(e);
         }
@@ -40,14 +61,6 @@
         firstName = $("#firstNameInput").val(),
         lastName = $("#lastNameInput").val(),
         valid = false;
-        if (username) {
-            valid = true;
-            try {
-                username = checkUsername(username);
-            } catch(e) {
-                errors.push(e);
-            }
-        }
         if (password) {
             valid = true;
             try {
@@ -69,7 +82,10 @@
         if (email) {
             valid = true;
             try {
-                email = checkEmail(email);
+                for (let i in dataObject) {
+                    if (dataObject[i].email === email) throw "This email has already been used.";
+                }
+                email = checkString(email, "email");
             } catch(e) {
                 errors.push(e);
             }
@@ -117,6 +133,9 @@
         lastName = $("#lastNameInput").val();
         try {
             username = checkUsername(username);
+            for (let i in dataObject) {
+                if (dataObject[i].username === username) throw "This username has already been used.";
+            }
         } catch(e) {
             errors.push(e);
         }
@@ -134,6 +153,9 @@
         }
         try {
             email = checkString(email, "email");
+            for (let i in dataObject) {
+                if (dataObject[i].email === email) throw "This email has already been used.";
+            }
         } catch(e) {
             errors.push(e);
         }

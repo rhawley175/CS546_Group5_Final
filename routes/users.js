@@ -20,6 +20,14 @@ router
 });
 
 router
+.route('/json')
+.post(async(req, res) =>{
+    const allUsers = await users.getAllUsersLimited();
+    if (!allUsers) return res.status(500).json("Could not get all users.");
+    else return res.status(200).json(allUsers);
+});
+
+router
 .route("/register")
 .get(async (req, res) => {
     try {
@@ -30,6 +38,7 @@ router
         return res.status(500).render("users/error", {error: e});
     }
 }).post(async (req, res) => {
+    if (req.session.user) return res.redirect("/users/login");
     let newUserData = req.body;
     if (!newUserData || Object.keys(newUserData).length === 0) {
         return res.status(400).render("users/error", {error: "There are no fields in the request body."});
@@ -72,6 +81,7 @@ router
         return res.status(500).render("users/error", {error: e});
     }
 }).post(async (req, res) => {
+    if (req.session.user) return res.redirect("/users/get/" + req.session.user.username);
     let newUserData = req.body;
     if (!newUserData || Object.keys(newUserData).length === 0) {
         return res.status(400).render("users/error", {error: "There are no fields in the request body."});
@@ -88,7 +98,7 @@ router
             newUserData.passwordInput
         );
         if (loggedUser) {
-            const user = await users.getUserByUsername(loggedUser.username);
+            const user = await users.getUser(loggedUser.username, loggedUser.username, loggedUser.role);
             if (user) {
               req.session.user = {
                 _id: user._id,
@@ -164,7 +174,6 @@ router
     let username = req.params.username;
     let keyword = req.body.keywordInput;
     let date1 = req.body.date1Input;
-    console.log(date1);
     let date2 = req.body.date2Input;
     let wordSearch;
     let userAccessing;
