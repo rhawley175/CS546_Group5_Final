@@ -13,9 +13,9 @@
     <nav>
       <button id="createJournalBtn" class="button-link">Create New Journal</button>
       <button id="viewJournalsBtn" class="button-link">View All Journals</button>
-      <button id="updateJournalBtn" class="button-link">Update Journal</button>
-      <button id="viewJournalBtn" class="button-link">View Journal</button>
-      <button id="deleteJournalBtn" class="button-link">Delete Journal</button>
+      <!-- <button id="updateJournalBtn" class="button-link">Update Journal</button>
+      <button id="viewJournalBtn" class="button-link">View Journal</button> -->
+      <!-- <button id="deleteJournalBtn" class="button-link">Delete Journal</button> -->
     </nav>
   </header>
   <main>
@@ -54,55 +54,55 @@
       window.location.href = '/journals';
     });
 
-    document.getElementById('updateJournalBtn').addEventListener('click', function() {
-      const journalId = prompt('Enter the journal ID to update:');
-      if (journalId) {
-        fetch(`/journals/${journalId}/edit`)
-          .then(response => {
-            if (response.ok) {
-              window.location.href = `/journals/${journalId}/edit`;
-            } else {
-              throw response;
-            }
-          })
-          .catch(handleForbiddenError);
-      }
-    });
+    // document.getElementById('updateJournalBtn').addEventListener('click', function() {
+    //   const journalId = prompt('Enter the journal ID to update:');
+    //   if (journalId) {
+    //     fetch(`/journals/${journalId}/edit`)
+    //       .then(response => {
+    //         if (response.ok) {
+    //           window.location.href = `/journals/${journalId}/edit`;
+    //         } else {
+    //           throw response;
+    //         }
+    //       })
+    //       .catch(handleForbiddenError);
+    //   }
+    // });
 
-    document.getElementById('viewJournalBtn').addEventListener('click', function() {
-      const journalId = prompt('Enter the journal ID to view:');
-      if (journalId) {
-        fetch(`/journals/${journalId}`)
-          .then(response => {
-            if (response.ok) {
-              window.location.href = `/journals/${journalId}`;
-            } else if (response.status === 403) {
-              displayErrorMessage('You are not authorized to view this journal.');
-            } else {
-              throw new Error('Failed to view journal');
-            }
-          })
-          .catch(error => {
-            console.error('Error viewing journal:', error);
-            displayErrorMessage('An error occurred. Please try again later.');
-          });
-      }
-    });
+    // document.getElementById('viewJournalBtn').addEventListener('click', function() {
+    //   const journalId = prompt('Enter the journal ID to view:');
+    //   if (journalId) {
+    //     fetch(`/journals/${journalId}`)
+    //       .then(response => {
+    //         if (response.ok) {
+    //           window.location.href = `/journals/${journalId}`;
+    //         } else if (response.status === 403) {
+    //           displayErrorMessage('You are not authorized to view this journal.');
+    //         } else {
+    //           throw new Error('Failed to view journal');
+    //         }
+    //       })
+    //       .catch(error => {
+    //         console.error('Error viewing journal:', error);
+    //         displayErrorMessage('An error occurred. Please try again later.');
+    //       });
+    //   }
+    // });
 
-    document.getElementById('deleteJournalBtn').addEventListener('click', function() {
-      const journalId = prompt('Enter the journal ID to delete:');
-      if (journalId) {
-        fetch(`/journals/${journalId}/delete`)
-          .then(response => {
-            if (response.ok) {
-              window.location.href = `/journals/${journalId}/delete`;
-            } else {
-              throw response;
-            }
-          })
-          .catch(handleForbiddenError);
-      }
-    });
+    // document.getElementById('deleteJournalBtn').addEventListener('click', function() {
+    //   const journalId = prompt('Enter the journal ID to delete:');
+    //   if (journalId) {
+    //     fetch(`/journals/${journalId}/delete`)
+    //       .then(response => {
+    //         if (response.ok) {
+    //           window.location.href = `/journals/${journalId}/delete`;
+    //         } else {
+    //           throw response;
+    //         }
+    //       })
+    //       .catch(handleForbiddenError);
+    //   }
+    // });
 
     fetch('/journals')
     .then(response => {
@@ -127,7 +127,7 @@
           const journalTitle = link.textContent;
 
           const listItem = document.createElement('li');
-          listItem.innerHTML = `<a href="${link.getAttribute('href')}">${journalTitle} (ID: ${journalId})</a>`;
+          listItem.innerHTML = `<a href="${link.getAttribute('href')}">${journalTitle}</a>`;
           journalList.appendChild(listItem);
         });
       } else {
