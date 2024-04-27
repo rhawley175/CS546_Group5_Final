@@ -1,6 +1,7 @@
 import { Router } from 'express';
 const router = Router();
 import * as sectionData from '../data/sections.js';
+import * as users from '../data/users.js';
 
 import {
   createJournal,
@@ -13,6 +14,7 @@ import {
 } from '../data/journals.js';
 
 router.get('/', async (req, res) => {
+  
   try {
     const userId = req.session.user._id;
     const journals = await getJournalsByUser(userId);
@@ -23,6 +25,10 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/create', async (req, res) => {
+  if(!req.session.user){                        //Added redirect
+    res.status(302).redirect("/users/login")
+  }
+  
   try {
     res.render('journals/createJournal');
   } catch (error) {
@@ -50,6 +56,8 @@ router.post('/create', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
+
+if (!req.session.user) return res.redirect("/users/login");
   try {
     const journalId = req.params.id;
     const journal = await getJournalById(journalId);
@@ -65,10 +73,12 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     res.status(404).json({ error: 'Journal not found.' });
   }
+
 });
 
 
 router.get('/:id/edit', async (req, res) => {
+  if (!req.session.user) return res.redirect("/users/login");
   try {
     const journalId = req.params.id;
     const journal = await getJournalById(journalId);

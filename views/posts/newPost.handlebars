@@ -7,7 +7,7 @@
     <h1>New Journal Entry</h1>
 </header>
 <main>
-    <form id="entryForm" method="POST" action="/posts/newPost">
+    <form id="entryForm" method="POST" action="/posts/newPost/{{sectionId}}">
         <div class="title">
             <label for="titleInput">Title:
                 <input id="titleInput" name="titleInput" placeholder="Enter Title">
@@ -23,8 +23,8 @@
         <div class="public">
             <label for="pub">Public?:
                 <select name="pub" id="pub">
-                    <option value="public">Public</option>
                     <option value="private">Private</option>
+                    <option value="public">Public</option>
                 </select>
             </label>
         </div>

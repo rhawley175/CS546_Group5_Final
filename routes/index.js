@@ -24,7 +24,7 @@ const constructorMethod = (app) => {
 
     app.use('/public', staticDir('public'));
     app.use("*", (req, res) => {
-        res.status(404).json({error: 'Route Not Found'});
+        res.status(404).render('users/error', {error: 'Route Not Found'});
     });
 };
 
