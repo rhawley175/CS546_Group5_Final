@@ -164,6 +164,7 @@ router
         let postId = req.params.postId;
         let title = req.body.titleInput;
         let content = req.body.entryText;
+        let valid = false;
         let pub = req.body.pub;
         let username = req.body.usernameInput;
         try{
