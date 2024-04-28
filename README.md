@@ -150,7 +150,7 @@ Group 5's repo for Final Project in CS-546
 1. Note that you cannot create a post for a section that belongs to a user that you are not signed in as.
 2. Once on the create post page (URL: "localhost:3000/posts/newPost/(section id)"), you can create a new post by entering the following credentials:
 3. Title: The title must not consist of only spaces.
-4. Text: This is the text of your journal entry. It must consist of at least 10 characters, and cannot consist of only spaces.
+4. Text: This is the text of your journal entry. It must consist of at least 10 characters and no more than 1000 characters, and cannot consist of only spaces.
 5. Public/Private: If you wish to make the post public (viewable by anyone), change the private indicator to public. Otherwise, leave it as private.
 6. Once all credentials have been entered, click on "Save Entry" to create the post. This will take you back to the section page.
 
