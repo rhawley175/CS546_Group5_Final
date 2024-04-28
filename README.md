@@ -174,3 +174,6 @@ Group 5's repo for Final Project in CS-546
 7. You do not have to enter every credential to update, but if you do not enter any credentials, or all credentials are already the same as credentials already there, it will not update and will throw an error.
 8. Once all credentials are entered, click the "Save Entry" button to update the post.
 9. If you do not wish to update the post, click the "Return to Post" button to return to the post page.
+
+**Note**
+For the images and videos, as discussed in office hours, that if we weren't able to implement it with a solution, then it would not be counted against us due to issues of storing them in MongoDB and rendering issues.
