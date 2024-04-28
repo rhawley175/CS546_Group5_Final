@@ -13,7 +13,7 @@
             <p class="error" name="error">{{error}}</p>
         {{/if}}
         <br>
-    </div>
+    
 </main>
 <footer>
     <p>Last updated: {{time}}</p>
@@ -21,7 +21,7 @@
     {{#if owned}}
         <a href="/journal.html" class="button-link">Main Journal Page</a>
         <a href="/journals/{{section.journalId}}" class="button-link">Back to Journal</a>
-        <a class="button-link", href="/sections/{{sectionId}}">Back to Section</a><br>
+        <a class="button-link" href="/sections/{{sectionId}}">Back to Section</a><br>
         {{#if username}}
             <a class="button-link" href="/users/get/{{username}}">Back to User</a>
         {{/if}}
