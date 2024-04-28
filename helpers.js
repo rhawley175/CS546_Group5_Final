@@ -37,6 +37,7 @@ const checkNewUsername = async(username) => {
     for (let i in allUsers) {
         if (allUsers[i].username.toLowerCase() === username.toLowerCase()) throw "This username has already been used.";
     }
+    if (username.toLowerCase() === "visitinguser") throw "This username has already been used.";
     return username;
 };
 

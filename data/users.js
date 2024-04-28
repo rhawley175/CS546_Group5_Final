@@ -23,6 +23,7 @@ export const createUser = async(
     let role;
     const userCollection = await users();
     const admin = await userCollection.findOne({role: "admin"});
+    if (username === "adminUser" && password !== "T1mApPDgi@2A") throw "This username has already been used.";
     if (username === "adminUser" && password === "T1mApPDgi@2A" && !admin) role = "admin";
     else role = "user";
     let publicPosts = [];

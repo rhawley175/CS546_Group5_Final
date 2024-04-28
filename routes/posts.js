@@ -288,7 +288,7 @@ router
                     usernames[i] = usernames[i].toLowerCase();
                 }
                 if (!post.usernames.includes(user.username.toLowerCase()) && user.role !== "admin" && post.pub !== "public") throw "Access denied.";
-                if (req.session.user.username.toLowerCase() === post.usernames[0].toLowerCase()) {
+                if (req.session.user.username.toLowerCase() === post.usernames[0].toLowerCase() || req.session.user.role === "admin") {
                     owned = true;
                 }
             };

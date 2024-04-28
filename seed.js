@@ -292,6 +292,8 @@ try {
     console.log(e);
 }
 
+await connection.closeConnection();
+
 // import {dbConnection, closeConnection} from './config/mongoConnection.js';
 // import * as users from './data/users.js';
 // import * as journals from './data/journals.js';

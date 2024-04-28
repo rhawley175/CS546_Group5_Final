@@ -64,7 +64,7 @@ if (!req.session.user) return res.redirect("/users/login");
     const journal = await getJournalById(journalId);
 
     // Check if the logged-in user is the owner of the journal
-    if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
+    if (journal.user_id[0].toString() !== req.session.user._id.toString() && req.session.user.role !== "admin") {
       return res.status(403).render('users/error', { error: 'Forbidden' });
     }
 
@@ -85,7 +85,7 @@ router.get('/:id/edit', async (req, res) => {
     const journal = await getJournalById(journalId);
     
     // Check if the logged-in user is the owner of the journal
-    if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
+    if (journal.user_id[0].toString() !== req.session.user._id.toString() && req.session.user.role !== "admin") {
       return res.status(403).render('users/error', { error: 'Forbidden' });
     }
     
@@ -105,7 +105,7 @@ router.put('/:id', async (req, res) => {
     
     // Check if the logged-in user is the owner of the journal
     const journal = await getJournalById(journalId);
-    if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
+    if (journal.user_id[0].toString() !== req.session.user._id.toString() && req.session.user.role !== "admin") {
       return res.status(403).render('users/error', { error: 'Forbidden' });
     }
     
@@ -123,7 +123,7 @@ router.get('/:id/delete', async (req, res) => {
     const journal = await getJournalById(journalId);
     
     // Check if the logged-in user is the owner of the journal
-    if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
+    if (journal.user_id[0].toString() !== req.session.user._id.toString() && req.session.user.role !== "admin") {
       return res.status(403).render('users/error', { error: 'Forbidden' });
     }
     
@@ -140,7 +140,7 @@ router.delete('/:id', async (req, res) => {
     const journalId = req.params.id;
     // Check if the logged-in user is the owner of the journal
     const journal = await getJournalById(journalId);
-    if (journal.user_id[0].toString() !== req.session.user._id.toString()) {
+    if (journal.user_id[0].toString() !== req.session.user._id.toString() && req.session.user.role !== "admin") {
       return res.status(403).render('posts/error', { error: 'Forbidden' });
     }
     await deleteJournal(journalId);
@@ -151,8 +151,10 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.get('/user/:username', async (req, res) => {
+  if (!req.session.user) return res.redirect("/users/login");
   try {
     const username = req.params.username;
+    if (username !== req.session.user.username && role !== "admin") return res.status(403).render('uses/error', { error: "Access denied." });
     const journals = await getJournalsByUsername(username);
     res.render('journals/journalList', { journals });
   } catch (error) {

