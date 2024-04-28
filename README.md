@@ -29,8 +29,8 @@ Group 5's repo for Final Project in CS-546
 
 ### Signing Up:
 1. Once on the registration page (URL: "localhost:3000/users/register"), enter your credentials (explained below):
-2. Username: Must be at least 8 characters and can only contain letters, numbers, and special characters: !@#$%^&*.
-3. Password: Must be at least 8 characters and contain 1 capital letter, 1 number, and 1 special character: !@#$%^&*.
+2. Username: Must be at least 8 characters and can only contain letters, numbers, and special characters: !@#$%^&*. The username cannot be a username that was already used, and cannot be the usernames "adminuser" or "visitinguser," as those usernames will be used by the admin, or a user visiting the site without signing in, respectively. If you wish to create an admin, put in the username "adminuser", and make sure you use the proper password (see below).
+3. Password: Must be at least 8 characters and contain 1 capital letter, 1 number, and 1 special character: !@#$%^&*. If you wish to create the admin user, user the password "T1mApPDgi@2A", and make sure you use the proper username (see above).
 4. Confirm Password: Must match the password above.
 5. Age: You must be at least 18 to use the application. If your age is over 100, it will be invalid.
 6. Email: You must enter a valid email that has not been used by another user.
