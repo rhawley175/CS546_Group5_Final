@@ -5,7 +5,6 @@
 <body>
     <header>
     <h2>{{section.title}}</h2>
-    <p>Section ID: {{section._id}}</p>
 
     <a href="/posts/newPost/{{section._id}}" class="button-link" >Create a new post</a>
     </header>
@@ -14,7 +13,7 @@
         {{#if section.posts.length}}
         <ul>
             {{#each section.posts}}
-            <li><a href="/posts/{{this._id}}" class="text-link">{{this.title}}</a></li>
+            <li><a href="/posts/{{this._id}}" class="text-link">{{this.title}}: {{this.time}}</a></li>
             {{/each}}
         </ul>
         {{else}}
