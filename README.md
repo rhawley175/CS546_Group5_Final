@@ -4,16 +4,17 @@ Group 5's repo for Final Project in CS-546
 ## Part One: Running the project
 
 ### Running the project: 
-1. Navigate to the project folder (which contains package.json) using the command console. 
-2. Type npm run start into the console. This will begin the project.
-3. On your browser, navigate to localhost:3000/. You can now begin perusing the project.
+1. Navigate to the project folder (which contains package.json) using the command console.
+2. Type "npm i" into the console to install any necessary packages.
+3. Type "npm run start" into the console. This will begin the project.
+4. On your browser, navigate to localhost:3000/. You can now begin perusing the project.
 
 ### Seeding the project: (This is how to run the seed file for bug testing purposes. Skip if you are not bug testing.)
 1. Navigate to the project folder (which contains package.json) using the command console.
 2. Type npm run seed into the console. This will seed the project with data.
 3. The seed will contain 3 users, each with 3 journals (9 journals total), each with 3 sections (27 sections total), each with 3 posts (81 posts total).
 4. The three users have the username: "username1", "username2", and "username3", respectively. All three users have the same password: "P@ssw0rd".
-5. The file will also make a fourth user: the admin user. The username for the admin user is "adminUser", and the password for the admin user is "T1mApPDgi@2A". This user will have no journals, sections, or posts.
+5. The file will also make a fourth user: the admin user. The username for the admin user is "adminUser", and the password for the admin user is "T1mApPDgi@2A". This user will have no journals, sections, or posts. The admin is designed to view all areas of the site. It is not designed to create, update, or delete. Note that doing so is still very buggy, and the admin is designed for viewing purposes only.
 6. When running the application, I recommend updating the admin user password to a password of your own making. However, this is not necessary for bug testing purposes.
 7. Note that each journal, section, and post is marked according to the other parts of the database it belongs to. For example, a post marked with "u1j1s1" in its title means it belongs to user 1 (with the username: "username1"), is in that user's journal 1, and is in section 1 of that journal.
 8. Also note that each section's posts will vary. Sections belonging to "username1" will contain 1 public post and 2 private posts each. Sections belonging to "username2" will contain 1 public post, 1 private post, and 1 shared post, all of which are shared only with "username1." Sections belonging to "username3" will also contain 1 public post, 1 private post, and 1 shared post, but all of their shared posts will be shared with both "username1" and "username2."
@@ -52,7 +53,7 @@ Group 5's repo for Final Project in CS-546
 2. If the page is navigated to by someone who does not have an account, it will only display that user's public posts, and a form to search that user's public posts (if they have any).
 3. If the page is navigated to by someone who is logged in, but is not the user themself, it will display that user's public posts (if they have any), and any shared posts between those two users (if there are any), as well as a form to search that user's public posts (if they have any).
 4. If the page is navigated to by the owning user, or the admin user, it will display the user's public posts (if they have any), shared posts (if they have any), and journals (if they have any). It will also contain an options menu that has three options:
-5. If the you wish to update the user, click "Update User." This will then take you to the user's update page.
+5. If you wish to update the user, click "Update User." This will then take you to the user's update page.
 6. If you wish to delete the user, click "Delete User" This will then take you to the user's delete page.
 7. If you wish to Logout, click "Logout." This will then log you out and take you back to the log in page.
 8. Note that you can navigate to the journals page to create journals by clicking "View all Journals" under the journals section (Skip to Part Three: Journals).
@@ -81,5 +82,95 @@ Group 5's repo for Final Project in CS-546
 3. If you are logged in, but not searching your own posts, you will be able to view that user's public posts, as well as any posts they may have shared with you, within the search parameters.
 4. If you are logged in and searching your own posts, you will be able to view all of your posts, including public, private, and shared posts, that fit within your search parameters.
 5. Clicking on any of the post titles will take you to that post (explained in Part Five: Posts).
-6. If you search by keyword, you will get any posts containing your keyword in their titles or content. If you search by date, you will get posts that were created or updated between or on the two dates entered.
+6. If you search by keyword, you will get any posts containing your keyword in their titles or content. If you search by date, you will get posts that were created or updated between or on the two dates entered. Note that posts are organized by time and date created/most recently updated.
 
+## Part Three: Journals
+
+### Main Journal Page:
+1. Note that you cannot visit the main journal page unless you are signed in.
+2. Once on the main journal page (URL: "localhost:3000/journal.html"), all of your journals will appear under the "My Journals" section. Clicking on a journal will take you to that journal's page.
+3. If you wish to create a new journal, click "Create New Journal". 
+4. If you wish to view details on all of your journals, click "View All Journals".
+
+### Create Journal Page:
+1. Note that you cannot visit the Create Journal page unless you are signed in.
+2. Once on the create journal page (URL: "localhost:3000/journals/create") Enter your journal title in the "Journal Title" parameter. Note that it cannot consist of only spaces.
+3. Once entered, click "Create Journal".
+4. If you do not wish to create a journal, click "Back to Main Journal Page."
+
+### All Journals Page:
+1. Note that you cannot visit the All Journals page unless you are signed in. 
+2. Once on the all journals page (URL: "localhost:3000/journals"), you will be able to view all your journals under the "journals" section. Clicking on a journal will take you to that journal.
+3. If you wish to return to the journal main page, click on "Return to Journal Main Menu".
+
+### Journal Page:
+1. Note that you cannot visit the journal page for a journal that is not owned by a user that you are not signed in as.
+2. Once on the journal page (URL: "localhost:3000/(journal id), you can view the sections in that journal under the "sections" section.
+3. If you wish to create a section, you can click on the "Create a Section" button. (Skip to Part Four: Sections).
+4. If you wish to return to the main journal page ('journal/html') click on the "Back to Main Journal Page" button.
+5. If you wish to return to your user page, click on the "Back to User Page" button.
+6. If you wish to delete the journal click on the "Delete This Journal" button.
+
+### Delete Journal Page:
+1. Note that you cannot visit the Delete Journal Page for a journal that is not owned by a user that you are not signed in as.
+2. Once on the Delete Journal Page (URL: "localhost:3000/(journal id)/delete"), you can click the "Delete Journal" button. 
+3. Note that deleting the journal will delete all of that journal's sections, and all of the posts within those sections. This includes any public or shared posts, meaning they will no longer be viewable by anyone.
+4. If you do not wish to delete the journal, you can return to the All Journals page by clicking "Back to Journals".
+
+## Part Four: Sections
+
+### Create Section:
+1. Note that you cannot visit the Create Section page if you are not signed in.
+2. Once on the Create Section page (URL: "localhost:3000/sections/newsSection"), enter your section title in the Title field. Note that it cannot contain only spaces.
+3. Once you've entered your section title, click "Create Section" to create the section. This will then take you to the Section Page.
+4. If you do not wish to create a new section, you can return to the journals by clicking the "Back to Journals" button.
+
+### Section Page:
+1. Note that you cannot visit the Section Page for a section that is owned by a user you are not signed in as.
+2. Once on the Section Page (URL: "localhost:3000/sections/(section id)"), you can view all posts in the section under the "posts" section of the page.
+3. Clicking on a post will take you to that post (Skip to Part Five: Posts).
+4. If you wish to return to the journal, you can click on the "Back to Journal" button.
+5. If you wish to delete the section, you can click on the "Delete This Section" button.
+6. If you wish to create a post in that section click on the "Create a new post" button.
+
+### Delete Section Page:
+1. Note that you cannot visit the Delete Section page for a section that is owned by a user you are not signed in as.
+2. If you wish to delete the section, click the "Delete Section" button.
+3. Note that deleting the section will also delete any posts inside it, including public or shared posts, so they will no longer be viewable by anyone.
+4. If you do not wish to delete the section, you can click on the "Back to Journals" button to return to the journals page.
+
+## Part Five: Posts
+
+### Search Posts Page:
+1. Once on the Search Posts page (URL: "localhost:3000/posts/search"), you may enter a keyword in the title parameter, which will search all public posts (only) for the title containing the given keyword.
+2. Once your keyword is entered click "Save Entry" to search the posts.
+3. It will then display all public posts with the given keyword. You can click on the post to view that post's post page.
+
+### Create Post Page:
+1. Note that you cannot create a post for a section that belongs to a user that you are not signed in as.
+2. Once on the create post page (URL: "localhost:3000/posts/newPost/(section id)"), you can create a new post by entering the following credentials:
+3. Title: The title must not consist of only spaces.
+4. Text: This is the text of your journal entry. It must consist of at least 10 characters, and cannot consist of only spaces.
+5. Public/Private: If you wish to make the post public (viewable by anyone), change the private indicator to public. Otherwise, leave it as private.
+6. Once all credentials have been entered, click on "Save Entry" to create the post. This will take you back to the section page.
+
+### Post Page:
+1. Note that you cannot access the post page for a post that is private if you do not own the post, and it is not shared with you.
+2. Once on the post page (URL: "localhost:3000/posts/(post id)"), the page may look different, depending on whether you own the post.
+3. If you do not own the post, you will only be able to see the post title at the top of the page, the post content in the white box below it, and the "Go to Search" button, which will take you back to the search post page.
+4. If you do own the post, you will also see the following elements:
+5. If you wish to go to the main journal page, click on the "Main Journal Page" button.
+6. If you wish to go to the post's journal page, click on the "Back to Journal" button.
+7. If you wish to go to the post's section, click on the "Back to Section" button.
+8. If you wish to delete the post, click on the "Delete this Post" button. This will then create an alert, and clicking ok will delete the post. If you do not wish to delete the post, click cancel.
+
+### Update Post Page:
+1. Note that you cannot access the update post page for a post that belongs to a user that you are not signed in as.
+2. Once on the update post page (URL: "localhost:3000/posts/update/(post id)"), you can update the post by entering the following credentials:
+3. Title: The title must not consist of only spaces.
+4. Text: This is the text of your journal entry. It must consist of at least 10 characters, and cannot consist of only spaces.
+5. Public/Private: If you wish to make the post public (viewable by anyone), change the private indicator to public. Otherwise, leave it as private.
+6. If you wish to share the post with another user, enter the username in the "username" box. Note that you cannot unshare a post once shared.
+7. You do not have to enter every credential to update, but if you do not enter any credentials, or all credentials are already the same as credentials already there, it will not update and will throw an error.
+8. Once all credentials are entered, click the "Save Entry" button to update the post.
+9. If you do not wish to update the post, click the "Return to Post" button to return to the post page.
