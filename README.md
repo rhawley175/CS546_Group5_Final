@@ -142,7 +142,7 @@ Group 5's repo for Final Project in CS-546
 ## Part Five: Posts
 
 ### Search Posts Page:
-1. Once on the Search Posts page (URL: "localhost:3000/posts/search"), you may enter a keyword in the title parameter, which will search all public posts (only) for the title containing the given keyword.
+1. Once on the Search Posts page (URL: "localhost:3000/posts/search"), you may enter a keyword in the title parameter, which will search all public posts (only) for the title containing the given keyword. Note, for this page, you do not need to be logged in to search. If a user wants to make a quick search without logging in, they can go to the above URL and search for public posts containing the keyword in the title. 
 2. Once your keyword is entered click "Save Entry" to search the posts.
 3. It will then display all public posts with the given keyword. You can click on the post to view that post's post page.
 
@@ -150,7 +150,7 @@ Group 5's repo for Final Project in CS-546
 1. Note that you cannot create a post for a section that belongs to a user that you are not signed in as.
 2. Once on the create post page (URL: "localhost:3000/posts/newPost/(section id)"), you can create a new post by entering the following credentials:
 3. Title: The title must not consist of only spaces.
-4. Text: This is the text of your journal entry. It must consist of at least 10 characters and no more than 1000 characters, and cannot consist of only spaces.
+4. Text: This is the text of your journal entry. It must consist of at least 10 characters and no more than 1000 characters, and cannot consist of only spaces and cannot be empty.
 5. Public/Private: If you wish to make the post public (viewable by anyone), change the private indicator to public. Otherwise, leave it as private.
 6. Once all credentials have been entered, click on "Save Entry" to create the post. This will take you back to the section page.
 
