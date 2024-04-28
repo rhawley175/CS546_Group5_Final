@@ -175,5 +175,5 @@ Group 5's repo for Final Project in CS-546
 8. Once all credentials are entered, click the "Save Entry" button to update the post.
 9. If you do not wish to update the post, click the "Return to Post" button to return to the post page.
 
-**Note**
+**Note**:
 For the images and videos, as discussed in office hours, that if we weren't able to implement it with a solution, then it would not be counted against us due to issues of storing them in MongoDB and rendering issues.
