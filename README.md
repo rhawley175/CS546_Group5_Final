@@ -111,6 +111,12 @@ Group 5's repo for Final Project in CS-546
 5. If you wish to return to your user page, click on the "Back to User Page" button.
 6. If you wish to delete the journal click on the "Delete This Journal" button.
 
+### Update Journal Page:
+1. Note that you update Journal title by entering the journalId of the journal
+2. Once on the update journal page. Enter your updated journal title in the "Journal Title" parameter.
+3. Once entered, click "update Journal".
+
+
 ### Delete Journal Page:
 1. Note that you cannot visit the Delete Journal Page for a journal that is not owned by a user that you are not signed in as.
 2. Once on the Delete Journal Page (URL: "localhost:3000/(journal id)/delete"), you can click the "Delete Journal" button. 
