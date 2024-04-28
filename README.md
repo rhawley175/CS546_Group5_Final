@@ -163,6 +163,7 @@ Group 5's repo for Final Project in CS-546
 6. If you wish to go to the post's journal page, click on the "Back to Journal" button.
 7. If you wish to go to the post's section, click on the "Back to Section" button.
 8. If you wish to delete the post, click on the "Delete this Post" button. This will then create an alert, and clicking ok will delete the post. If you do not wish to delete the post, click cancel.
+9. The post will also show when the post was last updated on the bottom.
 
 ### Update Post Page:
 1. Note that you cannot access the update post page for a post that belongs to a user that you are not signed in as.
