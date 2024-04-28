@@ -134,7 +134,7 @@
         try {
             username = checkUsername(username);
             for (let i in dataObject) {
-                if (dataObject[i].username === username) throw "This username has already been used.";
+                if (dataObject[i].username.toLowerCase() === username.toLowerCase()) throw "This username has already been used.";
             }
         } catch(e) {
             errors.push(e);

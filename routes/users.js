@@ -253,7 +253,7 @@ router
         username = helpers.checkString(username, "username");
         const user = await users.getUser(username, req.session.user.username, req.session.user.role);
         if (!user) return res.status(404).render("users/error", {error: "User not found."});
-        if (req.session.user.username !== username && req.session.user.role !== "admin") return res.status(403).json({error: "Access denied."});
+        if (req.session.user.username !== username && req.session.user.role !== "admin") return res.status(403).render("users/error", {error: "Access denied."});
         return res.status(200).render("users/update", {
             username: user.username,
             age: user.age,
@@ -281,8 +281,8 @@ router
     try {
         username = helpers.checkString(username, "username");
         const getUser = await users.getUser(username, req.session.user.username, req.session.user.role);
-        if (!getUser) return res.status(404).json({error: "User not found."});
-        if (req.session.user.username !== username && req.session.user.role !== "admin") return res.status(403).json({error: "Access Denied."});
+        if (!getUser) return res.status(404).render("users/error", {error: "User not found."});
+        if (req.session.user.username !== username && req.session.user.role !== "admin") return res.status(403).render("users/error", {error: "Access Denied."});
         if (requestBody.passwordInput !== "") requestBody.passwordInput = helpers.checkPassword(requestBody.passwordInput);
         if (requestBody.ageInput !== "") requestBody.ageInput = helpers.checkAge(Number(requestBody.ageInput));
         if (requestBody.emailInput !== "") requestBody.emailInput = await helpers.checkNewEmail(requestBody.emailInput);
