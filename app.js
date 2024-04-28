@@ -42,10 +42,11 @@ app.listen(3000, () => {
 // import * as connection from './config/mongoConnection.js';
 // import * as sections from './data/sections.js';
 // import * as journals from './data/journals.js';
+// import * as posts from './data/posts.js';
 
 
 // try {
-//     console.log(await posts.deletePost());
+//     console.log(await posts.getUserPostsByKeyword("post", "username1", "username", "user"));
 // } catch(e) {
 //     console.log(e);
 // }
