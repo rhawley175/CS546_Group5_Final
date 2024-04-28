@@ -4,7 +4,9 @@
 </head>
 <header>
     <h1>{{title}}</h1>
-    <a href="/posts/update/{{id}}" class="button-link">Update Post</a>
+    {{#if owned}}
+        <a href="/posts/update/{{id}}" class="button-link">Update Post</a>
+    {{/if}}
 </header>
 <main>
         <p>{{content}}</p>
