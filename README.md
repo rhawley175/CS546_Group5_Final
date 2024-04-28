@@ -4,7 +4,7 @@ Group 5's repo for Final Project in CS-546
 ## Part One: Running the project
 
 ### Running the project: 
-1. Navigate to the project folder (which contains package.json) using the command console.
+1. After downloading and unzipping the project, navigate to the project folder (which contains package.json) using the command console.
 2. Type "npm i" into the console to install any necessary packages.
 3. Type "npm run start" into the console. This will begin the project.
 4. On your browser, navigate to localhost:3000/. You can now begin perusing the project.
