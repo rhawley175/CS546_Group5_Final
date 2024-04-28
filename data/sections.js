@@ -73,13 +73,15 @@ export const getSectionsByJournalId = async (journalId) => {
 export const deleteSection = async (sectionId) => {
     if (!sectionId) throw 'Section ID must be provided.';
     if (!ObjectId.isValid(sectionId)) throw 'Invalid section ID format.';
-
     const sectionsCollection = await sections();
     const section = await sectionsCollection.findOne({_id: new ObjectId(sectionId)});
     if (!section) throw "We could not find the section to delete.";
     const journalCollection = await journals();
     const journal = await journalCollection.findOne({_id: section.journalId});
     if (!journal) throw "We couldn't find the journal this section belongs to.";
+    const userCollection = await users();
+    const user = await userCollection.findOne({username: journal.author[0]});
+    if (!user) throw "We could not find the user this section belongs to.";
     let valid = false;
     for (let i in journal.sections) {
         if (journal.sections[i].toString() === section._id.toString()) {
@@ -95,7 +97,7 @@ export const deleteSection = async (sectionId) => {
     }
     if (section.posts && section.posts.length > 0) {
         for (let i in section.posts) {
-            const deletePost = await postMethods.deletePost(section.posts[i].toString());
+            const deletePost = await postMethods.deletePost(section.posts[i].toString(), user.username, user.role);
             if (!deletePost) throw "We could not delete one of the posts.";
         }
     }

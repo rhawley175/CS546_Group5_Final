@@ -6,10 +6,9 @@
     <header>
         <h1>Delete: {{username}}</h1>
     </header>
-    <main>
+    <main>  <p>Are you sure you want to delete {{username}}?</p>
             <form class="delete" id="delete-form" method="POST" action="/users/delete/{{username}}">
-                <label for="deleteButton">Are you sure you want to delete {{username}}?</label>
-                <button type="submit" class="delete-button-link">Delete</button>
+                <button id="deleteButton" type="submit" class="delete-button-link">Delete</button>
             </form>
     </main>
     <footer>
