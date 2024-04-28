@@ -77,7 +77,7 @@ router
         if (journal.author[0] !== req.session.user.username && req.session.user.role !== "admin") {
             return res.status(403).render('sections/error', { error: "Access denied." });
         }
-
+        section.posts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
         res.render('sections/sectionDetails', { section });
     } catch (e) {
         res.status(404).render('sections/error', { error: e });

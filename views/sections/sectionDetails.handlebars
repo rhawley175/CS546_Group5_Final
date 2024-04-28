@@ -14,7 +14,7 @@
         {{#if section.posts.length}}
         <ul>
             {{#each section.posts}}
-            <li><a href="/posts/{{this._id}}" class="text-link">{{this.title}}</a></li>
+            <li><a href="/posts/{{this._id}}" class="text-link">{{this.title}}: {{this.time}}</a></li>
             {{/each}}
         </ul>
         {{else}}

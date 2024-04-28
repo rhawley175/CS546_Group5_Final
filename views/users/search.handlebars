@@ -11,21 +11,21 @@
             {{#if publicPosts}}
                 <h2>Public Posts</h2>
                 {{#each posts.publicPosts}}
-                    <a href="/posts/{{_id}}">{{title}}</a>
+                    <a href="/posts/{{_id}}">{{title}}: {{time}}</a>
                     <br>
                 {{/each}}
             {{/if}}
             {{#if sharedPosts}}
                 <h2>Shared Posts</h2>
                 {{#each posts.sharedPosts}}
-                    <a href="/posts/{{_id}}">{{title}}</a>
+                    <a href="/posts/{{_id}}">{{title}}: {{time}}</a>
                     <br>
                 {{/each}} 
             {{/if}}
             {{#if privatePosts}}
                 <h2>Private Posts</h2>
                 {{#each posts.privatePosts}}
-                    <a href="/posts/{{_id}}">{{title}}</a>
+                    <a href="/posts/{{_id}}">{{title}}: {{time}}</a>
                     <br>
                 {{/each}}
             {{/if}}
