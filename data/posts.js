@@ -546,7 +546,7 @@ export const getUserPostsByKeyword = async (keyword, username, userAccessing, ro
         if (postObject.publicPosts.length === 0 && postObject.sharedPosts.length === 0) return "We could not find any posts containing the search keyword: " + keyword + ".";
         else  {
             publicPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
-            return publicPosts;
+            return postObject;
         }
     }
     else {
@@ -602,10 +602,13 @@ export const getUserPostsByDate = async (firstDate, secondDate, username, userAc
             date = Date.parse(date);
             if (date >= earlyDate && date <= lateDate) publicPosts.push(allPosts[i]);
         }
+        let postObject = {
+            publicPosts: publicPosts
+        }
         if (publicPosts.length === 0) return "We could not find any posts between the dates " + firstDate + " and " + secondDate + ".";
         else  {
             publicPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
-            return publicPosts;
+            return postObject;
         }
     }
     else if (username && userAccessing !== username && role !== "admin") {
@@ -630,7 +633,7 @@ export const getUserPostsByDate = async (firstDate, secondDate, username, userAc
         if (postObject.publicPosts.length === 0 && postObject.sharedPosts.length === 0) return "We could not find any posts between the dates " + firstDate + " and " + secondDate + ".";
         else  {
             publicPosts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
-            return publicPosts;
+            return postObject;
         }
     }
     else {
