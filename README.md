@@ -168,7 +168,7 @@ Group 5's repo for Final Project in CS-546
 1. Note that you cannot access the update post page for a post that belongs to a user that you are not signed in as.
 2. Once on the update post page (URL: "localhost:3000/posts/update/(post id)"), you can update the post by entering the following credentials:
 3. Title: The title must not consist of only spaces.
-4. Text: This is the text of your journal entry. It must consist of at least 10 characters, and cannot consist of only spaces.
+4. Text: This is the text of your journal entry. It must consist of at least 10 characters and no more than 1000 characters, and cannot consist of only spaces and cannot be empty.
 5. Public/Private: If you wish to make the post public (viewable by anyone), change the private indicator to public. Otherwise, leave it as private.
 6. If you wish to share the post with another user, enter the username in the "username" box. Note that you cannot unshare a post once shared.
 7. You do not have to enter every credential to update, but if you do not enter any credentials, or all credentials are already the same as credentials already there, it will not update and will throw an error.
