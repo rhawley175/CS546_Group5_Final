@@ -157,7 +157,7 @@ router
         else publicPosts = false;
         if (!req.session.user || (req.session.user.username !== username && req.session.user.role !== "admin")) {
             owned = false;
-            return res.status(200).render("users/user", {
+            return res.render('users/user', {
                 owned: owned,
                 publicPosts: publicPosts,
                 shared: shared,

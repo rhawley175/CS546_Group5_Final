@@ -46,7 +46,7 @@ app.listen(3000, () => {
 
 
 // try {
-//     console.log(await posts.getUserPostsByKeyword("post", "username1", "username", "user"));
+//     console.log(await posts.getAllUserPosts("username1", "username2", "user"));
 // } catch(e) {
 //     console.log(e);
 // }

@@ -413,7 +413,7 @@ export const getAllUserPosts = async(username, userAccessing, role) => {
         return postObject;
     }
     else if (username && userAccessing !== username && role !== "admin") {
-        const currUser = await userMethods.getUser(username, userAccessing, role);
+        const currUser = await userMethods.getUser(username, username, role);
         if (!currUser) throw "User: " + username + " not found.";
         const accessingUser = await userMethods.getUser(userAccessing, userAccessing, role);
         let publicPosts = [];
@@ -426,6 +426,7 @@ export const getAllUserPosts = async(username, userAccessing, role) => {
         for (let i in currUser.sharedPosts) {
             if (accessingUser.sharedPosts.includes(currUser.sharedPosts[i])) {
                 currPost = await getPost(currUser.sharedPosts[i], userAccessing, role);
+                sharedPosts.push(currPost);
             }
         }
         let postObject = {
