@@ -13,7 +13,7 @@ const journalCollection = await journals();
 
 //Seed user 1
 try {
-    console.log(await userMethods.createUser("username1", "P@ssw0rd", 18, "email2@email.com", "Firstname", "Lastname"));
+    console.log(await userMethods.createUser("username1", "P@ssw0rd", 18, "email1@email.com", "Firstname", "Lastname"));
     const user1 = await userCollection.findOne({username: "username1"});
     const user1Id = user1._id.toString();
     console.log(await journalMethods.createJournal(user1Id, "username1", "u1: Journal 1"));
@@ -85,7 +85,7 @@ try {
 
 //Seed user 2
 try {
-    console.log(await userMethods.createUser("username2", "P@ssw0rd", 18, "email1@email.com", "Firstname", "Lastname"));
+    console.log(await userMethods.createUser("username2", "P@ssw0rd", 18, "email2@email.com", "Firstname", "Lastname"));
     const user2 = await userCollection.findOne({username: "username2"});
     const user2Id = user2._id.toString();
     console.log(await journalMethods.createJournal(user2Id, "username2", "u2: Journal 1"));
@@ -228,7 +228,7 @@ try {
     console.log(await postMethods.addPost(user3journal1section1Id, "u3j1s1: Shared Post", "This is the content for the shared post in section 1 in journal 1, authored by user 3.", "private", "username3"));
     console.log(await postMethods.addPost(user3journal1section2Id, "u3j1s2: Public Post", "This is the content for the public post in section 2 in journal 1, authored by user 3.", "public", "username3"));
     console.log(await postMethods.addPost(user3journal1section2Id, "u3j1s2: Private Post", "This is the content for the private post in section 2 in journal 1, authored by user 3.", "private", "username3"));
-    console.log(await postMethods.addPost(user3journal1section2Id, "u3j1s2: Shared Post", "This is the content for the shared post in section 2 in journal 1, authored by user 3.", "private", "username2"));
+    console.log(await postMethods.addPost(user3journal1section2Id, "u3j1s2: Shared Post", "This is the content for the shared post in section 2 in journal 1, authored by user 3.", "private", "username3"));
     console.log(await postMethods.addPost(user3journal1section3Id, "u3j1s3: Public Post", "This is the content for the public post in section 3 in journal 1, authored by user 3.", "public", "username3"));
     console.log(await postMethods.addPost(user3journal1section3Id, "u3j1s3: Private Post", "This is the content for the private post in section 3 in journal 1, authored by user 3.", "private", "username3"));
     console.log(await postMethods.addPost(user3journal1section3Id, "u3j1s3: Shared Post", "This is the content for the shared post in section 3 in journal 1, authored by user 3.", "private", "username3"));
@@ -252,6 +252,7 @@ try {
     console.log(await postMethods.addPost(user3journal3section3Id, "u3j3s3: Shared Post", "This is the content for the shared post in section 3 in journal 1, authored by user 3.", "private", "username3"));
     const user3journal1section1sharedPost = await postCollection.findOne({title: "u3j1s1: Shared Post"});
     const user3journal1section2sharedPost = await postCollection.findOne({title: "u3j1s2: Shared Post"});
+    console.log(user3journal1section2sharedPost);
     const user3journal1section3sharedPost = await postCollection.findOne({title: "u3j1s3: Shared Post"});
     const user3journal2section1sharedPost = await postCollection.findOne({title: "u3j2s1: Shared Post"});
     const user3journal2section2sharedPost = await postCollection.findOne({title: "u3j2s2: Shared Post"});
@@ -270,22 +271,23 @@ try {
     const user3journal3section3sharedPostId = user3journal3section3sharedPost._id.toString();
     console.log(await postMethods.updatePost(user3journal1section1sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
     console.log(await postMethods.updatePost(user3journal1section2sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal1section3sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal2section1sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal2section2sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal2section3sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal3section1sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal3section2sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal3section3sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal1section1sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal1section2sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal1section3sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal2section1sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal2section2sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal2section3sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal3section1sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal3section2sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
-    // console.log(await postMethods.updatePost(user3journal3section3sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal1section3sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal2section1sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal2section2sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal2section3sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal3section1sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal3section2sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal3section3sharedPostId, "username3", "user", { username: "username1", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal1section1sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal1section2sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal1section3sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal2section1sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal2section2sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal2section3sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal3section1sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal3section2sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
+    console.log(await postMethods.updatePost(user3journal3section3sharedPostId, "username3", "user", { username: "username2", pub: "private" }));
+    console.log(await userMethods.createUser("adminUser", "T1mApPDgi@2A", 18, "admin@email.com", "Admin", "Admin"));
 } catch(e) {
     console.log(e);
 }
